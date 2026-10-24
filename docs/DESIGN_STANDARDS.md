@@ -19,18 +19,31 @@ rules is `design/wireframe/poster_d.html` (layout D, chosen), built by
 - **Plain words:** positions are "1st, 2nd…", times are "seconds", and there's no jargon
   (gap, delta, sector) in reader-facing text.
 
-## 2. Layout D (landscape, 140 × 116 cm)
+## 2. Layout D (120 × 121 cm)
 
-Three bands, top to bottom, on a 65 mm margin:
+### Spacing and alignment system (applies to every element, here and in Tableau)
+- **4 px grid** (print: 1 px = 0.625 mm). Every block position, size, gap and padding is a
+  multiple of 4, taken from these steps only: **8 · 16 · 24 · 32 · 48 · 64 · 96**. The
+  wireframe generator refuses to build if any layout value is off the grid.
+- **Poster padding:** 96 px (60 mm) on every side.
+- **Proximity:** gaps inside a group are 8–24 (kicker → title → paragraph; Italy → facts;
+  number → label); gaps between sections are always 64 (header → map band → race band →
+  footer). Groups therefore read as groups.
+- **Alignment:** one shared left edge for the kicker, title, paragraph, circuit column, race
+  band and footer key; one shared right edge for the key numbers, the last moments and the
+  credits/QR; the map is centred on the poster. Text lines use 4-multiple line heights
+  (paragraph 28, story text 20, story headline 24).
+
+### Bands, top to bottom
 
 | Band | Content |
 |---|---|
-| **Header** (one compact band) | Left: *MUGELLO 2006* with the Italian livery flash, then the title **THE ROSSI COMEBACK**. Right half, beside the title (from the MUGELLO 2006 line to the title baseline): one paragraph, with the event and date run in (*Gran Premio d'Italia Alice, 4 June 2006.*), then the stakes, the fall at San Donato, the pass for the win at the same corner, and "Patience, then one perfect move: a race still counted among his greatest." |
-| **Map band** (the map is the main element) | **The map** leads from the left margin, roughly aligned with the race chart below: Mugello in TV orientation, the biggest element on the poster, with Rossi's stretches in yellow and numbered badges and callouts. **One right column:** the key numbers at the top (level with the map's top), in race order with their moments' badges (**0.730 s** behind Capirossi after running wide, in 5th ④; **0.002 s** after lap 22 ⑥; **0.575 s** winning margin ⑦), and a large Italy locator with the circuit facts at the bottom (level with the map's bottom; Natural Earth, public domain). |
-| **Race band** | The positions chart (each line a rider; Rossi yellow, Capirossi coral, others grey) with **the 7 moments told along it**. Cards alternate above (laps 1, 13, 18, 23) and below (laps 7, 15, 22) so close laps never collide. Each card starts exactly at its lap with its number beside the text, and **a thin straight line runs from the number to where that rider was on that lap** (Rossi's moments to Rossi's line, Capirossi's to his), ending in a dot in the rider's colour. The chart runs nearly the full width, leaving exactly one narrow card after lap 23, so the last moments still start at their lap and every line stays vertical. |
-| **Footer** | Map key (left) + credits and a small QR code to the official full-race video (bottom-right, 40 mm). |
+| **Header** (left-aligned) | *MUGELLO 2006* with the Italian livery flash, the title **THE ROSSI COMEBACK**, then the paragraph under it on three longer lines: the event and date run in (*Gran Premio d'Italia Alice, 4 June 2006.*), then the stakes, the fall at San Donato, the pass for the win at the same corner, and "Patience, then one perfect move: a race still counted among his greatest." |
+| **Map band** | **Centre:** the map, the biggest element (Mugello in TV orientation, Rossi's stretches in yellow, numbered badges and callouts). **Left column, bottom-aligned with the map:** the Italy locator (Mugello in Rossi yellow; Natural Earth, public domain) with the circuit facts directly under it. **Right column, top-aligned with the map:** the key numbers in race order, each with its moment's badge: **0.730 s** behind Capirossi after running wide, in 5th (④); **0.002 s** after lap 22 (⑥); **0.575 s** winning margin (⑦). |
+| **Race band** | The positions chart (each line a rider; Rossi yellow, Capirossi coral, others grey) with **the 7 moments told along it**. Cards alternate above (laps 1, 13, 18, 23) and below (laps 7, 15, 22). Each card starts exactly at its lap with its number beside the text, and a **thin straight vertical line** runs from the number to where that rider was on that lap, ending in a dot in the rider's colour. The chart stops one narrow card short of the right edge so the last moments still start at their lap. |
+| **Footer** | Map key on the left edge; credits and a small QR code to the official full-race video (40 mm) on the right edge. |
 
-No logo or photos. The badge numbers ①–⑦ link the map, the key numbers and the race band:
+No logo or photos. Badge numbers ①–⑦ link the map, the key numbers and the race band:
 yellow badge = Rossi moment, coral ring = Capirossi moment.
 
 ## 3. Typography
@@ -128,7 +141,7 @@ green-blind readers (ΔE 4.6), which is fine for a flag carrying no information.
   Tableau map, which can't rotate.
 - Keep **all 7 key moments**.
 - The poster is **large and airy**: whitespace matters more than density. Sketched at
-  140 × 116 cm landscape (grown step by step from 100 × 70, always for more air).
+  120 × 121 cm, laid out on the 4 px spacing system (narrowed from 140 cm on request).
 
 - **Layout D**: wide, map-led hybrid (see section 2). Options A, B and C are kept in
   `design/wireframe/` for reference. B's top-to-bottom chart felt odd and A was too tall.
@@ -151,6 +164,7 @@ green-blind readers (ΔE 4.6), which is fine for a flag carrying no information.
 - Moment ② is Capirossi's fastest lap of the race (lap 7), replacing Stoner's crash, so the
   rivalry is told in two steps (②, ③).
 
+- Layout is rebuilt on the 4 px spacing system with explicit proximity and alignment rules.
 - Connectors are thin, straight and land on the rider's position (bent or thick bars were
   tried and rejected as too loud). The header is one band (paragraph beside the title); the
   map leads from the left; key numbers and Italy + circuit facts share the right column.
