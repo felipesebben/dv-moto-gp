@@ -1,4 +1,4 @@
-"""Refined wireframe for layout D (140 x 111 cm landscape).
+"""Refined wireframe for layout D (140 x 116 cm landscape).
 
 Run: uv run python design/wireframe/tools/build_poster_d.py
 Writes design/wireframe/poster_d.html. Sketch tool only: the real poster is built in Tableau.
@@ -21,7 +21,7 @@ OUT = ROOT / "design" / "wireframe" / "poster_d.html"
 track, corners, moments = load(ROOT)
 
 PX = 1.6  # px per mm
-W, H = round(1400 * PX), round(1110 * PX)
+W, H = round(1400 * PX), round(1160 * PX)
 M = 104  # 65 mm margin
 RIGHT = W - M
 ITALY = {"green": "#229457", "white": C["ink"], "red": "#CE2B37"}  # flag red, kept apart from Capirossi's coral
@@ -29,7 +29,7 @@ ITALY = {"green": "#229457", "white": C["ink"], "red": "#CE2B37"}  # flag red, k
 # ---- grid ------------------------------------------------------------------------------
 # header (title + paragraph) | content band: circuit block · map · key numbers | race band
 CONTENT_TOP = 412  # air under the header paragraph
-MAP_H = 760  # the map is the centrepiece: big, and centred on the poster
+MAP_H = 820  # the map is the centrepiece: big, and centred on the poster
 MAP_W = MAP_H * 1000 / 705  # the track's aspect ratio in TV orientation
 MAP = ((W - MAP_W) / 2, CONTENT_TOP + 14, MAP_W, MAP_H)  # x, y, w, h; labels sit above
 RACE_TOP = MAP[1] + MAP_H + 60  # race band: positions chart with the moments along it
@@ -99,27 +99,27 @@ for turn, ms in by_turn.items():
     for j, m in enumerate(ms):
         svg.append(f'<text x="{bx + tdx:.1f}" y="{by + tdy + j * 18:.1f}" class="callout" text-anchor="{anchor}">{m["moment_id"]} · {m["headline"]}</text>')
 
-# ---- circuit inset: Italy and the facts in the map's empty bottom-left corner -------------
+# ---- map band, as wide as the race chart: circuit (bottom-left) · map · numbers (top-right) --
+# The circuit block and the key numbers sit on either side of the map, diagonally opposite,
+# so the band spans the same width as the positions chart below it.
 # (circuit information + classification PDFs; name and town from the track GeoJSON;
-# Italy outline from Natural Earth, public domain). An inset belongs to its map.
-track_left = min(p[0] for p in pts)
+# Italy outline from Natural Earth, public domain)
 track_bottom = max(p[1] for p in pts)
 italy = json.loads((ROOT / "seeds" / "italy.geojson").read_text(encoding="utf-8"))
 kx = math.cos(math.radians(42))
 rings = [[(lon * kx, -lat) for lon, lat in poly[0]] for poly in italy["features"][0]["geometry"]["coordinates"]]
 allx = [x for r in rings for x, _ in r]
 ally = [y for r in rings for _, y in r]
-FACTS = [  # short lines so the inset fits the corner
-    "Scarperia e San Piero, Tuscany",
-    "Built 1974 · 5,245 m · 14 m wide",
-    "15 corners: 9 right, 6 left",
-    "Longest straight 1,141 m",
-    "Race: 23 laps · 120.6 km",
-    "Dry · air 20 °C · track 29 °C",
+FACTS = [
+    "Scarperia e San Piero, Tuscany · built 1974",
+    "5,245 m long · 14 m wide · clockwise",
+    "15 corners: 9 right, 6 left · longest straight 1,141 m",
+    "Race: 23 laps · 120.6 km · dry, air 20 °C, track 29 °C",
 ]
-inset_top = track_bottom - (18 + 130 + 14 + 2 * 22 + len(FACTS) * 21)
-svg.append(f'<text x="{track_left}" y="{inset_top + 12}" class="eyebrow">THE CIRCUIT</text>')
-box_x, box_y, box_w, box_h = track_left, inset_top + 24, 130, 130
+ITALY_BOX = 290
+block_top = track_bottom - (22 + ITALY_BOX + 40 + len(FACTS) * 23)  # bottom-aligned with the map
+svg.append(f'<text x="{M}" y="{block_top + 12}" class="eyebrow">THE CIRCUIT</text>')
+box_x, box_y, box_w, box_h = M, block_top + 26, ITALY_BOX, ITALY_BOX
 isc = min(box_w / (max(allx) - min(allx)), box_h / (max(ally) - min(ally)))
 
 
@@ -128,26 +128,25 @@ def ip(x: float, y: float) -> tuple[float, float]:
 
 
 for r in rings:
-    svg.append(f'<path d="{path([ip(x, y) for x, y in r], True)}" fill="#2A2725" stroke="{C["muted"]}" stroke-width="1" stroke-linejoin="round"/>')
+    svg.append(f'<path d="{path([ip(x, y) for x, y in r], True)}" fill="#2A2725" stroke="{C["muted"]}" stroke-width="1.2" stroke-linejoin="round"/>')
 mx, my = ip(11.372 * kx, -43.997)  # Mugello
-svg.append(f'<circle cx="{mx:.1f}" cy="{my:.1f}" r="8" fill="none" stroke="{C["rossi"]}" stroke-width="2"/>')
-svg.append(f'<circle cx="{mx:.1f}" cy="{my:.1f}" r="3" fill="{C["rossi"]}"/>')
-svg.append(f'<text x="{mx + 14:.1f}" y="{my + 5:.1f}" class="placename">Mugello</text>')
-name_y = box_y + box_h + 30
-svg.append(f'<text x="{track_left}" y="{name_y}" class="circuit">Autodromo Internazionale</text>')
-svg.append(f'<text x="{track_left}" y="{name_y + 22}" class="circuit">del Mugello</text>')
+svg.append(f'<circle cx="{mx:.1f}" cy="{my:.1f}" r="10" fill="none" stroke="{C["rossi"]}" stroke-width="2"/>')
+svg.append(f'<circle cx="{mx:.1f}" cy="{my:.1f}" r="4" fill="{C["rossi"]}"/>')
+svg.append(f'<text x="{mx + 18:.1f}" y="{my + 6:.1f}" class="placename">Mugello</text>')
+name_y = box_y + box_h + 34
+svg.append(f'<text x="{M}" y="{name_y}" class="circuit">Autodromo Internazionale del Mugello</text>')
 for i, line in enumerate(FACTS):
-    svg.append(f'<text x="{track_left}" y="{name_y + 46 + i * 21}" class="meta">{line}</text>')
+    svg.append(f'<text x="{M}" y="{name_y + 26 + i * 23}" class="meta">{line}</text>')
 
-# ---- key numbers: in the header's right side, the headline facts of the duel ---------------
-STATS = [  # in race order (badges 4, 6, 7); values from poster.timeline
+# key numbers: top-right of the map band, right beside the map, in race order (badges 4, 6, 7)
+STATS = [  # values from poster.timeline
     ("0.730 s", "behind Capirossi after running wide, in 5th", 4),
     ("0.002 s", "between them after lap 22", 6),
     ("0.575 s", "Rossi&#8217;s winning margin", 7),
 ]
-STAT_X = RIGHT - 400
+STAT_X = RIGHT - 380
 for i, (v, label, n) in enumerate(STATS):
-    y = 136 + i * 92  # from the kicker's cap line to the paragraph's last line
+    y = CONTENT_TOP + 34 + i * 104  # top-aligned with the map band
     svg.append(f'<text x="{STAT_X}" y="{y}" class="stat">{v}</text>')
     svg.append(f'<text x="{STAT_X + 2}" y="{y + 22}" class="statlabel">{label}</text>')
     svg.append(badge(STAT_X - 20, y - 16, n, r=9))
@@ -156,10 +155,12 @@ for i, (v, label, n) in enumerate(STATS):
 # Moments alternate above (laps 1, 13, 18, 23) and below (laps 7, 15, 22) the chart so close
 # laps don't collide. Each card starts exactly at its lap, with its number beside the text,
 # so a thin straight line drops from the number to where the rider was on that lap (Rossi's
-# moments to Rossi's line, Capirossi's to his). The chart stops short of the right edge so
-# the last moments fit without shifting; they fill the right side.
-x0, x1 = M + 64, RIGHT - 470
-CARD_H, CARD_MAX, CARD_MIN, CARD_GAP = 120, 470, 280, 26
+# moments to Rossi's line, Capirossi's to his). The chart runs nearly all the way across,
+# leaving exactly one narrow card's width after lap 23 so the last moments still start at
+# their lap and every line stays vertical.
+CARD_H, CARD_MAX, CARD_MIN, CARD_GAP = 120, 470, 260, 26
+CARD_W_END = CARD_MIN  # so the last moments start exactly at their lap: every line stays vertical
+x0, x1 = M + 64, RIGHT - CARD_W_END  # leaves exactly one narrow card after lap 23
 TOP_CARDS = RACE_TOP + 20
 axis_y = TOP_CARDS + CARD_H + 34
 row = 16
@@ -293,14 +294,13 @@ POSTER_CSS = "\n".join(
 POSTER_CSS += "\n.badge { font-family:'Barlow Condensed'; font-weight:700; text-anchor:middle; }"
 
 NOTES = """
-<h2>Layout D, round 12</h2>
-<p class="meta">140 × 111 cm at 1.6 px/mm · use <b>Zoom: Print size</b> to judge real text sizes.</p>
+<h2>Layout D, round 13</h2>
+<p class="meta">140 × 116 cm at 1.6 px/mm · use <b>Zoom: Print size</b> to judge real text sizes.</p>
 <ul>
-<li><b>The map is the centrepiece</b>: bigger and centred on the poster.</li>
-<li><b>Italy and the circuit facts are an inset</b> in the map's empty bottom-left corner.</li>
-<li><b>The key numbers moved up into the header's right side</b>, next to the title and the story.</li>
-<li><b>Moments along the race:</b> each card starts at its lap with its number beside the text,
-and a thin straight line drops from the number to where the rider was on that lap.</li>
+<li><b>The race chart runs all the way across</b>; the last two moments are narrow and sit against
+the right edge.</li>
+<li><b>The map band is as wide as the chart</b>: a bigger Italy with the circuit facts at
+bottom-left, the map in the middle, the key numbers at top-right beside the map.</li>
 </ul>
 """
 
@@ -329,7 +329,7 @@ aside h3 {{ font:600 18px 'Barlow Condensed'; margin:14px 0 4px; color:#4FD1C5; 
   <div class="controls">
     <div class="grp" data-attr="zoom" role="group" aria-label="Zoom"><span>Zoom:</span>
       <button data-v="fit" aria-pressed="true">Fit screen</button>
-      <button data-v="print" aria-pressed="false">Print size (140 × 111 cm)</button></div>
+      <button data-v="print" aria-pressed="false">Print size (140 × 116 cm)</button></div>
     <div class="grp" data-attr="filter" role="group" aria-label="Preview"><span>Preview:</span>
       <button data-v="none" aria-pressed="true">Normal</button>
       <button data-v="url(#protan)" aria-pressed="false">Protanopia</button>

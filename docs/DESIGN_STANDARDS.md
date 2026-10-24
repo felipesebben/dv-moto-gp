@@ -19,15 +19,15 @@ rules is `design/wireframe/poster_d.html` (layout D, chosen), built by
 - **Plain words:** positions are "1st, 2nd…", times are "seconds", and there's no jargon
   (gap, delta, sector) in reader-facing text.
 
-## 2. Layout D (landscape, 140 × 111 cm)
+## 2. Layout D (landscape, 140 × 116 cm)
 
 Three bands, top to bottom, on a 65 mm margin:
 
 | Band | Content |
 |---|---|
-| **Header** | Left: *MUGELLO 2006* with the Italian livery flash, the title **THE ROSSI COMEBACK**, then one paragraph (the event and date run in, then the stakes, the fall at San Donato, the pass for the win at the same corner, and "Patience, then one perfect move: a race still counted among his greatest."). Right, filling the top-right corner: **the key numbers** in race order, each with its moment's badge: **0.730 s** behind Capirossi after running wide, in 5th (④); **0.002 s** after lap 22 (⑥); **0.575 s** winning margin (⑦). |
-| **Map** (the centrepiece) | Mugello in TV orientation, big and centred on the poster, with Rossi's stretches in yellow and numbered badges and callouts. **Inset** in the map's empty bottom-left corner: the Italy locator (Mugello in Rossi yellow; Natural Earth, public domain) and the circuit facts in short lines. |
-| **Race band** | The positions chart (each line a rider; Rossi yellow, Capirossi coral, others grey) with **the 7 moments told along it**. Cards alternate above (laps 1, 13, 18, 23) and below (laps 7, 15, 22) so close laps never collide. Each card starts exactly at its lap with its number beside the text, and **a thin straight line runs from the number to where that rider was on that lap** (Rossi's moments to Rossi's line, Capirossi's to his), ending in a dot in the rider's colour. The chart stops short of the right edge so the last moments fit without shifting. |
+| **Header** | Left: *MUGELLO 2006* with the Italian livery flash, the title **THE ROSSI COMEBACK**, then one paragraph (the event and date run in, then the stakes, the fall at San Donato, the pass for the win at the same corner, and "Patience, then one perfect move: a race still counted among his greatest."). |
+| **Map band** (the centrepiece, as wide as the race chart) | **Bottom-left:** a large Italy locator (Mugello in Rossi yellow; Natural Earth, public domain) with the circuit facts directly under it, bottom-aligned with the map. **Centre:** Mugello in TV orientation, big, with Rossi's stretches in yellow and numbered badges and callouts. **Top-right, beside the map:** the key numbers in race order, each with its moment's badge: **0.730 s** behind Capirossi after running wide, in 5th (④); **0.002 s** after lap 22 (⑥); **0.575 s** winning margin (⑦). |
+| **Race band** | The positions chart (each line a rider; Rossi yellow, Capirossi coral, others grey) with **the 7 moments told along it**. Cards alternate above (laps 1, 13, 18, 23) and below (laps 7, 15, 22) so close laps never collide. Each card starts exactly at its lap with its number beside the text, and **a thin straight line runs from the number to where that rider was on that lap** (Rossi's moments to Rossi's line, Capirossi's to his), ending in a dot in the rider's colour. The chart runs nearly the full width, leaving exactly one narrow card after lap 23, so the last moments still start at their lap and every line stays vertical. |
 | **Footer** | Map key (left) + credits and a small QR code to the official full-race video (bottom-right, 40 mm). |
 
 No logo or photos. The badge numbers ①–⑦ link the map, the key numbers and the race band:
@@ -128,7 +128,7 @@ green-blind readers (ΔE 4.6), which is fine for a flag carrying no information.
   Tableau map, which can't rotate.
 - Keep **all 7 key moments**.
 - The poster is **large and airy**: whitespace matters more than density. Sketched at
-  140 × 111 cm landscape (grown step by step from 100 × 70, always for more air).
+  140 × 116 cm landscape (grown step by step from 100 × 70, always for more air).
 
 - **Layout D**: wide, map-led hybrid (see section 2). Options A, B and C are kept in
   `design/wireframe/` for reference. B's top-to-bottom chart felt odd and A was too tall.
@@ -152,8 +152,8 @@ green-blind readers (ΔE 4.6), which is fine for a flag carrying no information.
   rivalry is told in two steps (②, ③).
 
 - Connectors are thin, straight and land on the rider's position (bent or thick bars were
-  tried and rejected as too loud). The key numbers live in the header; the circuit facts
-  are an inset in the map.
+  tried and rejected as too loud). The key numbers sit top-right beside the map; Italy and the
+  circuit facts bottom-left.
 
 **Open:**
 - Paper: matte recommended for the dark background.
