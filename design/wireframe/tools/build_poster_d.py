@@ -6,6 +6,7 @@ Event facts below are copied from the official classification PDF and the track 
 the build will read them from the pipeline instead.
 """
 
+import base64
 import json
 import math
 import sys
@@ -17,7 +18,11 @@ from sketchlib import (  # noqa: E402
 )
 
 ROOT = Path(__file__).resolve().parents[3]
-OUT = ROOT / "design" / "wireframe" / "poster_d.html"
+# --with-images embeds the user's local helmet + 46 logo (third-party images) into a
+# git-ignored preview; the committed wireframe keeps placeholders
+WITH_IMAGES = "--with-images" in sys.argv
+IMAGES = ROOT / "data" / "interim" / "images"  # made by prepare_images.py
+OUT = ROOT / "design" / "wireframe" / ("poster_d_preview.html" if WITH_IMAGES else "poster_d.html")
 track, corners, moments = load(ROOT)
 
 PX = 1.6  # px per mm
@@ -60,11 +65,20 @@ svg.append(
 )
 
 # ---- images: the Mugello 2006 helmet leads the column ------------------------------
-svg.append(f'<rect x="{COL}" y="{M}" width="280" height="196" rx="8" fill="none" stroke="{C["muted"]}" stroke-dasharray="4 4"/>')
-svg.append(f'<text x="{COL + 140}" y="{M + 102}" class="ph">IMAGE · helmet</text>')
+def picture(name: str, label: str, x: float, y: float, w: float, h: float) -> str:
+    """The real image in a local preview (--with-images), otherwise a placeholder box."""
+    src = IMAGES / f"{name}.png"
+    if WITH_IMAGES and src.exists():
+        data = base64.b64encode(src.read_bytes()).decode()
+        return (f'<image x="{x}" y="{y}" width="{w}" height="{h}" preserveAspectRatio="xMidYMid meet" '
+                f'href="data:image/png;base64,{data}"/>')
+    return (f'<rect x="{x}" y="{y}" width="{w}" height="{h}" rx="8" fill="none" stroke="{C["muted"]}" '
+            f'stroke-dasharray="4 4"/><text x="{x + w / 2}" y="{y + h / 2 + 6}" class="ph">IMAGE · {label}</text>')
+
+
+svg.append(picture("helmet", "helmet", COL, M, 280, 196))
 svg.append(f'<text x="{COL}" y="{M + 218}" class="caption">Rossi&#8217;s helmet for Mugello 2006</text>')
-svg.append(f'<rect x="{COL + 300}" y="{M}" width="{RIGHT - COL - 300}" height="196" rx="8" fill="none" stroke="{C["muted"]}" stroke-dasharray="4 4"/>')
-svg.append(f'<text x="{(COL + 300 + RIGHT) / 2}" y="{M + 102}" class="ph">IMAGE · 46 logo</text>')
+svg.append(picture("logo46", "46 logo", COL + 300, M + 30, RIGHT - COL - 300, 136))
 
 # ---- map ----------------------------------------------------------------------
 svg.append(f'<path d="{path(pts, True)}" fill="none" stroke="{C["ink"]}" stroke-width="7" stroke-linejoin="round"/>')
