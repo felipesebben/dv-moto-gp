@@ -27,7 +27,7 @@ RIGHT = W - M
 ITALY = {"green": "#229457", "white": C["ink"], "red": "#CE2B37"}  # flag red, kept apart from Capirossi's coral
 
 # ---- map placement ------------------------------------------------------------
-MAP = (M, 300, 1240, 516)  # x, y, w, h (height-bound, centred)
+MAP = (M, 330, 1240, 496)  # 60+ px of air between the lede and the track  # x, y, w, h (height-bound, centred)
 pts = fit(track, *MAP)
 SCALE = MAP[3] / 705
 CALLOUT = {0: (-136, -204, -20, 5, "end"), 1: (-14, 141, -12, 32, "start"),
@@ -37,38 +37,21 @@ STRETCHES = [range(7, 14), range(57, 65), [*range(125, 129), 0]]
 
 svg: list[str] = [f'<rect width="{W}" height="{H}" fill="{C["bg"]}"/>']
 
-# ---- header: title (+ Italian accent variants), subtitle, lede, commentary quote ---
-TITLE_X, TITLE_Y, TITLE_W = M - 4, 160, 530
+# ---- header: title + livery flash, subtitle, lede ------------------------------------
+TITLE_X, TITLE_Y, TITLE_W = M - 4, 150, 530
 svg.append(f'<text x="{TITLE_X}" y="{TITLE_Y}" class="title">MUGELLO 2006</text>')
-# variant 1: a thin tricolore rule under the title
-seg = TITLE_W / 3
-svg.append('<g class="acc acc-rule">' + "".join(
-    f'<rect x="{M + i * seg:.1f}" y="{TITLE_Y + 12}" width="{seg - 3:.1f}" height="4" fill="{c}"/>'
-    for i, c in enumerate(ITALY.values())
-) + "</g>")
-# variant 2: a slanted livery flash after the title, matching the italic
+# a slanted Italian livery flash after the title, matching the italic
 fx = M + TITLE_W + 26
-svg.append('<g class="acc acc-flash">' + "".join(
+svg.append("".join(
     f'<polygon points="{fx + i * 16 + 18},{TITLE_Y - 74} {fx + i * 16 + 28},{TITLE_Y - 74} '
     f'{fx + i * 16 + 10},{TITLE_Y} {fx + i * 16},{TITLE_Y}" fill="{c}"/>'
     for i, c in enumerate(ITALY.values())
-) + "</g>")
-# variant 3: tricolore only on the year
-svg.append(f'<g class="acc acc-year"><defs><linearGradient id="tri" gradientUnits="userSpaceOnUse" x1="{TITLE_X + 358}" x2="{TITLE_X + 536}">'
-           f'<stop offset="0.333" stop-color="{ITALY["green"]}"/><stop offset="0.333" stop-color="{ITALY["white"]}"/>'
-           f'<stop offset="0.666" stop-color="{ITALY["white"]}"/><stop offset="0.666" stop-color="{ITALY["red"]}"/>'
-           f'</linearGradient></defs><text x="{TITLE_X}" y="{TITLE_Y}" class="title" fill-opacity="0">MUGELLO '
-           f'<tspan fill="url(#tri)" fill-opacity="1">2006</tspan></text></g>')
-svg.append(f'<text x="{M}" y="212" class="subtitle">Gran Premio d&#8217;Italia Alice · Rossi vs Capirossi · Sunday 4 June 2006</text>')
+))
+svg.append(f'<text x="{M}" y="194" class="subtitle">Gran Premio d&#8217;Italia Alice · Rossi vs Capirossi · Sunday 4 June 2006</text>')
 svg.append(
-    f'<foreignObject x="{M}" y="224" width="760" height="60"><div xmlns="http://www.w3.org/1999/xhtml" class="lede">'
+    f'<foreignObject x="{M}" y="206" width="760" height="60"><div xmlns="http://www.w3.org/1999/xhtml" class="lede">'
     f"Behind in the championship and in front of his home crowd, Valentino Rossi falls from first "
     f"to fifth with eight laps to go, then wins by half a second.</div></foreignObject>"
-)
-svg.append(
-    f'<foreignObject x="900" y="84" width="440" height="190" class="quote-wrap"><div xmlns="http://www.w3.org/1999/xhtml" class="quote">'
-    f"<q>He&#8217;s done it! Valentino Rossi has won the Italian Grand Prix here at Mugello. "
-    f"What a victory for the Doctor!</q><span>TV commentary, as Rossi crosses the line</span></div></foreignObject>"
 )
 
 # ---- images: the Mugello 2006 helmet leads the column ------------------------------
@@ -115,7 +98,7 @@ for turn, ms in by_turn.items():
 
 # circuit card, quiet, in the empty bottom-left of the map area
 # (circuit information + classification PDFs; name and town from the track GeoJSON)
-card_x, card_y = M, 640
+card_x, card_y = M, 660
 svg.append(f'<text x="{card_x}" y="{card_y}" class="eyebrow">THE CIRCUIT</text>')
 svg.append(f'<text x="{card_x}" y="{card_y + 24}" class="circuit">Autodromo Internazionale del Mugello</text>')
 for i, line in enumerate([
@@ -151,7 +134,7 @@ for i, m in enumerate(moments):
     )
 
 # ---- position strip ---------------------------------------------------------------
-x0, x1, axis_y, row = M + 64, 1300, 900, 16
+x0, x1, axis_y, row = M + 64, 1300, 912, 15
 
 
 def lx(lap: float) -> float:
@@ -202,7 +185,7 @@ svg.append(
 )
 
 NOTES = """
-<h2>Layout D, round 3</h2>
+<h2>Layout D, round 4</h2>
 <p class="meta">120 × 70 cm landscape (wider) at 1.6 px/mm · real data and event facts ·
 images are placeholders.</p>
 <h3>What changed</h3>
@@ -211,17 +194,15 @@ images are placeholders.</p>
 their own space to the right of the track and lets the story column breathe.</li>
 <li><b>Quieter legends:</b> the map key is one small line in the footer. The positions hint shares
 the strip's title line.</li>
-<li><b>Emotion:</b> the TV call at the finish as a quote in the header, "in front of his home
-crowd" in the lede, and the helmet captioned as the Mugello 2006 design.</li>
+<li><b>Italian livery flash</b> after the title (chosen over a tricolore underline and a tricolore
+year). The TV-call quote was tried in the header and dropped: it made the header busy.</li>
+<li><b>More air under the header:</b> the map starts 60+ px below the lede.</li>
+<li><b>Emotion:</b> "in front of his home crowd" in the lede, and the helmet captioned as the
+Mugello 2006 design.</li>
 <li><b>Mugello facts</b> (from the classification PDF): the event's official name
 <i>Gran Premio d&#8217;Italia <b>Alice</b></i> in the subtitle, and a quiet circuit card
 bottom-left: full circuit name, town, year built, length, width, corners (9 right, 6 left), longest straight, and the race distance and conditions (from the circuit information and classification PDFs).</li>
 </ul>
-<h3>Test: Italian accent on the title</h3>
-<p>Use the "Title accent" buttons above the poster. The flag red is <code>#CE2B37</code>, kept apart
-from Capirossi's coral so it doesn't read as "his" colour.</p>
-<h3>Test: quote</h3>
-<p>Toggle it off to compare how loud the header feels without it.</p>
 """
 
 html = f"""<!doctype html>
@@ -244,9 +225,6 @@ aside h3 {{ font:600 18px 'Barlow Condensed'; margin:14px 0 4px; color:#4FD1C5; 
 .title {{ font:italic 800 104px 'Barlow Condensed'; fill:{C["ink"]}; }}
 .subtitle {{ font:500 26px 'Barlow Condensed'; fill:{C["ink"]}; }}
 .lede {{ font:400 18px/1.4 Barlow; color:{C["muted"]}; }}
-.quote {{ font:italic 600 25px/1.2 'Barlow Condensed'; color:{C["ink"]}; border-left:3px solid {C["rossi"]}; padding-left:16px; }}
-.quote q {{ quotes:"\\201C" "\\201D"; display:block; }}
-.quote span {{ display:block; margin-top:8px; font:400 13px Barlow; color:{C["muted"]}; }}
 .ph {{ font:500 12px Barlow; fill:{C["muted"]}; text-anchor:middle; }}
 .caption {{ font:italic 400 13px Barlow; fill:{C["muted"]}; }}
 .corner {{ font:500 12px 'Barlow Condensed'; fill:{C["muted"]}; }}
@@ -264,29 +242,18 @@ aside h3 {{ font:600 18px 'Barlow Condensed'; margin:14px 0 4px; color:#4FD1C5; 
 .stat {{ font:600 46px Barlow; fill:{C["ink"]}; }}
 .statlabel {{ font:400 14px Barlow; fill:{C["muted"]}; }}
 .foot {{ font:400 11px Barlow; fill:{C["muted"]}; }}
-.acc {{ display:none; }}
-svg[data-accent="rule"] .acc-rule, svg[data-accent="flash"] .acc-flash, svg[data-accent="year"] .acc-year {{ display:inline; }}
-svg[data-quote="off"] .quote-wrap {{ display:none; }}
 </style></head><body><main>
 <div class="poster">
   <div class="controls">
-    <div class="grp" data-attr="accent" role="group" aria-label="Title accent"><span>Title accent:</span>
-      <button data-v="none" aria-pressed="true">None</button>
-      <button data-v="rule" aria-pressed="false">Tricolore rule</button>
-      <button data-v="flash" aria-pressed="false">Livery flash</button>
-      <button data-v="year" aria-pressed="false">Tricolore year</button></div>
-    <div class="grp" data-attr="quote" role="group" aria-label="Quote"><span>Quote:</span>
-      <button data-v="on" aria-pressed="true">On</button>
-      <button data-v="off" aria-pressed="false">Off</button></div>
     <div class="grp" data-attr="filter" role="group" aria-label="Preview"><span>Preview:</span>
       <button data-v="none" aria-pressed="true">Normal</button>
       <button data-v="url(#protan)" aria-pressed="false">Protanopia</button>
       <button data-v="url(#deutan)" aria-pressed="false">Deuteranopia</button>
       <button data-v="grayscale(1)" aria-pressed="false">Greyscale</button></div>
   </div>
-  <svg viewBox="0 0 {W} {H}" role="img" aria-labelledby="t d" data-accent="none" data-quote="on">
+  <svg viewBox="0 0 {W} {H}" role="img" aria-labelledby="t d">
     <title id="t">Mugello 2006 poster, layout D</title>
-    <desc id="d">Wide poster: Mugello map with Rossi's key moments painted yellow and numbered, the TV call at the finish, circuit facts, a column of seven story cards and a strip of positions lap by lap.</desc>
+    <desc id="d">Wide poster: Mugello map with Rossi's key moments painted yellow and numbered, circuit facts, a column of seven story cards and a strip of positions lap by lap.</desc>
     <defs>
       <filter id="protan"><feColorMatrix type="matrix" values="0.152 1.053 -0.205 0 0  0.115 0.786 0.099 0 0  -0.004 -0.048 1.052 0 0  0 0 0 1 0"/></filter>
       <filter id="deutan"><feColorMatrix type="matrix" values="0.367 0.861 -0.228 0 0  0.280 0.673 0.047 0 0  -0.012 0.043 0.969 0 0  0 0 0 1 0"/></filter>
@@ -300,8 +267,7 @@ svg[data-quote="off"] .quote-wrap {{ display:none; }}
 const svg = document.querySelector('.poster svg'), art = document.getElementById('art');
 document.querySelectorAll('.controls .grp').forEach(g => g.querySelectorAll('button').forEach(b => b.addEventListener('click', () => {{
   g.querySelectorAll('button').forEach(x => x.setAttribute('aria-pressed', x === b));
-  if (g.dataset.attr === 'filter') art.style.filter = b.dataset.v;
-  else svg.dataset[g.dataset.attr] = b.dataset.v;
+  art.style.filter = b.dataset.v;
 }})));
 </script>
 </body></html>

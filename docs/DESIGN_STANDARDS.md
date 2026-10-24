@@ -23,7 +23,7 @@ rules is `design/wireframe/poster_d.html` (layout D, chosen), built by
 
 | Zone | Content | Place |
 |---|---|---|
-| A · Title | Title (with an optional Italian accent, see §4), subtitle with the official event name *Gran Premio d'Italia Alice*, one-sentence lede, and the TV call at the finish as a quote | top row |
+| A · Title | Title with an Italian livery flash (see §4), subtitle with the official event name *Gran Premio d'Italia Alice*, one-sentence lede; 60+ px of air before the map | top row |
 | B · Images | Rossi's Mugello 2006 helmet (captioned) + 46 logo | top-right, above the story column |
 | C · Map (hero) | Mugello in TV orientation, about half the poster. Rossi's stretches painted yellow, numbered badges + callouts, a "how to read" key in the empty bottom-left | centre-left |
 | D · Key numbers | 0.575 s, 0.002 s, 5 wins, each with the badge of its moment | right of the track |
@@ -89,8 +89,8 @@ red was then brightened (see below).
 
 **Italian accent (decoration, never data):** green `#229457`, ink white and flag red `#CE2B37`.
 Flag red is kept distinct from Capirossi's coral, but the two are still fairly close (ΔE 13.7, under
-the 15 "clearly different" floor). So the accent stays small (a rule or a livery flash under/after
-the title); a big red "2006" could read as Capirossi's colour. Green and red look alike to
+the 15 "clearly different" floor). So the accent stays small: the **livery flash** after the title was chosen
+(over a tricolore underline and a tricolore "2006", which could read as Capirossi's colour). Green and red look alike to
 green-blind readers (ΔE 4.6), which is fine for a flag carrying no information.
 
 **Documented exceptions:**
@@ -134,6 +134,8 @@ green-blind readers (ΔE 4.6), which is fine for a flag carrying no information.
   `design/wireframe/` for reference. B's top-to-bottom chart felt odd and A was too tall.
   C was parked because the lanes can't follow the outline exactly and the ring felt
   disconnected from the map; its idea survives as the yellow stretches on the track.
+
+- The TV-call quote was tried in the header and dropped (too busy).
 
 **Open:**
 - Final size and paper (matte recommended for dark backgrounds). Title wording and an
