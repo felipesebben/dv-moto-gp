@@ -22,13 +22,95 @@ Dry: air 20°, track 29°, 14% humidity. Start at 14:01:24.
    The gap shrinks from 2.2 s (lap 10: 1.95 s) to **0.157 s** on lap 14.
 2. **Lap 15: the turn.** Rossi's lap is 1'52.438 (his slowest racing lap). Almost all the time
    is lost in sector 1, 27.086 s against his usual ~25.9–26.0 s.
-   He drops **from 1st to 5th** and Capirossi takes the lead. *What happened there needs a
-   source (a mistake? running wide? a pass gone wrong?).*
+   He drops **from 1st to 5th** and Capirossi takes the lead. The broadcast explains it: at
+   **Turn 1 (San Donato)** Rossi ran wide and almost stopped, and four riders went through
+   (see below).
 3. **Laps 15–22: the comeback.** Rossi climbs 5th → 4th → 3rd (lap 17, with a 1'50.442,
    the fastest lap anyone set from lap 14 on) → 2nd (lap 18) and sits on Capirossi's tail.
    The gap at the line: −0.124, −0.142, −0.036, −0.082, then **−0.002 s on lap 22**.
-4. **Lap 23: the last lap.** Rossi passes and wins by **0.575 s**. Hayden is only 0.16 s
-   further back.
+4. **Laps 22–23: the duel.** Rossi takes the lead mid-lap 22, but Capirossi is ahead again
+   by **0.002 s** at the line. On the last lap Capirossi runs wide at San Donato, Rossi goes
+   through and wins by **0.575 s**. Hayden is only 0.16 s further back.
+
+## From the official race broadcast
+
+Source: *"2006 #ItalianGP | MotoGP™ Full Race"*, official MotoGP channel, English commentary
+(the commentators call each other Nick, Gavin and Mark on air), https://www.youtube.com/watch?v=UP4cYHj8IFs.
+Timestamps are video minutes and the race starts at about 15m. Taken from YouTube's
+automatic captions, so the wording is lightly cleaned up. *Italics* mark the data cross-check.
+
+**Before the start** [12–15m]
+- The commentators expected a Rossi vs Capirossi head-to-head: "the Bridgestone tyres have
+  looked good all the way through practice … a head to head between himself and Rossi is
+  something I wouldn't write off at all." Ducati fans in the stands at Correntaio held up
+  the Ducati symbol.
+- Tyres (Michelin list read on air [26m] and graphic [32m]): **Rossi soft front, medium rear**;
+  Gibernau medium/medium; Hayden medium. Capirossi (Bridgestone) ran **medium front and
+  rear**, "so maybe his tyres are coming into their own now" [28m].
+
+**Early laps** [15–30m]
+- Gibernau took the holeshot, and Rossi took the lead on lap 1 "in front of his fans". Stoner
+  made a brilliant start from the third row to 3rd/4th. Colin Edwards ran off on lap 1.
+- Rossi and Gibernau swapped the lead several times (Rossi ran wide onto the gravel once).
+  The commentators noted that "these two do not get on at all", and that the press
+  conferences had to keep them apart.
+- Capirossi had "a poor start … from second on the grid went down to eighth" [35m].
+  *(Data: 8th after lap 1.)*
+
+**Stoner's crash** [30–31m]: just after passing Melandri for 3rd, "a huge highside" coming
+out of **Arrabbiata 2**. He walked away. It was his first DNF of the season, aged 20.
+*(Data: out after lap 8.)*
+
+**Capirossi's charge** [32–40m]: "slowly but surely and quietly making his way through".
+He passed Pedrosa and Melandri in the esses, then Hayden at Turn 1. "Later on in this race he
+really is setting some scorching laps": 1'50.658 and 1'50.671, about 0.3 s a lap faster than
+Rossi and Gibernau. *(Data: lap 12 1'50.671, lap 13 1'50.400 against Rossi's 1'51.292.)*
+
+**Lap 15: Rossi drops to fifth** [41–42m, replay 66–67m]: "Capirossi went on the inside, I
+thought Capirossi was going to take the lead and then it all happened and Rossi suddenly
+drops". Replay: "into Turn 1 Rossi runs it wide and seems to stop, almost lets them through,
+and finds himself down in fifth place". The commentators wondered if "his front end [was]
+having problems". *(Data: sector 1 is 27.086 s, about 1.1 s slower than his normal lap;
+1st → 5th.)*
+
+**The comeback** [43–48m]
+- Capirossi leads, with Hayden and Melandri "coming into their own" on harder rear tyres.
+- Rossi passes Gibernau, then Melandri ("side by side"), and goes for Hayden at Bucine. He
+  passes Hayden at **Savelli/Arrabbiata** on lap 18 and Hayden "closes the door" on Melandri,
+  who runs onto the grass trying to pass him. *(Data: Rossi 2nd from lap 18.)*
+- Pit board with four laps to go: Rossi 0.1 s behind the leader, 0.4 s ahead of Hayden [50m].
+- Hayden was clocked at 332 km/h on the straight in the Honda's slipstream.
+
+**The last laps** [52–57m]
+- Lap 21: Rossi goes up the inside into San Donato ("was that a dress rehearsal?"), Hayden
+  briefly gets past Rossi, and Rossi closes the door. Capirossi makes a small mistake, Rossi
+  gets through, and Capirossi takes it back. The commentators: "Rossi looks so much more stable
+  … you can see [Capirossi's] bike bobbing around … his rear tyre twitching".
+- **Lap 22:** Capirossi brakes very late into San Donato and runs wide. Then Rossi takes the
+  lead "up the inside, the left part of the esses at the top end of the circuit". *(Data:
+  Capirossi was still 0.002 s ahead at the line, so the Ducati drew level again on the
+  straight.)*
+- **Last lap:** "Will he run it wide? Will he open the door for Valentino Rossi? He does run it
+  a little bit wide." Rossi goes through at San Donato and "has the hammer down", so the
+  Ducati "doesn't have any chance of getting past him on the start-finish straight".
+- The call: **"He's done it! Valentino Rossi has won the Italian Grand Prix here at Mugello.
+  What a victory for the Doctor!"** [57m]
+
+**After the flag** [57–67m]
+- "Emotion, tears and everything." Davide Brivio (Yamaha team manager) "nearly fell off the
+  pit wall jumping up and down". Rossi's fist in the air "and his face show the most
+  important … victory of his career".
+- **Fifth successive premier-class win at Mugello** (2002–2006).
+- Jeremy Burgess (Rossi's crew chief): "we knew that we had a bike good enough to win, as we
+  did in Le Mans".
+- Nicky Hayden: "the boys were tough man, they was out for blood and we didn't get it
+  done".
+- Giacomo Agostini, interviewed afterwards: "it's fantastic … everybody want to win".
+- The crowd surged onto the track and gathered under the podium.
+- Commentators: "one of the truly great MotoGP races", "race of the year".
+- **Championship after the race:** Capirossi and Hayden **tied on 99 points**, Rossi 5th,
+  34 behind. *(Using the race points (25/20/16), Rossi arrived 43 behind leader Hayden,
+  which confirms the podcast.)*
 
 The lap chart shows **3 different leaders at the line** (Rossi, Gibernau, Capirossi), with
 Hayden, Pedrosa and Melandri all in the top 4 at some point. That's the "epic" in the
@@ -101,8 +183,8 @@ These are the hosts' claims, **not verified against the data** unless stated.
   technical problem at Laguna Seca, and the season went down to Valencia 2006 [49–51m].
 
 ## Still to find
-- **What exactly happened on lap 15** (a mistake? passed by several riders at once?).
-- **Where on the last lap Rossi passed Capirossi.**
+- Confirm the exact corner of Rossi's lap-22 pass ("the esses at the top end", possibly
+  Biondetti) by looking at frames of the broadcast around 54m.
 - Rossi's 2006 Mugello special helmet design.
-- Championship standings before and after the race (to confirm the 43-point deficit).
-- Direct quotes from Rossi and Capirossi after the race.
+- Direct quotes from Rossi and Capirossi after the race (the broadcast's podium interviews
+  were cut from the captions).
