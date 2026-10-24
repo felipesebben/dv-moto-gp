@@ -28,7 +28,7 @@ RIGHT = W - M
 ITALY = {"green": "#229457", "white": C["ink"], "red": "#CE2B37"}  # flag red, kept apart from Capirossi's coral
 
 # ---- map placement ------------------------------------------------------------
-MAP = (440, 420, 800, 520)  # x, y, w, h (height-bound); left band = Italy + circuit, right = numbers
+MAP = (440, 340, 800, 540)  # x, y, w, h (height-bound); left band = Italy + circuit, right = numbers
 pts = fit(track, *MAP)
 SCALE = MAP[3] / 705
 CALLOUT = {0: (-136, -204, -20, 5, "end"), 1: (-14, 141, -12, 32, "start"),
@@ -38,17 +38,15 @@ STRETCHES = [range(7, 14), range(57, 65), [*range(125, 129), 0]]
 
 svg: list[str] = [f'<rect width="{W}" height="{H}" fill="{C["bg"]}"/>']
 
-# ---- header: event line, title (who + where), subtitle (what happened), standfirst + QR ----
-svg.append(f'<text x="{M}" y="108" class="event">GRAN PREMIO D&#8217;ITALIA ALICE, 4 JUNE 2006</text>')
-# title options to compare; each says in a few words that this is Rossi at Mugello.
-# The livery flash follows the title (width estimated from the glyph count, checked by eye).
+# ---- header: just two parts, the title and one paragraph -------------------------------
+# Title options (no apostrophe), compared with the buttons. The livery flash follows the title.
 TITLES = {
-    "a": ("ROSSI&#8217;S MUGELLO 2006", 20, "He lost the lead at San Donato. Eight laps later, he passed Capirossi for the win at the same corner."),
-    "b": ("ROSSI AT MUGELLO, 2006", 22, "He lost the lead at San Donato. Eight laps later, he passed Capirossi for the win at the same corner."),
-    "c": ("ROSSI VS CAPIROSSI, MUGELLO 2006", 32, "Rossi lost the lead at San Donato. Eight laps later, he passed Capirossi for the win at the same corner."),
+    "a": "THE ROSSI COMEBACK, MUGELLO 2006",
+    "b": "ROSSI: COMEBACK AT MUGELLO 2006",
+    "c": "ROSSI COMEBACK AT MUGELLO 2006",
 }
-TITLE_Y = 206
-for key, (title, _glyphs, subtitle) in TITLES.items():
+TITLE_Y = 178
+for key, title in TITLES.items():
     # drawn at x=0; the page script moves it to the measured end of the title
     flash = f'<g class="flash" data-for="title-{key}">' + "".join(
         f'<polygon points="{i * 16 + 18},{TITLE_Y - 74} {i * 16 + 28},{TITLE_Y - 74} '
@@ -56,24 +54,18 @@ for key, (title, _glyphs, subtitle) in TITLES.items():
         for i, c in enumerate(ITALY.values())
     ) + "</g>"
     svg.append(
-        f'<g class="tv tv-{key}"><text id="title-{key}" x="{M - 4}" y="{TITLE_Y}" class="title">{title}</text>{flash}'
-        f'<text x="{M}" y="262" class="subtitle">{subtitle}</text></g>'
+        f'<g class="tv tv-{key}"><text id="title-{key}" x="{M - 4}" y="{TITLE_Y}" class="title">{title}</text>{flash}</g>'
     )
-# standfirst: what happened and why it matters; the last clause is the "link" (QR to the race)
+# one paragraph: the event and date run in, then what happened and why it matters
 svg.append(
-    f'<foreignObject x="{M}" y="282" width="1130" height="110"><div xmlns="http://www.w3.org/1999/xhtml" class="standfirst">'
-    f"Forty-three points down in the championship and racing in front of his home crowd, Valentino "
-    f"Rossi ran wide while leading with eight laps left and fell to fifth. He hunted Loris Capirossi "
-    f"down lap after lap and struck on the final lap. <b>Patience, then one perfect move</b>: "
-    f'<span class="link">a race still counted among his greatest &#8599;</span></div></foreignObject>'
+    f'<foreignObject x="{M}" y="200" width="1400" height="100"><div xmlns="http://www.w3.org/1999/xhtml" class="standfirst">'
+    f"<span class=\"runin\">Gran Premio d&#8217;Italia Alice, 4 June 2006.</span> "
+    f"Forty-three points down in the championship and in front of his home crowd, Valentino Rossi "
+    f"was leading when he ran wide at San Donato and fell to fifth, with eight laps left. He hunted "
+    f"Loris Capirossi down lap after lap and, on the final lap, passed him for the win at the same "
+    f"corner. Patience, then one perfect move: a race still counted among his greatest."
+    f"</div></foreignObject>"
 )
-QR_X, QR_Y, QR_S = 1268, 280, 108
-qr = (ROOT / "design" / "wireframe" / "assets" / "qr_full_race.svg").read_text(encoding="utf-8")
-qr = qr.replace('<svg xmlns="http://www.w3.org/2000/svg" width="37" height="37"',
-                f'<svg x="{QR_X}" y="{QR_Y}" width="{QR_S}" height="{QR_S}" viewBox="0 0 37 37"', 1)
-svg.append(qr)
-svg.append(f'<text x="{QR_X + QR_S + 14}" y="{QR_Y + 48}" class="qrcap">Scan to watch</text>')
-svg.append(f'<text x="{QR_X + QR_S + 14}" y="{QR_Y + 70}" class="qrcap">the full race</text>')
 
 # ---- images: the Mugello 2006 helmet leads the column ------------------------------
 svg.append(f'<rect x="{COL}" y="{M}" width="280" height="196" rx="8" fill="none" stroke="{C["muted"]}" stroke-dasharray="4 4"/>')
@@ -120,13 +112,13 @@ for turn, ms in by_turn.items():
 # circuit block, left band: where Mugello is in Italy, then the facts
 # (circuit information + classification PDFs; name and town from the track GeoJSON;
 # Italy outline from Natural Earth, public domain)
-svg.append(f'<text x="{M}" y="440" class="eyebrow">THE CIRCUIT</text>')
+svg.append(f'<text x="{M}" y="364" class="eyebrow">THE CIRCUIT</text>')
 italy = json.loads((ROOT / "seeds" / "italy.geojson").read_text(encoding="utf-8"))
 kx = math.cos(math.radians(42))
 rings = [[(lon * kx, -lat) for lon, lat in poly[0]] for poly in italy["features"][0]["geometry"]["coordinates"]]
 allx = [x for r in rings for x, _ in r]
 ally = [y for r in rings for _, y in r]
-box_x, box_y, box_w, box_h = M, 460, 230, 230
+box_x, box_y, box_w, box_h = M, 384, 240, 240
 isc = min(box_w / (max(allx) - min(allx)), box_h / (max(ally) - min(ally)))
 
 
@@ -140,7 +132,7 @@ mx, my = ip(11.372 * kx, -43.997)  # Mugello
 svg.append(f'<circle cx="{mx:.1f}" cy="{my:.1f}" r="9" fill="none" stroke="{C["rossi"]}" stroke-width="2"/>')
 svg.append(f'<circle cx="{mx:.1f}" cy="{my:.1f}" r="3.5" fill="{C["rossi"]}"/>')
 svg.append(f'<text x="{mx + 16:.1f}" y="{my + 5:.1f}" class="placename">Mugello</text>')
-card_x, card_y = M, 706
+card_x, card_y = M, 650
 svg.append(f'<text x="{card_x}" y="{card_y + 24}" class="circuit">Autodromo Internazionale del Mugello</text>')
 for i, line in enumerate([
     "Scarperia e San Piero, Tuscany · built 1974",
@@ -154,14 +146,14 @@ for i, line in enumerate([
 # key numbers, right of the circuit, each tied to its moment
 STATS = [("0.575 s", "Rossi&#8217;s winning margin", 7), ("0.002 s", "between them after lap 22", 6), ("5", "Mugello wins in a row", None)]
 for i, (v, label, n) in enumerate(STATS):
-    y = 480 + i * 88
+    y = 410 + i * 88
     svg.append(f'<text x="1300" y="{y}" class="stat">{v}</text>')
     svg.append(f'<text x="1302" y="{y + 22}" class="statlabel">{label}</text>')
     if n:
         svg.append(badge(1282, y - 16, n, r=9))
 
 # ---- story column ---------------------------------------------------------------
-top, slot = 342, 116
+top, slot = 340, 116
 svg.append(f'<line x1="{COL + 12}" y1="{top + 28}" x2="{COL + 12}" y2="{top + 6 * slot + 28}" stroke="{C["rule"]}" stroke-width="2"/>')
 for i, m in enumerate(moments):
     y = top + i * slot
@@ -175,7 +167,7 @@ for i, m in enumerate(moments):
     )
 
 # ---- position strip ---------------------------------------------------------------
-x0, x1, axis_y, row = M + 64, 1500, 1018, 15
+x0, x1, axis_y, row = M + 64, 1500, 972, 16
 
 
 def lx(lap: float) -> float:
@@ -221,8 +213,14 @@ svg.append(f'<text x="{M + 188}" y="{fy}" class="foot">other moment</text>')
 svg.append(f'<line x1="{M + 340}" y1="{fy - 5}" x2="{M + 362}" y2="{fy - 5}" stroke="{C["rossi"]}" stroke-width="6" stroke-linecap="round"/>')
 svg.append(f'<text x="{M + 374}" y="{fy}" class="foot">where it happened</text>')
 svg.append(f'<text x="{M + 560}" y="{fy}" class="foot">Numbers match the stories on the right.</text>')
+QR_S = 64  # 40 mm in print: still easy to scan
+qr = (ROOT / "design" / "wireframe" / "assets" / "qr_full_race.svg").read_text(encoding="utf-8")
+qr = qr.replace('<svg xmlns="http://www.w3.org/2000/svg" width="37" height="37"',
+                f'<svg x="{RIGHT - QR_S}" y="{fy - QR_S + 6}" width="{QR_S}" height="{QR_S}" viewBox="0 0 37 37"', 1)
+svg.append(qr)
+svg.append(f'<text x="{RIGHT - QR_S - 14}" y="{fy - 30}" class="foot" text-anchor="end">Watch the race</text>')
 svg.append(
-    f'<text x="{RIGHT}" y="{fy}" class="foot" text-anchor="end">Data: official MotoGP timing (Tissot / Dorna) · '
+    f'<text x="{RIGHT - QR_S - 14}" y="{fy}" class="foot" text-anchor="end">Data: official MotoGP timing (Tissot / Dorna) · '
     f"Track: bacinger/f1-circuits (MIT) · Story: MotoGP broadcast, Paddock Pass Podcast</text>"
 )
 
@@ -231,11 +229,9 @@ svg.append(
 PT_PER_PX = 72 / 25.4 / PX
 MIN_PT = 24  # our floor for anything on the poster (the hard rule is 10 pt)
 TYPE = {  # class: (style, weight, size px, family, extra)
-    "event": ("normal", 600, 22, "Barlow Condensed", f"fill:{C['ink']}; letter-spacing:2px;"),
     "title": ("italic", 800, 104, "Barlow Condensed", f"fill:{C['ink']};"),
-    "subtitle": ("normal", 600, 32, "Barlow Condensed", f"fill:{C['ink']};"),
-    "standfirst": ("normal", 400, 19, "Barlow", f"color:{C['ink']}; line-height:1.45;"),
-    "qrcap": ("normal", 500, 16, "Barlow", f"fill:{C['muted']};"),
+    "standfirst": ("normal", 400, 20, "Barlow", f"color:{C['ink']}; line-height:1.45;"),
+    "runin": ("normal", 600, 20, "Barlow Condensed", f"color:{C['ink']}; letter-spacing:0.5px;"),
     "placename": ("normal", 600, 17, "Barlow Condensed", f"fill:{C['ink']};"),
     "ph": ("normal", 500, 15, "Barlow", f"fill:{C['muted']}; text-anchor:middle;"),
     "caption": ("italic", 400, 15, "Barlow", f"fill:{C['muted']};"),
@@ -260,24 +256,18 @@ POSTER_CSS = "\n".join(
     f".{k} {{ font:{s} {w} {px}px '{fam}'; {extra} }}" for k, (s, w, px, fam, extra) in TYPE.items()
 )  # inserted as a value into the page f-string, so single braces
 POSTER_CSS += "\n.badge { font-family:'Barlow Condensed'; font-weight:700; text-anchor:middle; }"
-POSTER_CSS += "\n.standfirst b { font-weight:600; }"
-POSTER_CSS += f"\n.link {{ text-decoration:underline; text-decoration-color:{C['rossi']}; text-decoration-thickness:2px; text-underline-offset:4px; }}"
 
 NOTES = """
-<h2>Layout D, round 6</h2>
+<h2>Layout D, round 7</h2>
 <p class="meta">140 × 80 cm at 1.6 px/mm · use <b>Zoom: Print size</b> to judge real text sizes.</p>
 <h3>What changed</h3>
 <ul>
-<li><b>Title says who and where</b> on one line (3 options to compare above). The subtitle
-says what happened: lost the lead at San Donato, won there eight laps later.</li>
-<li><b>Event line on top</b> (Gran Premio d&#8217;Italia Alice, 4 June 2006), now 39 pt, not a
-small footnote.</li>
-<li><b>Standfirst</b> with <b>Patience, then one perfect move</b> in bold, and
-<i>a race still counted among his greatest</i> as the link: a QR code to the official full-race
-video.</li>
-<li><b>No text below 24 pt in print</b> (the generator refuses to build otherwise). The smallest
-labels went from 21 to 25 pt.</li>
-<li>San Donato drawing removed; no dedication.</li>
+<li><b>The comeback is the title</b>, with no apostrophe (3 options above).</li>
+<li><b>The header is two parts:</b> the title, then one paragraph. The event name and date run
+into the paragraph, and the San Donato story is folded into it.</li>
+<li>Plain text: no bold and no yellow underline.</li>
+<li><b>The QR code</b> is small and quiet in the bottom-right corner ("Watch the race"), still
+40 mm in print.</li>
 </ul>
 <h3>Kept from round 4</h3>
 <ul><li>Livery flash after the title, no header quote, yellow stretches on the track, numbered
@@ -311,9 +301,9 @@ svg.measure .tv {{ display:inline !important; }}
 <div class="poster">
   <div class="controls">
     <div class="grp" data-attr="title" role="group" aria-label="Title option"><span>Title:</span>
-      <button data-v="a" aria-pressed="true">A · Rossi&#8217;s Mugello</button>
-      <button data-v="b" aria-pressed="false">B · Rossi at Mugello</button>
-      <button data-v="c" aria-pressed="false">C · Rossi vs Capirossi</button></div>
+      <button data-v="a" aria-pressed="true">A · The Rossi comeback</button>
+      <button data-v="b" aria-pressed="false">B · Rossi: comeback at Mugello</button>
+      <button data-v="c" aria-pressed="false">C · Rossi comeback at Mugello</button></div>
     <div class="grp" data-attr="zoom" role="group" aria-label="Zoom"><span>Zoom:</span>
       <button data-v="fit" aria-pressed="true">Fit screen</button>
       <button data-v="print" aria-pressed="false">Print size (140 cm)</button></div>
