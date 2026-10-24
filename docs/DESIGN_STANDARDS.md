@@ -19,20 +19,20 @@ rules is `design/wireframe/poster_d.html` (layout D, chosen), built by
 - **Plain words:** positions are "1st, 2nd…", times are "seconds", and there's no jargon
   (gap, delta, sector) in reader-facing text.
 
-## 2. Layout D (landscape, 120 × 70 cm)
+## 2. Layout D (landscape, 140 × 80 cm)
 
 | Zone | Content | Place |
 |---|---|---|
-| A · Title | Title with an Italian livery flash (see §4), subtitle with the official event name *Gran Premio d'Italia Alice*, one-sentence lede; 60+ px of air before the map | top row |
+| A · Title | Title with an Italian livery flash (see §4), subtitle with the official event name *Gran Premio d'Italia Alice*, a one-line lede, then clear air before the map | top row |
 | B · Images | Rossi's Mugello 2006 helmet (captioned) + 46 logo | top-right, above the story column |
 | C · Map (hero) | Mugello in TV orientation, about half the poster. Rossi's stretches painted yellow, numbered badges + callouts, a "how to read" key in the empty bottom-left | centre-left |
-| D · Key numbers | 0.575 s, 0.002 s, 5 wins, each with the badge of its moment | right of the track |
-| G · Circuit card | Full name, town, built 1974, 5,245 m × 14 m, 15 corners (9 right, 6 left), longest straight 1,141 m, race distance and conditions, from the *circuit information* and *classification* PDFs | quiet, bottom-left of the map area |
+| D · Key numbers | 0.575 s, 0.002 s, 5 wins, each with the badge of its moment | right band, beside the map |
+| G · Circuit band | An Italy locator (north-up, Mugello marked in Rossi yellow; outline from Natural Earth, public domain), then the facts: full name, town, built 1974, 5,245 m × 14 m, 15 corners (9 right, 6 left), longest straight 1,141 m, race distance and conditions | left band, beside the map |
 | E · Story | 7 moments as a list read top to bottom, no boxes: badge, lap, headline, ≤ 200-character story, coloured bar | right column |
 | F · Positions | Compact left-to-right strip, badges on the lap axis, plain hint "higher = further ahead" in its title line | under the map |
-| Footer | Map key in one small line (left) + credits (right) | bottom edge |
+| Footer | Map key (left, well spaced) + credits (right), with clear air above | bottom edge |
 
-Margins are 55 mm. The badge numbers ①–⑦ are the thread through map → story → positions.
+Margins are 65 mm. The badge numbers ①–⑦ are the thread through map → story → positions.
 
 ## 3. Typography
 
@@ -41,7 +41,7 @@ Jeremy Tribby, SIL Open Font License 1.1 (free for print). They're low-contrast 
 inspired by road signage, with a motorsport feel and very legible at a distance. Using one
 family keeps the poster calm.
 
-| Role | Face | Size at 100 × 70 cm (pt) | Notes |
+| Role | Face | Size (pt) | Notes |
 |---|---|---|---|
 | Title | Barlow Condensed ExtraBold Italic | 184 | the only italic, for a sense of speed |
 | Subtitle | Barlow Condensed Medium | 50 | |
@@ -128,7 +128,7 @@ green-blind readers (ΔE 4.6), which is fine for a flag carrying no information.
   Tableau map, which can't rotate.
 - Keep **all 7 key moments**.
 - The poster is **large and airy**: whitespace matters more than density. Sketched at
-  120 × 70 cm landscape (widened from 100 × 70 to give the map and numbers more room).
+  140 × 80 cm landscape (grown from 100 × 70, then 120 × 70, for more air).
 
 - **Layout D**: wide, map-led hybrid (see section 2). Options A, B and C are kept in
   `design/wireframe/` for reference. B's top-to-bottom chart felt odd and A was too tall.
