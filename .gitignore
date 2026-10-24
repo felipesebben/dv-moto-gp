@@ -1,0 +1,50 @@
+# --- Python ---
+__pycache__/
+*.py[cod]
+*.egg-info/
+build/
+dist/
+.venv/
+.mypy_cache/
+.ruff_cache/
+.pytest_cache/
+.coverage
+coverage.xml
+htmlcov/
+
+# --- Data (raw sources & generated artefacts stay local) ---
+data/raw/**
+data/interim/**
+data/processed/**
+!data/**/.gitkeep
+*.duckdb
+*.duckdb.wal
+*.hyper
+hyperd*.log
+
+# --- Tableau ---
+# Packaged workbooks embed data; keep only the .twb (XML) under version control.
+*.twbx
+*.tdsx
+*.tde
+tableau/**/Bookmarks/
+tableau/**/Logs/
+
+# --- Design exports ---
+design/**/*.fig
+design/**/exports/
+
+# --- Editors / OS ---
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# --- Env / secrets ---
+.env
+.env.*
+!.env.example
+
+# --- Claude Code local settings ---
+.claude/settings.local.json
