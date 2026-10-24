@@ -6,7 +6,7 @@ import duckdb
 
 from mugello06 import config
 
-STAGING = ("classification", "lap_chart", "laps", "track_points", "event")
+STAGING = ("classification", "lap_chart", "laps", "track_points", "event", "italy_outline")
 SEEDS = ("corners", "key_moments", "stretches")
 
 

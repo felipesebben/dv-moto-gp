@@ -9,7 +9,7 @@ import pytest
 from tableauhyperapi import Connection, HyperProcess, Telemetry, escape_name
 
 from mugello06 import config, model, publish
-from mugello06.ingest.track import haversine_m, parse_track
+from mugello06.ingest.track import haversine_m, parse_outline, parse_track
 
 RIDERS = {46: ("Valentino", "ROSSI"), 65: ("Loris", "CAPIROSSI"), 69: ("Nicky", "HAYDEN")}
 # lap -> finishing order; Capirossi leads lap 1, Rossi wins on lap 2
@@ -49,9 +49,18 @@ def interim(tmp_path: Path) -> Path:
         ]
     ).write_parquet(tmp_path / "laps.parquet")
     parse_track(config.TRACK_GEOJSON).write_parquet(tmp_path / "track_points.parquet")
-    pl.DataFrame([{"event_name": "Test GP", "right_corners": 9, "left_corners": 6}]).write_parquet(
-        tmp_path / "event.parquet"
-    )
+    pl.DataFrame(
+        [
+            {
+                "event_name": "Test GP",
+                "right_corners": 9,
+                "left_corners": 6,
+                "circuit_name": "Mugello",
+                "circuit_town": "Scarperia",
+            }
+        ]
+    ).write_parquet(tmp_path / "event.parquet")
+    parse_outline(config.ITALY_GEOJSON).write_parquet(tmp_path / "italy_outline.parquet")
     return tmp_path
 
 
@@ -99,7 +108,9 @@ def test_publish_writes_every_poster_table_to_hyper(db: Path, tmp_path: Path) ->
     tables = publish.run(db_path=db, hyper_path=hyper_path)
     assert tables == [
         "event",
+        "italy_outline",
         "key_moments",
+        "locator_points",
         "positions",
         "riders",
         "timeline",
@@ -155,3 +166,16 @@ def test_stretches_follow_the_outline_and_wrap_past_the_line(db: Path) -> None:
 def test_event_counts_corners(db: Path) -> None:
     with duckdb.connect(db, read_only=True) as con:
         assert con.execute("select corners from poster.event").fetchone() == (15,)
+
+
+def test_locator_marks_mugello_inside_italy(db: Path) -> None:
+    with duckdb.connect(db, read_only=True) as con:
+        lon, lat = con.execute("select lon, lat from poster.locator_points").fetchone() or (0, 0)
+        start = con.execute("select lon, lat from poster.track where point_idx = 0").fetchone()
+        mainland = con.execute(
+            "select min(lon), max(lon), min(lat), max(lat) from poster.italy_outline "
+            "where polygon_id = 1"
+        ).fetchone()
+    assert start is not None and mainland is not None
+    assert haversine_m((lon, lat), start) < 1_000  # the marker sits on the circuit
+    assert mainland[0] < lon < mainland[1] and mainland[2] < lat < mainland[3]
