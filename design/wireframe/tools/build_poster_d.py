@@ -1,4 +1,4 @@
-"""Refined wireframe for layout D (120 x 70 cm landscape).
+"""Refined wireframe for layout D (140 x 80 cm landscape).
 
 Run: uv run python design/wireframe/tools/build_poster_d.py
 Writes design/wireframe/poster_d.html. Sketch tool only: the real poster is built in Tableau.
@@ -6,6 +6,7 @@ Event facts below are copied from the official classification PDF and the track 
 the build will read them from the pipeline instead.
 """
 
+import json
 import math
 import sys
 from pathlib import Path
@@ -20,14 +21,14 @@ OUT = ROOT / "design" / "wireframe" / "poster_d.html"
 track, corners, moments = load(ROOT)
 
 PX = 1.6  # px per mm
-W, H = round(1200 * PX), round(700 * PX)
-M = 88  # 55 mm margin
-COL = 1420  # story column
+W, H = round(1400 * PX), round(800 * PX)
+M = 104  # 65 mm margin
+COL = 1640  # story column
 RIGHT = W - M
 ITALY = {"green": "#229457", "white": C["ink"], "red": "#CE2B37"}  # flag red, kept apart from Capirossi's coral
 
 # ---- map placement ------------------------------------------------------------
-MAP = (M, 330, 1240, 496)  # 60+ px of air between the lede and the track  # x, y, w, h (height-bound, centred)
+MAP = (440, 340, 800, 540)  # x, y, w, h (height-bound); left band = Italy + circuit, right = numbers
 pts = fit(track, *MAP)
 SCALE = MAP[3] / 705
 CALLOUT = {0: (-136, -204, -20, 5, "end"), 1: (-14, 141, -12, 32, "start"),
@@ -38,7 +39,7 @@ STRETCHES = [range(7, 14), range(57, 65), [*range(125, 129), 0]]
 svg: list[str] = [f'<rect width="{W}" height="{H}" fill="{C["bg"]}"/>']
 
 # ---- header: title + livery flash, subtitle, lede ------------------------------------
-TITLE_X, TITLE_Y, TITLE_W = M - 4, 150, 530
+TITLE_X, TITLE_Y, TITLE_W = M - 4, 172, 530
 svg.append(f'<text x="{TITLE_X}" y="{TITLE_Y}" class="title">MUGELLO 2006</text>')
 # a slanted Italian livery flash after the title, matching the italic
 fx = M + TITLE_W + 26
@@ -47,19 +48,18 @@ svg.append("".join(
     f'{fx + i * 16 + 10},{TITLE_Y} {fx + i * 16},{TITLE_Y}" fill="{c}"/>'
     for i, c in enumerate(ITALY.values())
 ))
-svg.append(f'<text x="{M}" y="194" class="subtitle">Gran Premio d&#8217;Italia Alice · Rossi vs Capirossi · Sunday 4 June 2006</text>')
+svg.append(f'<text x="{M}" y="218" class="subtitle">Gran Premio d&#8217;Italia Alice · Rossi vs Capirossi · Sunday 4 June 2006</text>')
 svg.append(
-    f'<foreignObject x="{M}" y="206" width="760" height="60"><div xmlns="http://www.w3.org/1999/xhtml" class="lede">'
-    f"Behind in the championship and in front of his home crowd, Valentino Rossi falls from first "
-    f"to fifth with eight laps to go, then wins by half a second.</div></foreignObject>"
+    f'<text x="{M}" y="256" class="lede">Behind in the championship and in front of his home crowd, '
+    f"Valentino Rossi falls from first to fifth with eight laps to go, then wins by half a second.</text>"
 )
 
 # ---- images: the Mugello 2006 helmet leads the column ------------------------------
-svg.append(f'<rect x="{COL}" y="{M}" width="232" height="172" rx="8" fill="none" stroke="{C["muted"]}" stroke-dasharray="4 4"/>')
-svg.append(f'<text x="{COL + 116}" y="{M + 90}" class="ph">IMAGE · helmet</text>')
-svg.append(f'<text x="{COL}" y="{M + 192}" class="caption">Rossi&#8217;s helmet for Mugello 2006</text>')
-svg.append(f'<rect x="{COL + 252}" y="{M}" width="{RIGHT - COL - 252}" height="172" rx="8" fill="none" stroke="{C["muted"]}" stroke-dasharray="4 4"/>')
-svg.append(f'<text x="{(COL + 252 + RIGHT) / 2}" y="{M + 90}" class="ph">IMAGE · 46 logo</text>')
+svg.append(f'<rect x="{COL}" y="{M}" width="280" height="196" rx="8" fill="none" stroke="{C["muted"]}" stroke-dasharray="4 4"/>')
+svg.append(f'<text x="{COL + 140}" y="{M + 102}" class="ph">IMAGE · helmet</text>')
+svg.append(f'<text x="{COL}" y="{M + 218}" class="caption">Rossi&#8217;s helmet for Mugello 2006</text>')
+svg.append(f'<rect x="{COL + 300}" y="{M}" width="{RIGHT - COL - 300}" height="196" rx="8" fill="none" stroke="{C["muted"]}" stroke-dasharray="4 4"/>')
+svg.append(f'<text x="{(COL + 300 + RIGHT) / 2}" y="{M + 102}" class="ph">IMAGE · 46 logo</text>')
 
 # ---- map ----------------------------------------------------------------------
 svg.append(f'<path d="{path(pts, True)}" fill="none" stroke="{C["ink"]}" stroke-width="7" stroke-linejoin="round"/>')
@@ -96,10 +96,30 @@ for turn, ms in by_turn.items():
     for j, m in enumerate(ms):
         svg.append(f'<text x="{bx + tdx:.1f}" y="{by + tdy + j * 18:.1f}" class="callout" text-anchor="{anchor}">{m["moment_id"]} · {m["headline"]}</text>')
 
-# circuit card, quiet, in the empty bottom-left of the map area
-# (circuit information + classification PDFs; name and town from the track GeoJSON)
-card_x, card_y = M, 660
-svg.append(f'<text x="{card_x}" y="{card_y}" class="eyebrow">THE CIRCUIT</text>')
+# circuit block, left band: where Mugello is in Italy, then the facts
+# (circuit information + classification PDFs; name and town from the track GeoJSON;
+# Italy outline from Natural Earth, public domain)
+svg.append(f'<text x="{M}" y="364" class="eyebrow">THE CIRCUIT</text>')
+italy = json.loads((ROOT / "seeds" / "italy.geojson").read_text(encoding="utf-8"))
+kx = math.cos(math.radians(42))
+rings = [[(lon * kx, -lat) for lon, lat in poly[0]] for poly in italy["features"][0]["geometry"]["coordinates"]]
+allx = [x for r in rings for x, _ in r]
+ally = [y for r in rings for _, y in r]
+box_x, box_y, box_w, box_h = M, 384, 250, 250
+isc = min(box_w / (max(allx) - min(allx)), box_h / (max(ally) - min(ally)))
+
+
+def ip(x: float, y: float) -> tuple[float, float]:
+    return box_x + (x - min(allx)) * isc, box_y + (y - min(ally)) * isc
+
+
+for r in rings:
+    svg.append(f'<path d="{path([ip(x, y) for x, y in r], True)}" fill="#2A2725" stroke="{C["muted"]}" stroke-width="1" stroke-linejoin="round"/>')
+mx, my = ip(11.372 * kx, -43.997)  # Mugello
+svg.append(f'<circle cx="{mx:.1f}" cy="{my:.1f}" r="9" fill="none" stroke="{C["rossi"]}" stroke-width="2"/>')
+svg.append(f'<circle cx="{mx:.1f}" cy="{my:.1f}" r="3.5" fill="{C["rossi"]}"/>')
+svg.append(f'<text x="{mx + 16:.1f}" y="{my + 5:.1f}" class="placename">Mugello</text>')
+card_x, card_y = M, 652
 svg.append(f'<text x="{card_x}" y="{card_y + 24}" class="circuit">Autodromo Internazionale del Mugello</text>')
 for i, line in enumerate([
     "Scarperia e San Piero, Tuscany · built 1974",
@@ -108,19 +128,19 @@ for i, line in enumerate([
     "Longest straight 1,141 m",
     "Race: 23 laps · 120.6 km · dry, air 20 °C, track 29 °C",
 ]):
-    svg.append(f'<text x="{card_x}" y="{card_y + 46 + i * 19}" class="meta">{line}</text>')
+    svg.append(f'<text x="{card_x}" y="{card_y + 48 + i * 20}" class="meta">{line}</text>')
 
 # key numbers, right of the circuit, each tied to its moment
 STATS = [("0.575 s", "Rossi&#8217;s winning margin", 7), ("0.002 s", "between them after lap 22", 6), ("5", "Mugello wins in a row", None)]
 for i, (v, label, n) in enumerate(STATS):
-    y = 360 + i * 74
-    svg.append(f'<text x="1130" y="{y}" class="stat">{v}</text>')
-    svg.append(f'<text x="1132" y="{y + 22}" class="statlabel">{label}</text>')
+    y = 410 + i * 84
+    svg.append(f'<text x="1300" y="{y}" class="stat">{v}</text>')
+    svg.append(f'<text x="1302" y="{y + 22}" class="statlabel">{label}</text>')
     if n:
-        svg.append(badge(1112, y - 16, n, r=9))
+        svg.append(badge(1282, y - 16, n, r=9))
 
 # ---- story column ---------------------------------------------------------------
-top, slot = 300, 104
+top, slot = 340, 112
 svg.append(f'<line x1="{COL + 12}" y1="{top + 28}" x2="{COL + 12}" y2="{top + 6 * slot + 28}" stroke="{C["rule"]}" stroke-width="2"/>')
 for i, m in enumerate(moments):
     y = top + i * slot
@@ -134,7 +154,7 @@ for i, m in enumerate(moments):
     )
 
 # ---- position strip ---------------------------------------------------------------
-x0, x1, axis_y, row = M + 64, 1300, 912, 15
+x0, x1, axis_y, row = M + 64, 1500, 968, 16
 
 
 def lx(lap: float) -> float:
@@ -172,37 +192,36 @@ for r, label in ((46, "Rossi · 1st"), (65, "Capirossi · 2nd")):
     svg.append(f'<text x="{lx(23) + 12:.1f}" y="{y + 4:.1f}" class="endlabel">{label}</text>')
 
 # ---- footer: discreet map key (left) + credits (right) ---------------------------
-fy = H - 40
-svg.append(badge(M + 7, fy - 4, 4, r=7))
-svg.append(f'<text x="{M + 20}" y="{fy}" class="foot">Rossi moment</text>')
-svg.append(badge(M + 118, fy - 4, 2, r=7))
-svg.append(f'<text x="{M + 131}" y="{fy}" class="foot">other moment</text>')
-svg.append(f'<line x1="{M + 232}" y1="{fy - 4}" x2="{M + 248}" y2="{fy - 4}" stroke="{C["rossi"]}" stroke-width="6" stroke-linecap="round"/>')
-svg.append(f'<text x="{M + 256}" y="{fy}" class="foot">where it happened · numbers match the stories</text>')
+fy = H - 56
+svg.append(badge(M + 8, fy - 4, 4, r=8))
+svg.append(f'<text x="{M + 24}" y="{fy}" class="foot">Rossi moment</text>')
+svg.append(badge(M + 160, fy - 4, 2, r=8))
+svg.append(f'<text x="{M + 176}" y="{fy}" class="foot">other moment</text>')
+svg.append(f'<line x1="{M + 312}" y1="{fy - 4}" x2="{M + 332}" y2="{fy - 4}" stroke="{C["rossi"]}" stroke-width="6" stroke-linecap="round"/>')
+svg.append(f'<text x="{M + 342}" y="{fy}" class="foot">where it happened</text>')
+svg.append(f'<text x="{M + 500}" y="{fy}" class="foot">Numbers match the stories on the right.</text>')
 svg.append(
     f'<text x="{RIGHT}" y="{fy}" class="foot" text-anchor="end">Data: official MotoGP timing (Tissot / Dorna) · '
     f"Track: bacinger/f1-circuits (MIT) · Story: MotoGP broadcast, Paddock Pass Podcast</text>"
 )
 
 NOTES = """
-<h2>Layout D, round 4</h2>
-<p class="meta">120 × 70 cm landscape (wider) at 1.6 px/mm · real data and event facts ·
-images are placeholders.</p>
+<h2>Layout D, round 5</h2>
+<p class="meta">140 × 80 cm landscape at 1.6 px/mm · real data and event facts ·
+images are placeholders · 65 mm margins.</p>
 <h3>What changed</h3>
 <ul>
-<li><b>Wider:</b> 120 × 70 cm. The map keeps its height, and the extra width gives the key numbers
-their own space to the right of the track and lets the story column breathe.</li>
-<li><b>Quieter legends:</b> the map key is one small line in the footer. The positions hint shares
-the strip's title line.</li>
-<li><b>Italian livery flash</b> after the title (chosen over a tricolore underline and a tricolore
-year). The TV-call quote was tried in the header and dropped: it made the header busy.</li>
-<li><b>More air under the header:</b> the map starts 60+ px below the lede.</li>
-<li><b>Emotion:</b> "in front of his home crowd" in the lede, and the helmet captioned as the
-Mugello 2006 design.</li>
-<li><b>Mugello facts</b> (from the classification PDF): the event's official name
-<i>Gran Premio d&#8217;Italia <b>Alice</b></i> in the subtitle, and a quiet circuit card
-bottom-left: full circuit name, town, year built, length, width, corners (9 right, 6 left), longest straight, and the race distance and conditions (from the circuit information and classification PDFs).</li>
+<li><b>Bigger poster</b> (140 × 80 cm) for more air: the map sits in the middle, with a left
+band for the circuit and a right band for the key numbers.</li>
+<li><b>Italy locator</b> above the circuit facts: where Mugello sits, in Rossi yellow
+(Italy outline: Natural Earth, public domain).</li>
+<li><b>The summary sentence is one line.</b></li>
+<li><b>Legends breathe:</b> the footer key has larger text and more space between items,
+and about 100 px of air above it.</li>
 </ul>
+<h3>Kept from round 4</h3>
+<ul><li>Livery flash after the title, no header quote, yellow stretches on the track, numbered
+moments, quiet circuit card.</li></ul>
 """
 
 html = f"""<!doctype html>
@@ -224,7 +243,8 @@ aside h3 {{ font:600 18px 'Barlow Condensed'; margin:14px 0 4px; color:#4FD1C5; 
 .controls button[aria-pressed="true"] {{ border-color:#4FD1C5; color:#4FD1C5; }}
 .title {{ font:italic 800 104px 'Barlow Condensed'; fill:{C["ink"]}; }}
 .subtitle {{ font:500 26px 'Barlow Condensed'; fill:{C["ink"]}; }}
-.lede {{ font:400 18px/1.4 Barlow; color:{C["muted"]}; }}
+.lede {{ font:400 18px Barlow; fill:{C["muted"]}; }}
+.placename {{ font:600 14px 'Barlow Condensed'; fill:{C["ink"]}; }}
 .ph {{ font:500 12px Barlow; fill:{C["muted"]}; text-anchor:middle; }}
 .caption {{ font:italic 400 13px Barlow; fill:{C["muted"]}; }}
 .corner {{ font:500 12px 'Barlow Condensed'; fill:{C["muted"]}; }}
@@ -241,7 +261,7 @@ aside h3 {{ font:600 18px 'Barlow Condensed'; margin:14px 0 4px; color:#4FD1C5; 
 .vcard i {{ font-style:normal; color:{C["muted"]}; letter-spacing:1px; margin-right:6px; font-size:13px; }}
 .stat {{ font:600 46px Barlow; fill:{C["ink"]}; }}
 .statlabel {{ font:400 14px Barlow; fill:{C["muted"]}; }}
-.foot {{ font:400 11px Barlow; fill:{C["muted"]}; }}
+.foot {{ font:400 12.5px Barlow; fill:{C["muted"]}; }}
 </style></head><body><main>
 <div class="poster">
   <div class="controls">
