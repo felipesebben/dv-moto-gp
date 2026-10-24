@@ -1,4 +1,4 @@
-"""Refined wireframe for layout D (140 x 80 cm landscape).
+"""Refined wireframe for layout D (140 x 85 cm landscape).
 
 Run: uv run python design/wireframe/tools/build_poster_d.py
 Writes design/wireframe/poster_d.html. Sketch tool only: the real poster is built in Tableau.
@@ -21,14 +21,14 @@ OUT = ROOT / "design" / "wireframe" / "poster_d.html"
 track, corners, moments = load(ROOT)
 
 PX = 1.6  # px per mm
-W, H = round(1400 * PX), round(800 * PX)
+W, H = round(1400 * PX), round(850 * PX)
 M = 104  # 65 mm margin
 COL = 1640  # story column
 RIGHT = W - M
 ITALY = {"green": "#229457", "white": C["ink"], "red": "#CE2B37"}  # flag red, kept apart from Capirossi's coral
 
 # ---- map placement ------------------------------------------------------------
-MAP = (440, 340, 800, 540)  # x, y, w, h (height-bound); left band = Italy + circuit, right = numbers
+MAP = (440, 410, 800, 560)  # x, y, w, h (height-bound); left band = Italy + circuit, right = numbers
 pts = fit(track, *MAP)
 SCALE = MAP[3] / 705
 CALLOUT = {0: (-136, -204, -20, 5, "end"), 1: (-14, 141, -12, 32, "start"),
@@ -38,27 +38,19 @@ STRETCHES = [range(7, 14), range(57, 65), [*range(125, 129), 0]]
 
 svg: list[str] = [f'<rect width="{W}" height="{H}" fill="{C["bg"]}"/>']
 
-# ---- header: just two parts, the title and one paragraph -------------------------------
-# Title options (no apostrophe), compared with the buttons. The livery flash follows the title.
-TITLES = {
-    "a": "THE ROSSI COMEBACK, MUGELLO 2006",
-    "b": "ROSSI: COMEBACK AT MUGELLO 2006",
-    "c": "ROSSI COMEBACK AT MUGELLO 2006",
-}
-TITLE_Y = 178
-for key, title in TITLES.items():
-    # drawn at x=0; the page script moves it to the measured end of the title
-    flash = f'<g class="flash" data-for="title-{key}">' + "".join(
-        f'<polygon points="{i * 16 + 18},{TITLE_Y - 74} {i * 16 + 28},{TITLE_Y - 74} '
-        f'{i * 16 + 10},{TITLE_Y} {i * 16},{TITLE_Y}" fill="{c}"/>'
-        for i, c in enumerate(ITALY.values())
-    ) + "</g>"
-    svg.append(
-        f'<g class="tv tv-{key}"><text id="title-{key}" x="{M - 4}" y="{TITLE_Y}" class="title">{title}</text>{flash}</g>'
-    )
+# ---- header: MUGELLO 2006 (+ Italian livery flash) above the title, then one paragraph ----
+KICKER_Y, TITLE_Y = 118, 244
+svg.append(f'<text id="kicker" x="{M}" y="{KICKER_Y}" class="kicker">MUGELLO 2006</text>')
+# drawn at x=0; the page script moves it to the measured end of the kicker
+svg.append('<g class="flash" data-for="kicker">' + "".join(
+    f'<polygon points="{i * 10 + 12},{KICKER_Y - 24} {i * 10 + 18},{KICKER_Y - 24} '
+    f'{i * 10 + 6},{KICKER_Y} {i * 10},{KICKER_Y}" fill="{c}"/>'
+    for i, c in enumerate(ITALY.values())
+) + "</g>")
+svg.append(f'<text x="{M - 6}" y="{TITLE_Y}" class="title">THE ROSSI COMEBACK</text>')
 # one paragraph: the event and date run in, then what happened and why it matters
 svg.append(
-    f'<foreignObject x="{M}" y="200" width="1400" height="100"><div xmlns="http://www.w3.org/1999/xhtml" class="standfirst">'
+    f'<foreignObject x="{M}" y="270" width="1380" height="110"><div xmlns="http://www.w3.org/1999/xhtml" class="standfirst">'
     f"<span class=\"runin\">Gran Premio d&#8217;Italia Alice, 4 June 2006.</span> "
     f"Forty-three points down in the championship and in front of his home crowd, Valentino Rossi "
     f"was leading when he ran wide at San Donato and fell to fifth, with eight laps left. He hunted "
@@ -112,13 +104,13 @@ for turn, ms in by_turn.items():
 # circuit block, left band: where Mugello is in Italy, then the facts
 # (circuit information + classification PDFs; name and town from the track GeoJSON;
 # Italy outline from Natural Earth, public domain)
-svg.append(f'<text x="{M}" y="364" class="eyebrow">THE CIRCUIT</text>')
+svg.append(f'<text x="{M}" y="434" class="eyebrow">THE CIRCUIT</text>')
 italy = json.loads((ROOT / "seeds" / "italy.geojson").read_text(encoding="utf-8"))
 kx = math.cos(math.radians(42))
 rings = [[(lon * kx, -lat) for lon, lat in poly[0]] for poly in italy["features"][0]["geometry"]["coordinates"]]
 allx = [x for r in rings for x, _ in r]
 ally = [y for r in rings for _, y in r]
-box_x, box_y, box_w, box_h = M, 384, 240, 240
+box_x, box_y, box_w, box_h = M, 456, 250, 250
 isc = min(box_w / (max(allx) - min(allx)), box_h / (max(ally) - min(ally)))
 
 
@@ -132,7 +124,7 @@ mx, my = ip(11.372 * kx, -43.997)  # Mugello
 svg.append(f'<circle cx="{mx:.1f}" cy="{my:.1f}" r="9" fill="none" stroke="{C["rossi"]}" stroke-width="2"/>')
 svg.append(f'<circle cx="{mx:.1f}" cy="{my:.1f}" r="3.5" fill="{C["rossi"]}"/>')
 svg.append(f'<text x="{mx + 16:.1f}" y="{my + 5:.1f}" class="placename">Mugello</text>')
-card_x, card_y = M, 650
+card_x, card_y = M, 730
 svg.append(f'<text x="{card_x}" y="{card_y + 24}" class="circuit">Autodromo Internazionale del Mugello</text>')
 for i, line in enumerate([
     "Scarperia e San Piero, Tuscany · built 1974",
@@ -146,14 +138,14 @@ for i, line in enumerate([
 # key numbers, right of the circuit, each tied to its moment
 STATS = [("0.575 s", "Rossi&#8217;s winning margin", 7), ("0.002 s", "between them after lap 22", 6), ("5", "Mugello wins in a row", None)]
 for i, (v, label, n) in enumerate(STATS):
-    y = 410 + i * 88
+    y = 490 + i * 90
     svg.append(f'<text x="1300" y="{y}" class="stat">{v}</text>')
     svg.append(f'<text x="1302" y="{y + 22}" class="statlabel">{label}</text>')
     if n:
         svg.append(badge(1282, y - 16, n, r=9))
 
 # ---- story column ---------------------------------------------------------------
-top, slot = 340, 116
+top, slot = 372, 122
 svg.append(f'<line x1="{COL + 12}" y1="{top + 28}" x2="{COL + 12}" y2="{top + 6 * slot + 28}" stroke="{C["rule"]}" stroke-width="2"/>')
 for i, m in enumerate(moments):
     y = top + i * slot
@@ -167,7 +159,7 @@ for i, m in enumerate(moments):
     )
 
 # ---- position strip ---------------------------------------------------------------
-x0, x1, axis_y, row = M + 64, 1500, 972, 16
+x0, x1, axis_y, row = M + 64, 1500, 1080, 16
 
 
 def lx(lap: float) -> float:
@@ -229,7 +221,8 @@ svg.append(
 PT_PER_PX = 72 / 25.4 / PX
 MIN_PT = 24  # our floor for anything on the poster (the hard rule is 10 pt)
 TYPE = {  # class: (style, weight, size px, family, extra)
-    "title": ("italic", 800, 104, "Barlow Condensed", f"fill:{C['ink']};"),
+    "kicker": ("italic", 800, 30, "Barlow Condensed", f"fill:{C['ink']}; letter-spacing:1px;"),
+    "title": ("italic", 800, 124, "Barlow Condensed", f"fill:{C['ink']};"),
     "standfirst": ("normal", 400, 20, "Barlow", f"color:{C['ink']}; line-height:1.45;"),
     "runin": ("normal", 600, 20, "Barlow Condensed", f"color:{C['ink']}; letter-spacing:0.5px;"),
     "placename": ("normal", 600, 17, "Barlow Condensed", f"fill:{C['ink']};"),
@@ -258,16 +251,16 @@ POSTER_CSS = "\n".join(
 POSTER_CSS += "\n.badge { font-family:'Barlow Condensed'; font-weight:700; text-anchor:middle; }"
 
 NOTES = """
-<h2>Layout D, round 7</h2>
-<p class="meta">140 × 80 cm at 1.6 px/mm · use <b>Zoom: Print size</b> to judge real text sizes.</p>
+<h2>Layout D, round 8</h2>
+<p class="meta">140 × 85 cm at 1.6 px/mm · use <b>Zoom: Print size</b> to judge real text sizes.</p>
 <h3>What changed</h3>
 <ul>
-<li><b>The comeback is the title</b>, with no apostrophe (3 options above).</li>
-<li><b>The header is two parts:</b> the title, then one paragraph. The event name and date run
-into the paragraph, and the San Donato story is folded into it.</li>
-<li>Plain text: no bold and no yellow underline.</li>
-<li><b>The QR code</b> is small and quiet in the bottom-right corner ("Watch the race"), still
-40 mm in print.</li>
+<li><b>MUGELLO 2006</b> with the Italian livery flash sits as a header above the title.</li>
+<li><b>Title: THE ROSSI COMEBACK</b>, larger now that it's shorter.</li>
+<li>Then the one paragraph (event and date run in). Plain text.</li>
+<li><b>Poster 5 cm taller (140 × 85 cm):</b> the extra height goes to air around the header and
+a slightly larger map.</li>
+<li>The QR code stays small in the bottom-right corner.</li>
 </ul>
 <h3>Kept from round 4</h3>
 <ul><li>Livery flash after the title, no header quote, yellow stretches on the track, numbered
@@ -292,28 +285,21 @@ aside h3 {{ font:600 18px 'Barlow Condensed'; margin:14px 0 4px; color:#4FD1C5; 
 .controls button {{ font:inherit; color:{C["ink"]}; background:#1E1C1B; border:1px solid #3A3734; border-radius:6px; padding:4px 10px; cursor:pointer; }}
 .controls button[aria-pressed="true"] {{ border-color:#4FD1C5; color:#4FD1C5; }}
 {POSTER_CSS}
-.tv {{ display:none; }}
-svg[data-title="a"] .tv-a, svg[data-title="b"] .tv-b, svg[data-title="c"] .tv-c {{ display:inline; }}
 .poster.print {{ overflow:auto; max-height:85vh; }}
 .poster.print svg {{ width:140cm; max-width:none; }}
-svg.measure .tv {{ display:inline !important; }}
 </style></head><body><main>
 <div class="poster">
   <div class="controls">
-    <div class="grp" data-attr="title" role="group" aria-label="Title option"><span>Title:</span>
-      <button data-v="a" aria-pressed="true">A · The Rossi comeback</button>
-      <button data-v="b" aria-pressed="false">B · Rossi: comeback at Mugello</button>
-      <button data-v="c" aria-pressed="false">C · Rossi comeback at Mugello</button></div>
     <div class="grp" data-attr="zoom" role="group" aria-label="Zoom"><span>Zoom:</span>
       <button data-v="fit" aria-pressed="true">Fit screen</button>
-      <button data-v="print" aria-pressed="false">Print size (140 cm)</button></div>
+      <button data-v="print" aria-pressed="false">Print size (140 × 85 cm)</button></div>
     <div class="grp" data-attr="filter" role="group" aria-label="Preview"><span>Preview:</span>
       <button data-v="none" aria-pressed="true">Normal</button>
       <button data-v="url(#protan)" aria-pressed="false">Protanopia</button>
       <button data-v="url(#deutan)" aria-pressed="false">Deuteranopia</button>
       <button data-v="grayscale(1)" aria-pressed="false">Greyscale</button></div>
   </div>
-  <svg viewBox="0 0 {W} {H}" role="img" aria-labelledby="t d" data-title="a">
+  <svg viewBox="0 0 {W} {H}" role="img" aria-labelledby="t d">
     <title id="t">Mugello 2006 poster, layout D</title>
     <desc id="d">Wide poster: Mugello map with Rossi's key moments painted yellow and numbered, circuit facts, a column of seven story cards and a strip of positions lap by lap.</desc>
     <defs>
@@ -329,12 +315,10 @@ svg.measure .tv {{ display:inline !important; }}
 const svg = document.querySelector('.poster svg'), art = document.getElementById('art');
 // place each livery flash right after its title, using the real rendered width
 document.fonts.ready.then(() => {{
-  svg.classList.add('measure');
   document.querySelectorAll('g.flash').forEach(g => {{
     const title = document.getElementById(g.dataset.for);
-    g.setAttribute('transform', `translate(${{title.getBBox().x + title.getComputedTextLength() + 26}},0)`);
+    g.setAttribute('transform', `translate(${{title.getBBox().x + title.getComputedTextLength() + 14}},0)`);
   }});
-  svg.classList.remove('measure');
 }});
 document.querySelectorAll('.controls .grp').forEach(g => g.querySelectorAll('button').forEach(b => b.addEventListener('click', () => {{
   g.querySelectorAll('button').forEach(x => x.setAttribute('aria-pressed', x === b));

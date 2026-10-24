@@ -19,11 +19,11 @@ rules is `design/wireframe/poster_d.html` (layout D, chosen), built by
 - **Plain words:** positions are "1st, 2nd…", times are "seconds", and there's no jargon
   (gap, delta, sector) in reader-facing text.
 
-## 2. Layout D (landscape, 140 × 80 cm)
+## 2. Layout D (landscape, 140 × 85 cm)
 
 | Zone | Content | Place |
 |---|---|---|
-| A · Title | **Two parts only.** A one-line title about the comeback, no apostrophe (options: *The Rossi comeback, Mugello 2006* / *Rossi: comeback at Mugello 2006* / *Rossi comeback at Mugello 2006*), with the Italian livery flash. Then one paragraph: the event and date run in (*Gran Premio d'Italia Alice, 4 June 2006.*), then the stakes, the fall at San Donato, the pass for the win at the same corner, and "Patience, then one perfect move: a race still counted among his greatest." Plain text, no bold or underline | top row |
+| A · Title | **MUGELLO 2006** with the Italian livery flash as a small header; the title **THE ROSSI COMEBACK**; then one paragraph: the event and date run in (*Gran Premio d'Italia Alice, 4 June 2006.*), then the stakes, the fall at San Donato, the pass for the win at the same corner, and "Patience, then one perfect move: a race still counted among his greatest." Plain text | top row |
 | B · Images | Rossi's Mugello 2006 helmet (captioned) + 46 logo | top-right, above the story column |
 | C · Map (hero) | Mugello in TV orientation, about half the poster. Rossi's stretches painted yellow, numbered badges + callouts, a "how to read" key in the empty bottom-left | centre-left |
 | D · Key numbers | 0.575 s, 0.002 s, 5 wins, each with the badge of its moment | right band, beside the map |
@@ -43,7 +43,8 @@ family keeps the poster calm.
 
 | Role | Face | Size (pt) | Notes |
 |---|---|---|---|
-| Title | Barlow Condensed ExtraBold Italic | 184 | one line; the only italic, for a sense of speed |
+| Header (MUGELLO 2006) | Barlow Condensed ExtraBold Italic | 53 | with the Italian livery flash |
+| Title (THE ROSSI COMEBACK) | Barlow Condensed ExtraBold Italic | 220 | one line; italic only in the header and title, for a sense of speed |
 | Header paragraph | Barlow Regular; the event and date run in, in Barlow Condensed SemiBold | 35 | primary ink, plain |
 | Key numbers | Barlow SemiBold | 82 | same family as the rest, proportional digits |
 | Story headline | Barlow Condensed SemiBold | 34 | |
@@ -128,7 +129,7 @@ green-blind readers (ΔE 4.6), which is fine for a flag carrying no information.
   Tableau map, which can't rotate.
 - Keep **all 7 key moments**.
 - The poster is **large and airy**: whitespace matters more than density. Sketched at
-  140 × 80 cm landscape (grown from 100 × 70, then 120 × 70, for more air).
+  140 × 85 cm landscape (grown from 100 × 70, 120 × 70 and 140 × 80, always for more air).
 
 - **Layout D**: wide, map-led hybrid (see section 2). Options A, B and C are kept in
   `design/wireframe/` for reference. B's top-to-bottom chart felt odd and A was too tall.
@@ -137,10 +138,10 @@ green-blind readers (ΔE 4.6), which is fine for a flag carrying no information.
 
 - The TV-call quote was tried in the header and dropped (too busy).
 
-- The title is about **the comeback**, with no apostrophe. The header is just the title and
-  one paragraph (no separate event line or subtitle). The QR code is small, in the
+- The title is **THE ROSSI COMEBACK**, under a small **MUGELLO 2006** header with the
+  livery flash, then one paragraph (no separate event line or subtitle). The QR code is small, in the
   bottom-right corner, linking to the official full-race video.
 
 **Open:**
-- Which of the three title options. Paper: matte recommended for the dark background.
+- Paper: matte recommended for the dark background.
   No dedication line.
