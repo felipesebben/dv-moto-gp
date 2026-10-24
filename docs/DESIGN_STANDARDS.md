@@ -19,20 +19,32 @@ rules is `design/wireframe/poster_d.html` (layout D, chosen), built by
 - **Plain words:** positions are "1st, 2nd…", times are "seconds", and there's no jargon
   (gap, delta, sector) in reader-facing text.
 
-## 2. Layout D (landscape, 140 × 80 cm)
+## 2. Layout D (120 × 132 cm, portrait)
 
-| Zone | Content | Place |
-|---|---|---|
-| A · Title | Title with an Italian livery flash (see §4), subtitle with the official event name *Gran Premio d'Italia Alice*, a one-line lede, then clear air before the map | top row |
-| B · Images | Rossi's Mugello 2006 helmet (captioned) + 46 logo | top-right, above the story column |
-| C · Map (hero) | Mugello in TV orientation, about half the poster. Rossi's stretches painted yellow, numbered badges + callouts, a "how to read" key in the empty bottom-left | centre-left |
-| D · Key numbers | 0.575 s, 0.002 s, 5 wins, each with the badge of its moment | right band, beside the map |
-| G · Circuit band | An Italy locator (north-up, Mugello marked in Rossi yellow; outline from Natural Earth, public domain), then the facts: full name, town, built 1974, 5,245 m × 14 m, 15 corners (9 right, 6 left), longest straight 1,141 m, race distance and conditions | left band, beside the map |
-| E · Story | 7 moments as a list read top to bottom, no boxes: badge, lap, headline, ≤ 200-character story, coloured bar | right column |
-| F · Positions | Compact left-to-right strip, badges on the lap axis, plain hint "higher = further ahead" in its title line | under the map |
-| Footer | Map key (left, well spaced) + credits (right), with clear air above | bottom edge |
+### Spacing and alignment system (applies to every element, here and in Tableau)
+- **4 px grid** (print: 1 px = 0.625 mm). Every block position, size, gap and padding is a
+  multiple of 4, taken from these steps only: **8 · 16 · 24 · 32 · 48 · 64 · 96 · 128**. The
+  wireframe generator refuses to build if any layout value is off the grid.
+- **Poster padding:** 96 px (60 mm) on every side.
+- **Proximity:** gaps inside a group are 8–24 (kicker → title → paragraph; Italy → facts;
+  number → label); the two big breaks (header → map band, map band → race band) are 128 for
+  air, and the race band → footer gap is 64. Groups therefore read as groups.
+- **Alignment:** one shared left edge for the kicker, title, paragraph, circuit column, race
+  band and footer key; one shared right edge for the key numbers, the last moments and the
+  credits/QR; the map is centred on the poster. Text lines use 4-multiple line heights
+  (paragraph 28, story text 20, story headline 24).
 
-Margins are 65 mm. The badge numbers ①–⑦ are the thread through map → story → positions.
+### Bands, top to bottom
+
+| Band | Content |
+|---|---|
+| **Header** (left-aligned) | *MUGELLO 2006* with the Italian livery flash, the title **THE ROSSI COMEBACK**, then the paragraph under it on three longer lines: the event and date run in (*Gran Premio d'Italia Alice, 4 June 2006.*), then the stakes, the fall at San Donato, the pass for the win at the same corner, and "Patience, then one perfect move: a race still counted among his greatest." |
+| **Map band** | **Centre:** the map, the biggest element (≥ 22 % of the poster's area) (Mugello in TV orientation, Rossi's stretches in yellow, numbered badges and callouts). **Left column, bottom-aligned with the map:** the Italy locator (Mugello in Rossi yellow; Natural Earth, public domain) with the circuit facts directly under it. **Right column, top-aligned with the map:** the key numbers in race order, each with its moment's badge: **0.730 s** behind Capirossi after running wide, in 5th (④); **0.002 s** after lap 22 (⑥); **0.575 s** winning margin (⑦). |
+| **Race band** | The positions chart (each line a rider; Rossi yellow, Capirossi coral, others grey) with **the 7 moments told along it**. Cards alternate above (laps 1, 13, 18, 23) and below (laps 7, 15, 22). Each card starts exactly at its lap with its number beside the text, and a **thin straight vertical line** runs from the number to where that rider was on that lap, ending in a dot in the rider's colour. The chart stops one narrow card short of the right edge so the last moments still start at their lap. |
+| **Footer** | Map key on the left edge; credits and a small QR code to the official full-race video (40 mm) on the right edge. |
+
+No logo or photos. Badge numbers ①–⑦ link the map, the key numbers and the race band:
+yellow badge = Rossi moment, coral ring = Capirossi moment.
 
 ## 3. Typography
 
@@ -43,18 +55,19 @@ family keeps the poster calm.
 
 | Role | Face | Size (pt) | Notes |
 |---|---|---|---|
-| Title | Barlow Condensed ExtraBold Italic | 184 | the only italic, for a sense of speed |
-| Subtitle | Barlow Condensed Medium | 50 | |
-| Lede | Barlow Regular | 32 | muted ink |
-| Key numbers | Barlow SemiBold | 82 | same family as the rest (no display font for figures), proportional digits |
-| Story headline | Barlow Condensed SemiBold | 30 | |
-| Story text, map key | Barlow Regular | 23 | ≤ 200 characters per story (enforced by a test) |
-| Map callouts | Barlow Condensed SemiBold | 27 | |
-| Corner names, axis | Barlow Condensed Medium | 21 | tabular digits on the axis only |
-| Credits | Barlow Regular | 18 | **absolute minimum size** |
+| Header (MUGELLO 2006) | Barlow Condensed ExtraBold Italic | 53 | with the Italian livery flash |
+| Title (THE ROSSI COMEBACK) | Barlow Condensed ExtraBold Italic | 220 | one line; italic only in the header and title, for a sense of speed |
+| Header paragraph | Barlow Regular; the event and date run in, in Barlow Condensed SemiBold | 35 | primary ink, plain |
+| Key numbers | Barlow SemiBold | 82 | same family as the rest, proportional digits |
+| Moment headline | Barlow Condensed SemiBold | 34 | |
+| Moment text | Barlow Regular | 26 | ≤ 200 characters per moment (enforced by a test) |
+| Map callouts | Barlow Condensed SemiBold | 30 | |
+| Circuit facts, eyebrows, key labels | Barlow / Barlow Condensed | 27–28 | |
+| Corner names, axis, footer, credits, QR caption | Barlow / Barlow Condensed | 25 | **the smallest text on the poster** |
 
-The minimum of 18 pt is for credits only. Anything the reader needs is at least 21 pt, so
-it stays legible at about 1.5 m.
+**Floor: nothing on the poster is below 24 pt** (the hard rule is never below 10 pt). The
+wireframe generator refuses to build if any text class would print smaller. Use the
+wireframe's *Zoom: Print size* to judge sizes on screen.
 **Tableau:** install the Barlow TTFs on Windows before building, so Tableau Desktop can use
 them; PDF export embeds them.
 
@@ -128,7 +141,9 @@ green-blind readers (ΔE 4.6), which is fine for a flag carrying no information.
   Tableau map, which can't rotate.
 - Keep **all 7 key moments**.
 - The poster is **large and airy**: whitespace matters more than density. Sketched at
-  140 × 80 cm landscape (grown from 100 × 70, then 120 × 70, for more air).
+  120 × 132 cm portrait, laid out on the 4 px spacing system (narrowed from 140 cm, then made
+  taller for air). The map grows with the poster: it must cover at least 22 % of the poster's
+  area (the share in the approved version), enforced by the wireframe generator.
 
 - **Layout D**: wide, map-led hybrid (see section 2). Options A, B and C are kept in
   `design/wireframe/` for reference. B's top-to-bottom chart felt odd and A was too tall.
@@ -137,6 +152,25 @@ green-blind readers (ΔE 4.6), which is fine for a flag carrying no information.
 
 - The TV-call quote was tried in the header and dropped (too busy).
 
+- The title is **THE ROSSI COMEBACK**, under a small **MUGELLO 2006** header with the
+  livery flash, then one paragraph (no separate event line or subtitle). The QR code is small, in the
+  bottom-right corner, linking to the official full-race video.
+
+- No imagery: the helmet and then the 46 logo were tried and dropped (too much information).
+- The moments are told along the positions chart (a timeline attached to it), replacing the
+  separate story column.
+
+- The "5 Mugello wins in a row" figure was replaced by Rossi's 0.730 s deficit after
+  running wide: the poster is about 2006 only.
+
+- Moment ② is Capirossi's fastest lap of the race (lap 7), replacing Stoner's crash, so the
+  rivalry is told in two steps (②, ③).
+
+- Layout is rebuilt on the 4 px spacing system with explicit proximity and alignment rules.
+- Connectors are thin, straight and land on the rider's position (bent or thick bars were
+  tried and rejected as too loud). The header is one band (paragraph beside the title); the
+  map leads from the left; key numbers and Italy + circuit facts share the right column.
+
 **Open:**
-- Final size and paper (matte recommended for dark backgrounds). Title wording and an
-  optional dedication line.
+- Paper: matte recommended for the dark background.
+  No dedication line.
