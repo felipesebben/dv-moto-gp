@@ -22,7 +22,10 @@ ROOT = Path(__file__).resolve().parents[3]
 # git-ignored preview; the committed wireframe keeps placeholders
 WITH_IMAGES = "--with-images" in sys.argv
 IMAGES = ROOT / "data" / "interim" / "images"  # made by prepare_images.py
-OUT = ROOT / "design" / "wireframe" / ("poster_d_preview.html" if WITH_IMAGES else "poster_d.html")
+# --variant A|B: layout options for the right column (see NOTES); default = current
+VARIANT = next((a.split("=", 1)[1] for a in sys.argv if a.startswith("--variant=")), "")
+suffix = (f"_{VARIANT}" if VARIANT else "") + ("_preview" if WITH_IMAGES else "")
+OUT = ROOT / "design" / "wireframe" / f"poster_d{suffix}.html"
 track, corners, moments = load(ROOT)
 
 PX = 1.6  # px per mm
@@ -33,8 +36,12 @@ RIGHT = W - M
 ITALY = {"green": "#229457", "white": C["ink"], "red": "#CE2B37"}  # flag red, kept apart from Capirossi's coral
 
 # ---- map placement ------------------------------------------------------------
-CONTENT_TOP = 430  # shared top edge: circuit band, map, key numbers, story column
-MAP = (440, CONTENT_TOP + 12, 800, 540)  # x, y, w, h (height-bound); corner labels sit above
+CONTENT_TOP = 396 if VARIANT else 430  # shared top edge: circuit band, map, key numbers
+MAP_H = 560 if VARIANT else 540
+MAP = (440, CONTENT_TOP + 12, 800, MAP_H)  # x, y, w, h (height-bound); corner labels sit above
+# story column top: on the content grid line (A), or level with the header paragraph (B)
+STORY_TOP = {"B": 268}.get(VARIANT, CONTENT_TOP - 4)
+STORY_BOTTOM = 1242  # the last card's bar ends level with the positions strip's lap labels
 pts = fit(track, *MAP)
 SCALE = MAP[3] / 705
 CALLOUT = {0: (-136, -204, -20, 5, "end"), 1: (-14, 141, -12, 32, "start"),
@@ -138,7 +145,8 @@ mx, my = ip(11.372 * kx, -43.997)  # Mugello
 svg.append(f'<circle cx="{mx:.1f}" cy="{my:.1f}" r="9" fill="none" stroke="{C["rossi"]}" stroke-width="2"/>')
 svg.append(f'<circle cx="{mx:.1f}" cy="{my:.1f}" r="3.5" fill="{C["rossi"]}"/>')
 svg.append(f'<text x="{mx + 16:.1f}" y="{my + 5:.1f}" class="placename">Mugello</text>')
-card_x, card_y = M, CONTENT_TOP + 300
+card_x = M
+card_y = (MAP[1] + MAP[3] - 142) if VARIANT else CONTENT_TOP + 300  # A/B: last line on the map bottom
 svg.append(f'<text x="{card_x}" y="{card_y + 24}" class="circuit">Autodromo Internazionale del Mugello</text>')
 for i, line in enumerate([
     "Scarperia e San Piero, Tuscany · built 1974",
@@ -156,14 +164,15 @@ STATS = [  # in race order (badges 4, 6, 7); values from poster.timeline
     ("0.575 s", "Rossi&#8217;s winning margin", 7),
 ]
 for i, (v, label, n) in enumerate(STATS):
-    y = CONTENT_TOP + 34 + i * 96  # first figure's cap height starts on the grid line
+    y = CONTENT_TOP + 34 + i * (112 if VARIANT else 96)  # first cap height on the grid line
     svg.append(f'<text x="1300" y="{y}" class="stat">{v}</text>')
     svg.append(f'<text x="1302" y="{y + 22}" class="statlabel">{label}</text>')
     if n:
         svg.append(badge(1282, y - 16, n, r=9))
 
 # ---- story column ---------------------------------------------------------------
-top, slot = CONTENT_TOP - 4, 119
+top = STORY_TOP
+slot = (STORY_BOTTOM + 18 - top) / 7  # 7 cards fill the column exactly
 svg.append(f'<line x1="{COL + 12}" y1="{top + 28}" x2="{COL + 12}" y2="{top + 6 * slot + 28}" stroke="{C["rule"]}" stroke-width="2"/>')
 for i, m in enumerate(moments):
     y = top + i * slot
