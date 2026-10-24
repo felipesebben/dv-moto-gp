@@ -171,7 +171,7 @@ for lap in range(24):
 svg.append(f'<text x="{x0 - 14}" y="{axis_y + 5}" class="axis" text-anchor="end">Grid</text>')
 for p_ in (1, 4, 8):
     svg.append(f'<text x="{x0 - 14}" y="{ry(p_) + 4:.1f}" class="axis" text-anchor="end">{ordinal(p_)}</text>')
-svg.append(f'<text x="{x1:.1f}" y="{axis_y - 10}" class="axis">Lap 23</text>')
+svg.append(f'<text x="{x1:.1f}" y="{ry(8) + 28:.1f}" class="axis">Lap 23</text>')
 
 # lay out each side: start at the lap, then pull cards left from the right edge if needed
 tiers = {"above": [m for i, m in enumerate(moments) if i % 2 == 0],
@@ -187,15 +187,23 @@ for side, ms in tiers.items():
         lefts[i] = min(lefts[i], rights[i] - CARD_MIN)
     cards += [(side, m, left, right) for m, left, right in zip(ms, lefts, rights, strict=True)]
 
-for side, m, left, right in cards:  # connectors first, under the chart lines
-    lap_x = lx(int(m["lap"]))
+def colour_of(n: int) -> str:
+    return C["rossi"] if n in ROSSI_MOMENTS else C["capi"] if n in RIVAL_MOMENTS else C["grey"]
+
+
+for side, m, left, right in cards:  # under the chart lines
+    n, lap_x = int(m["moment_id"]), lx(int(m["lap"]))
+    # a thin guide marks the moment's lap through the chart
+    svg.append(f'<line x1="{lap_x:.1f}" y1="{axis_y}" x2="{lap_x:.1f}" y2="{ry(8) + 6:.1f}" stroke="{C["rule"]}" stroke-width="1.2"/>')
+    # the coloured bar runs from the number toward the chart and lands on the moment's lap:
+    # down from the number above the chart, up from the number below it
     if side == "above":
-        bend = axis_y - 16
-        pts_ = [(left, TOP_CARDS + CARD_H), (left, bend), (lap_x, bend), (lap_x, ry(8) + 6)]
+        bend = axis_y - 18
+        pts_ = [(left, TOP_CARDS + 26), (left, bend), (lap_x, bend), (lap_x, axis_y)]
     else:
-        bend = BOTTOM_CARDS - 16
-        pts_ = [(lap_x, axis_y), (lap_x, bend), (left, bend), (left, BOTTOM_CARDS)]
-    svg.append(f'<polyline points="{" ".join(f"{x:.1f},{y:.1f}" for x, y in pts_)}" fill="none" stroke="{C["rule"]}" stroke-width="1.2"/>')
+        bend = BOTTOM_CARDS - 18
+        pts_ = [(lap_x, ry(8) + 6), (lap_x, bend), (left, bend), (left, BOTTOM_CARDS)]
+    svg.append(f'<polyline points="{" ".join(f"{x:.1f},{y:.1f}" for x, y in pts_)}" fill="none" stroke="{colour_of(n)}" stroke-width="3" stroke-linejoin="round"/>')
 
 
 def hline(r: int) -> str:
@@ -215,9 +223,8 @@ for r, label in ((46, "Rossi · 1st"), (65, "Capirossi · 2nd")):
 for side, m, left, right in cards:
     n, lap = int(m["moment_id"]), int(m["lap"])
     y = TOP_CARDS if side == "above" else BOTTOM_CARDS
-    colour = C["rossi"] if n in ROSSI_MOMENTS else C["capi"] if n in RIVAL_MOMENTS else C["grey"]
-    svg.append(badge(left, y + 13, n, r=12))  # the number heads the card...
-    svg.append(f'<rect x="{left - 1.5:.1f}" y="{y + 30}" width="3" height="{CARD_H - 62}" fill="{colour}"/>')  # ...and the bar hangs from it
+    colour = colour_of(n)
+    svg.append(badge(left, y + 13, n, r=12))  # the number heads the card, on its bar
     svg.append(
         f'<foreignObject x="{left + 22:.1f}" y="{y}" width="{right - left - 22:.1f}" height="{CARD_H + 4}">'
         f'<div xmlns="http://www.w3.org/1999/xhtml" class="vcard"><b><i>LAP {lap}</i> {m["headline"]}</b>'
@@ -281,8 +288,8 @@ NOTES = """
 <h2>Layout D, round 10</h2>
 <p class="meta">140 × 110 cm at 1.6 px/mm · use <b>Zoom: Print size</b> to judge real text sizes.</p>
 <ul>
-<li><b>Each number heads its card</b> with the coloured bar hanging from it; cards below the chart
-have their numbers below. A connector joins each card to a dot at its lap.</li>
+<li><b>Each number sits on a coloured bar that runs toward the race</b> and lands on the moment's
+lap: down from the numbers above the chart, up from the numbers below it.</li>
 <li><b>The chart runs the full width</b>; the last cards are pulled left to fit and their
 connectors bend to their lap.</li>
 <li><b>Capirossi's charge in two steps</b> (coral, his colour): the fastest lap of the race on lap 7,
