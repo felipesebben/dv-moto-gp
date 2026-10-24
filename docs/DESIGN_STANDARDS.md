@@ -23,7 +23,7 @@ rules is `design/wireframe/poster_d.html` (layout D, chosen), built by
 
 | Zone | Content | Place |
 |---|---|---|
-| A · Title | **The story leads:** a small kicker *MUGELLO 2006* with the Italian livery flash (see §4); the headline **"Lost at San Donato. / Won at San Donato."** on two stacked lines; beside it a discreet line drawing of the real San Donato corner (braking stretch in yellow, badges ④ ⑦); a three-sentence standfirst (stakes, fall, duel, the move); a quiet line *Gran Premio d'Italia Alice, Mugello, Sunday 4 June 2006* | top row |
+| A · Title | Event line *GRAN PREMIO D'ITALIA ALICE, 4 JUNE 2006*; a one-line title that says **who and where** (options: *Rossi's Mugello 2006* / *Rossi at Mugello, 2006* / *Rossi vs Capirossi, Mugello 2006*) with the Italian livery flash; a one-line subtitle that says **what happened** ("He lost the lead at San Donato. Eight laps later, he passed Capirossi for the win at the same corner."); a standfirst with **Patience, then one perfect move** in bold and *a race still counted among his greatest* as the link to a QR code for the official full-race video | top row |
 | B · Images | Rossi's Mugello 2006 helmet (captioned) + 46 logo | top-right, above the story column |
 | C · Map (hero) | Mugello in TV orientation, about half the poster. Rossi's stretches painted yellow, numbered badges + callouts, a "how to read" key in the empty bottom-left | centre-left |
 | D · Key numbers | 0.575 s, 0.002 s, 5 wins, each with the badge of its moment | right band, beside the map |
@@ -43,19 +43,20 @@ family keeps the poster calm.
 
 | Role | Face | Size (pt) | Notes |
 |---|---|---|---|
-| Kicker (MUGELLO 2006) | Barlow Condensed ExtraBold Italic | 60 | with the livery flash |
-| Headline | Barlow Condensed ExtraBold Italic | 149 | two stacked lines; italic only in the kicker and headline, for a sense of speed |
-| Standfirst | Barlow Regular | 32 | primary ink, three sentences |
-| Quiet event line | Barlow Regular | 27 | muted ink |
-| Key numbers | Barlow SemiBold | 82 | same family as the rest (no display font for figures), proportional digits |
-| Story headline | Barlow Condensed SemiBold | 30 | |
-| Story text, map key | Barlow Regular | 23 | ≤ 200 characters per story (enforced by a test) |
-| Map callouts | Barlow Condensed SemiBold | 27 | |
-| Corner names, axis | Barlow Condensed Medium | 21 | tabular digits on the axis only |
-| Credits | Barlow Regular | 18 | **absolute minimum size** |
+| Event line | Barlow Condensed SemiBold, tracked caps | 39 | |
+| Title | Barlow Condensed ExtraBold Italic | 184 | one line; the only italic, for a sense of speed |
+| Subtitle | Barlow Condensed SemiBold | 57 | one line, primary ink |
+| Standfirst | Barlow Regular (key phrase SemiBold) | 34 | primary ink; the link is underlined in Rossi yellow |
+| Key numbers | Barlow SemiBold | 82 | same family as the rest, proportional digits |
+| Story headline | Barlow Condensed SemiBold | 34 | |
+| Story text | Barlow Regular | 26 | ≤ 200 characters per story (enforced by a test) |
+| Map callouts | Barlow Condensed SemiBold | 30 | |
+| Circuit facts, eyebrows, QR caption, key labels | Barlow / Barlow Condensed | 27–28 | |
+| Corner names, axis, footer, credits | Barlow / Barlow Condensed | 25 | **the smallest text on the poster** |
 
-The minimum of 18 pt is for credits only. Anything the reader needs is at least 21 pt, so
-it stays legible at about 1.5 m.
+**Floor: nothing on the poster is below 24 pt** (the hard rule is never below 10 pt). The
+wireframe generator refuses to build if any text class would print smaller. Use the
+wireframe's *Zoom: Print size* to judge sizes on screen.
 **Tableau:** install the Barlow TTFs on Windows before building, so Tableau Desktop can use
 them; PDF export embeds them.
 
@@ -138,8 +139,9 @@ green-blind readers (ΔE 4.6), which is fine for a flag carrying no information.
 
 - The TV-call quote was tried in the header and dropped (too busy).
 
-- The title area tells the story (headline A), replacing the dot-separated subtitle.
+- The title says who and where; the subtitle says what happened (no dot-separated
+  event subtitle). The QR code links to the official full-race video.
 
 **Open:**
-- Final size and paper (matte recommended for dark backgrounds). Title wording and an
-  optional dedication line.
+- Which of the three title options. Paper: matte recommended for the dark background.
+  No dedication line.
