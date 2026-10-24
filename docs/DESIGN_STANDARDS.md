@@ -19,16 +19,18 @@ rules is `design/wireframe/poster_d.html` (layout D, chosen), built by
 - **Plain words:** positions are "1st, 2nd…", times are "seconds", and there's no jargon
   (gap, delta, sector) in reader-facing text.
 
-## 2. Layout D (landscape, 100 × 70 cm)
+## 2. Layout D (landscape, 120 × 70 cm)
 
 | Zone | Content | Place |
 |---|---|---|
-| A · Title | Title, subtitle, one-sentence lede | top-left |
-| B · Images | Helmet + 46 logo | top-right, above the story column |
+| A · Title | Title (with an optional Italian accent, see §4), subtitle with the official event name *Gran Premio d'Italia Alice*, one-sentence lede, and the TV call at the finish as a quote | top row |
+| B · Images | Rossi's Mugello 2006 helmet (captioned) + 46 logo | top-right, above the story column |
 | C · Map (hero) | Mugello in TV orientation, about half the poster. Rossi's stretches painted yellow, numbered badges + callouts, a "how to read" key in the empty bottom-left | centre-left |
-| D · Key numbers | 0.575 s, 0.002 s, 5 wins, each with the badge of its moment | the map area's empty top-right corner |
+| D · Key numbers | 0.575 s, 0.002 s, 5 wins, each with the badge of its moment | right of the track |
+| G · Circuit card | Full name, town, built 1974, 5,245 m × 14 m, 15 corners (9 right, 6 left), longest straight 1,141 m, race distance and conditions, from the *circuit information* and *classification* PDFs | quiet, bottom-left of the map area |
 | E · Story | 7 moments as a list read top to bottom, no boxes: badge, lap, headline, ≤ 200-character story, coloured bar | right column |
-| F · Positions | Compact left-to-right strip, badges on the lap axis, plain hint "higher = further ahead" | under the map |
+| F · Positions | Compact left-to-right strip, badges on the lap axis, plain hint "higher = further ahead" in its title line | under the map |
+| Footer | Map key in one small line (left) + credits (right) | bottom edge |
 
 Margins are 55 mm. The badge numbers ①–⑦ are the thread through map → story → positions.
 
@@ -72,6 +74,7 @@ drops to about 1.1:1 contrast.
 | `context` | `#6F6A64` | the other riders' lines | 3.2 : 1 ✔ |
 | `italy` | `#229457` | finish-line mark only | 4.5 : 1 |
 | `rossi-blue` | `#0F8FCD` | reserved (46-logo outline), not used for data | 4.8 : 1 |
+| `italy-red` | `#CE2B37` | **decoration only**: the title's tricolore accent | ≥ 3 : 1 |
 
 Sources: yellow, blue and black come from the 46 logo; red and green from the helmet. The
 red was then brightened (see below).
@@ -83,6 +86,12 @@ red was then brightened (see below).
 | Rossi ↔ Capirossi (`#FDF504` / `#F26B5B`) | 34.8 | 25.8 (deuteranopia) | ✔ |
 | Capirossi ↔ others (`#F26B5B` / `#6F6A64`) | 23.0 | 9.9 (protanopia) | ✔ (target ≥ 8) |
 | ~~helmet red `#B93940` ↔ grey~~ | 20.3 | **3.6** | ✘ **rejected**: Capirossi would vanish into the pack for red-blind readers |
+
+**Italian accent (decoration, never data):** green `#229457`, ink white and flag red `#CE2B37`.
+Flag red is kept distinct from Capirossi's coral, but the two are still fairly close (ΔE 13.7, under
+the 15 "clearly different" floor). So the accent stays small (a rule or a livery flash under/after
+the title); a big red "2006" could read as Capirossi's colour. Green and red look alike to
+green-blind readers (ΔE 4.6), which is fine for a flag carrying no information.
 
 **Documented exceptions:**
 - `rossi` fails the validator's *lightness band* (L 0.95 > 0.67). That band exists to keep
@@ -119,7 +128,7 @@ red was then brightened (see below).
   Tableau map, which can't rotate.
 - Keep **all 7 key moments**.
 - The poster is **large and airy**: whitespace matters more than density. Sketched at
-  100 × 70 cm landscape.
+  120 × 70 cm landscape (widened from 100 × 70 to give the map and numbers more room).
 
 - **Layout D**: wide, map-led hybrid (see section 2). Options A, B and C are kept in
   `design/wireframe/` for reference. B's top-to-bottom chart felt odd and A was too tall.
