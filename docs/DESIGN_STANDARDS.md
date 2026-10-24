@@ -23,7 +23,7 @@ rules is `design/wireframe/poster_d.html` (layout D, chosen), built by
 
 | Zone | Content | Place |
 |---|---|---|
-| A · Title | Title with an Italian livery flash (see §4), subtitle with the official event name *Gran Premio d'Italia Alice*, a one-line lede, then clear air before the map | top row |
+| A · Title | **The story leads:** a small kicker *MUGELLO 2006* with the Italian livery flash (see §4); the headline **"Lost at San Donato. / Won at San Donato."** on two stacked lines; beside it a discreet line drawing of the real San Donato corner (braking stretch in yellow, badges ④ ⑦); a three-sentence standfirst (stakes, fall, duel, the move); a quiet line *Gran Premio d'Italia Alice, Mugello, Sunday 4 June 2006* | top row |
 | B · Images | Rossi's Mugello 2006 helmet (captioned) + 46 logo | top-right, above the story column |
 | C · Map (hero) | Mugello in TV orientation, about half the poster. Rossi's stretches painted yellow, numbered badges + callouts, a "how to read" key in the empty bottom-left | centre-left |
 | D · Key numbers | 0.575 s, 0.002 s, 5 wins, each with the badge of its moment | right band, beside the map |
@@ -43,9 +43,10 @@ family keeps the poster calm.
 
 | Role | Face | Size (pt) | Notes |
 |---|---|---|---|
-| Title | Barlow Condensed ExtraBold Italic | 184 | the only italic, for a sense of speed |
-| Subtitle | Barlow Condensed Medium | 50 | |
-| Lede | Barlow Regular | 32 | muted ink |
+| Kicker (MUGELLO 2006) | Barlow Condensed ExtraBold Italic | 60 | with the livery flash |
+| Headline | Barlow Condensed ExtraBold Italic | 149 | two stacked lines; italic only in the kicker and headline, for a sense of speed |
+| Standfirst | Barlow Regular | 32 | primary ink, three sentences |
+| Quiet event line | Barlow Regular | 27 | muted ink |
 | Key numbers | Barlow SemiBold | 82 | same family as the rest (no display font for figures), proportional digits |
 | Story headline | Barlow Condensed SemiBold | 30 | |
 | Story text, map key | Barlow Regular | 23 | ≤ 200 characters per story (enforced by a test) |
@@ -136,6 +137,8 @@ green-blind readers (ΔE 4.6), which is fine for a flag carrying no information.
   disconnected from the map; its idea survives as the yellow stretches on the track.
 
 - The TV-call quote was tried in the header and dropped (too busy).
+
+- The title area tells the story (headline A), replacing the dot-separated subtitle.
 
 **Open:**
 - Final size and paper (matte recommended for dark backgrounds). Title wording and an

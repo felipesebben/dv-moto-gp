@@ -28,7 +28,7 @@ RIGHT = W - M
 ITALY = {"green": "#229457", "white": C["ink"], "red": "#CE2B37"}  # flag red, kept apart from Capirossi's coral
 
 # ---- map placement ------------------------------------------------------------
-MAP = (440, 340, 800, 540)  # x, y, w, h (height-bound); left band = Italy + circuit, right = numbers
+MAP = (440, 450, 800, 500)  # x, y, w, h (height-bound); left band = Italy + circuit, right = numbers
 pts = fit(track, *MAP)
 SCALE = MAP[3] / 705
 CALLOUT = {0: (-136, -204, -20, 5, "end"), 1: (-14, 141, -12, 32, "start"),
@@ -38,21 +38,36 @@ STRETCHES = [range(7, 14), range(57, 65), [*range(125, 129), 0]]
 
 svg: list[str] = [f'<rect width="{W}" height="{H}" fill="{C["bg"]}"/>']
 
-# ---- header: title + livery flash, subtitle, lede ------------------------------------
-TITLE_X, TITLE_Y, TITLE_W = M - 4, 172, 530
-svg.append(f'<text x="{TITLE_X}" y="{TITLE_Y}" class="title">MUGELLO 2006</text>')
-# a slanted Italian livery flash after the title, matching the italic
-fx = M + TITLE_W + 26
+# ---- header: kicker + livery flash, the story as a headline, standfirst, quiet facts ----
+# kicker: the event, demoted to a label but keeping its Italian livery flash
+svg.append(f'<text x="{M}" y="112" class="kicker">MUGELLO 2006</text>')
+fx, fh = M + 196, 26
 svg.append("".join(
-    f'<polygon points="{fx + i * 16 + 18},{TITLE_Y - 74} {fx + i * 16 + 28},{TITLE_Y - 74} '
-    f'{fx + i * 16 + 10},{TITLE_Y} {fx + i * 16},{TITLE_Y}" fill="{c}"/>'
+    f'<polygon points="{fx + i * 8 + 7:.1f},{112 - fh} {fx + i * 8 + 11:.1f},{112 - fh} '
+    f'{fx + i * 8 + 4:.1f},112 {fx + i * 8:.1f},112" fill="{c}"/>'
     for i, c in enumerate(ITALY.values())
 ))
-svg.append(f'<text x="{M}" y="218" class="subtitle">Gran Premio d&#8217;Italia Alice · Rossi vs Capirossi · Sunday 4 June 2006</text>')
+# headline: the race in one symmetry, stacked so the two halves mirror each other
+svg.append(f'<text x="{M - 4}" y="198" class="headline">Lost at San Donato.</text>')
+svg.append(f'<text x="{M - 4}" y="280" class="headline">Won at San Donato.</text>')
+# discreet hint: the San Donato corner itself, cut from the real outline (TV orientation),
+# braking stretch in yellow, with the two moments that happened there
+corner = fit([track[i] for i in range(2, 21)], M + 640, 128, 230, 160)
+idx = {i: corner[i - 2] for i in range(2, 21)}
+svg.append(f'<path d="{path(corner)}" fill="none" stroke="{C["muted"]}" stroke-width="3" stroke-linejoin="round" stroke-linecap="round"/>')
+svg.append(f'<path d="{path([idx[i] for i in range(7, 14)])}" fill="none" stroke="{C["rossi"]}" stroke-width="5" stroke-linejoin="round" stroke-linecap="round"/>')
+ax, ay = idx[10]
+svg.append(badge(ax - 24, ay - 12, 4, r=9) + badge(ax - 24, ay + 12, 7, r=9))
+# standfirst: stakes, fall, duel, the move (every fact traced in docs/research/race_story.md)
 svg.append(
-    f'<text x="{M}" y="256" class="lede">Behind in the championship and in front of his home crowd, '
-    f"Valentino Rossi falls from first to fifth with eight laps to go, then wins by half a second.</text>"
+    f'<foreignObject x="{M}" y="304" width="1080" height="84"><div xmlns="http://www.w3.org/1999/xhtml" class="standfirst">'
+    f"Forty-three points down in the championship and racing in front of his home crowd, "
+    f"Valentino Rossi fell from first to fifth with eight laps left. He hunted Loris Capirossi "
+    f"down lap after lap, then passed him on the final lap at the very corner where he had lost "
+    f"the lead. Patience, then one perfect move: a race still counted among his greatest."
+    f"</div></foreignObject>"
 )
+svg.append(f'<text x="{M}" y="410" class="quiet">Gran Premio d&#8217;Italia Alice, Mugello, Sunday 4 June 2006</text>')
 
 # ---- images: the Mugello 2006 helmet leads the column ------------------------------
 svg.append(f'<rect x="{COL}" y="{M}" width="280" height="196" rx="8" fill="none" stroke="{C["muted"]}" stroke-dasharray="4 4"/>')
@@ -99,13 +114,13 @@ for turn, ms in by_turn.items():
 # circuit block, left band: where Mugello is in Italy, then the facts
 # (circuit information + classification PDFs; name and town from the track GeoJSON;
 # Italy outline from Natural Earth, public domain)
-svg.append(f'<text x="{M}" y="364" class="eyebrow">THE CIRCUIT</text>')
+svg.append(f'<text x="{M}" y="464" class="eyebrow">THE CIRCUIT</text>')
 italy = json.loads((ROOT / "seeds" / "italy.geojson").read_text(encoding="utf-8"))
 kx = math.cos(math.radians(42))
 rings = [[(lon * kx, -lat) for lon, lat in poly[0]] for poly in italy["features"][0]["geometry"]["coordinates"]]
 allx = [x for r in rings for x, _ in r]
 ally = [y for r in rings for _, y in r]
-box_x, box_y, box_w, box_h = M, 384, 250, 250
+box_x, box_y, box_w, box_h = M, 484, 230, 230
 isc = min(box_w / (max(allx) - min(allx)), box_h / (max(ally) - min(ally)))
 
 
@@ -119,7 +134,7 @@ mx, my = ip(11.372 * kx, -43.997)  # Mugello
 svg.append(f'<circle cx="{mx:.1f}" cy="{my:.1f}" r="9" fill="none" stroke="{C["rossi"]}" stroke-width="2"/>')
 svg.append(f'<circle cx="{mx:.1f}" cy="{my:.1f}" r="3.5" fill="{C["rossi"]}"/>')
 svg.append(f'<text x="{mx + 16:.1f}" y="{my + 5:.1f}" class="placename">Mugello</text>')
-card_x, card_y = M, 652
+card_x, card_y = M, 730
 svg.append(f'<text x="{card_x}" y="{card_y + 24}" class="circuit">Autodromo Internazionale del Mugello</text>')
 for i, line in enumerate([
     "Scarperia e San Piero, Tuscany · built 1974",
@@ -133,7 +148,7 @@ for i, line in enumerate([
 # key numbers, right of the circuit, each tied to its moment
 STATS = [("0.575 s", "Rossi&#8217;s winning margin", 7), ("0.002 s", "between them after lap 22", 6), ("5", "Mugello wins in a row", None)]
 for i, (v, label, n) in enumerate(STATS):
-    y = 410 + i * 84
+    y = 500 + i * 84
     svg.append(f'<text x="1300" y="{y}" class="stat">{v}</text>')
     svg.append(f'<text x="1302" y="{y + 22}" class="statlabel">{label}</text>')
     if n:
@@ -154,7 +169,7 @@ for i, m in enumerate(moments):
     )
 
 # ---- position strip ---------------------------------------------------------------
-x0, x1, axis_y, row = M + 64, 1500, 968, 16
+x0, x1, axis_y, row = M + 64, 1500, 1016, 14
 
 
 def lx(lap: float) -> float:
@@ -206,18 +221,20 @@ svg.append(
 )
 
 NOTES = """
-<h2>Layout D, round 5</h2>
+<h2>Layout D, round 6: the story in the title</h2>
 <p class="meta">140 × 80 cm landscape at 1.6 px/mm · real data and event facts ·
-images are placeholders · 65 mm margins.</p>
+images are placeholders.</p>
 <h3>What changed</h3>
 <ul>
-<li><b>Bigger poster</b> (140 × 80 cm) for more air: the map sits in the middle, with a left
-band for the circuit and a right band for the key numbers.</li>
-<li><b>Italy locator</b> above the circuit facts: where Mugello sits, in Rossi yellow
-(Italy outline: Natural Earth, public domain).</li>
-<li><b>The summary sentence is one line.</b></li>
-<li><b>Legends breathe:</b> the footer key has larger text and more space between items,
-and about 100 px of air above it.</li>
+<li><b>Headline A:</b> "Lost at San Donato. Won at San Donato." on two stacked lines, so the
+symmetry reads at a glance.</li>
+<li><b>San Donato hint:</b> beside the headline, a small drawing of the real corner (thin
+line, braking stretch in yellow, badges ④ and ⑦), echoing the same corner on the map.</li>
+<li><b>Kicker:</b> "MUGELLO 2006" with its livery flash, demoted to a label.</li>
+<li><b>Standfirst:</b> stakes, fall, duel and the decisive move in three sentences, all
+checked against the research notes.</li>
+<li><b>Quiet line:</b> <i>Gran Premio d&#8217;Italia Alice</i> and the date, no longer the
+main subtitle.</li>
 </ul>
 <h3>Kept from round 4</h3>
 <ul><li>Livery flash after the title, no header quote, yellow stretches on the track, numbered
@@ -241,9 +258,10 @@ aside h3 {{ font:600 18px 'Barlow Condensed'; margin:14px 0 4px; color:#4FD1C5; 
 .controls .grp {{ display:flex; gap:6px; align-items:center; flex-wrap:wrap; }}
 .controls button {{ font:inherit; color:{C["ink"]}; background:#1E1C1B; border:1px solid #3A3734; border-radius:6px; padding:4px 10px; cursor:pointer; }}
 .controls button[aria-pressed="true"] {{ border-color:#4FD1C5; color:#4FD1C5; }}
-.title {{ font:italic 800 104px 'Barlow Condensed'; fill:{C["ink"]}; }}
-.subtitle {{ font:500 26px 'Barlow Condensed'; fill:{C["ink"]}; }}
-.lede {{ font:400 18px Barlow; fill:{C["muted"]}; }}
+.kicker {{ font:italic 800 34px 'Barlow Condensed'; fill:{C["ink"]}; letter-spacing:1px; }}
+.headline {{ font:italic 800 84px 'Barlow Condensed'; fill:{C["ink"]}; }}
+.standfirst {{ font:400 18px/1.45 Barlow; color:{C["ink"]}; }}
+.quiet {{ font:400 15px Barlow; fill:{C["muted"]}; }}
 .placename {{ font:600 14px 'Barlow Condensed'; fill:{C["ink"]}; }}
 .ph {{ font:500 12px Barlow; fill:{C["muted"]}; text-anchor:middle; }}
 .caption {{ font:italic 400 13px Barlow; fill:{C["muted"]}; }}
