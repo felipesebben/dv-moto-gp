@@ -17,8 +17,8 @@ Tissot PDFs ──ingest──▶ Parquet ──model──▶ DuckDB ──publ
 Poster (agreed with the user): *THE ROSSI COMEBACK* at Mugello 2006. A big map marks where
 the key moments happened, story cards run beside it, and a compact position strip shows
 only Rossi (the protagonist, in his yellow) and Capirossi (the rival), with everyone else
-grey. Nothing prints below 24 pt. It's a gift for the user's father, who is a Rossi fan but not data literate, so keep
-the charts simple and the text plain. The user builds the Tableau workbook themselves; Claude
+grey. Nothing prints below 24 pt. It's a gift for the user's father, who is a Rossi fan but
+not data literate, so keep the charts simple and the text plain. The user builds the Tableau workbook themselves; Claude
 guides with instructions and writes the Python/SQL.
 
 ## Commands
