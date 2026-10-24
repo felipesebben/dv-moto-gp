@@ -28,10 +28,11 @@ ITALY = {"green": "#229457", "white": C["ink"], "red": "#CE2B37"}  # flag red, k
 
 # ---- grid ------------------------------------------------------------------------------
 # header (title + paragraph) | content band: circuit block · map · key numbers | race band
-CONTENT_TOP = 412  # air under the header paragraph
-MAP_H = 820  # the map is the centrepiece: big, and centred on the poster
+CONTENT_TOP = 316  # air under the header
+MAP_H = 900  # the map is the centrepiece: the biggest element, leading from the left
 MAP_W = MAP_H * 1000 / 705  # the track's aspect ratio in TV orientation
-MAP = ((W - MAP_W) / 2, CONTENT_TOP + 14, MAP_W, MAP_H)  # x, y, w, h; labels sit above
+MAP = (M + 96, CONTENT_TOP + 14, MAP_W, MAP_H)  # x, y, w, h; San Donato's label sits left of it
+COL_X = RIGHT - 420  # right column: key numbers (top) and Italy + circuit facts (bottom)
 RACE_TOP = MAP[1] + MAP_H + 60  # race band: positions chart with the moments along it
 pts = fit(track, *MAP)
 SCALE = MAP[3] / 705
@@ -45,6 +46,7 @@ svg: list[str] = [f'<rect width="{W}" height="{H}" fill="{C["bg"]}"/>']
 
 # ---- header: MUGELLO 2006 (+ Italian livery flash) above the title, then one paragraph ----
 KICKER_Y, TITLE_Y = 118, 244
+STAND_X = 1100  # the paragraph sits beside the title, from the kicker line to the title baseline
 svg.append(f'<text id="kicker" x="{M}" y="{KICKER_Y}" class="kicker">MUGELLO 2006</text>')
 # drawn at x=0; the page script moves it to the measured end of the kicker
 svg.append('<g class="flash" data-for="kicker">' + "".join(
@@ -55,7 +57,7 @@ svg.append('<g class="flash" data-for="kicker">' + "".join(
 svg.append(f'<text x="{M - 6}" y="{TITLE_Y}" class="title">THE ROSSI COMEBACK</text>')
 # one paragraph: the event and date run in, then what happened and why it matters
 svg.append(
-    f'<foreignObject x="{M}" y="270" width="1380" height="110"><div xmlns="http://www.w3.org/1999/xhtml" class="standfirst">'
+    f'<foreignObject x="{STAND_X}" y="{KICKER_Y - 22}" width="{RIGHT - STAND_X}" height="{TITLE_Y - KICKER_Y + 40}"><div xmlns="http://www.w3.org/1999/xhtml" class="standfirst">'
     f"<span class=\"runin\">Gran Premio d&#8217;Italia Alice, 4 June 2006.</span> "
     f"Forty-three points down in the championship and in front of his home crowd, Valentino Rossi "
     f"was leading when he ran wide at San Donato and fell to fifth, with eight laps left. He hunted "
@@ -99,9 +101,8 @@ for turn, ms in by_turn.items():
     for j, m in enumerate(ms):
         svg.append(f'<text x="{bx + tdx:.1f}" y="{by + tdy + j * 18:.1f}" class="callout" text-anchor="{anchor}">{m["moment_id"]} · {m["headline"]}</text>')
 
-# ---- map band, as wide as the race chart: circuit (bottom-left) · map · numbers (top-right) --
-# The circuit block and the key numbers sit on either side of the map, diagonally opposite,
-# so the band spans the same width as the positions chart below it.
+# ---- right column: key numbers (top, level with the map's top) and Italy + the circuit
+# facts (bottom, level with the map's bottom). The map itself leads from the left.
 # (circuit information + classification PDFs; name and town from the track GeoJSON;
 # Italy outline from Natural Earth, public domain)
 track_bottom = max(p[1] for p in pts)
@@ -118,8 +119,8 @@ FACTS = [
 ]
 ITALY_BOX = 290
 block_top = track_bottom - (22 + ITALY_BOX + 40 + len(FACTS) * 23)  # bottom-aligned with the map
-svg.append(f'<text x="{M}" y="{block_top + 12}" class="eyebrow">THE CIRCUIT</text>')
-box_x, box_y, box_w, box_h = M, block_top + 26, ITALY_BOX, ITALY_BOX
+svg.append(f'<text x="{COL_X}" y="{block_top + 12}" class="eyebrow">THE CIRCUIT</text>')
+box_x, box_y, box_w, box_h = COL_X, block_top + 26, ITALY_BOX, ITALY_BOX
 isc = min(box_w / (max(allx) - min(allx)), box_h / (max(ally) - min(ally)))
 
 
@@ -134,17 +135,17 @@ svg.append(f'<circle cx="{mx:.1f}" cy="{my:.1f}" r="10" fill="none" stroke="{C["
 svg.append(f'<circle cx="{mx:.1f}" cy="{my:.1f}" r="4" fill="{C["rossi"]}"/>')
 svg.append(f'<text x="{mx + 18:.1f}" y="{my + 6:.1f}" class="placename">Mugello</text>')
 name_y = box_y + box_h + 34
-svg.append(f'<text x="{M}" y="{name_y}" class="circuit">Autodromo Internazionale del Mugello</text>')
+svg.append(f'<text x="{COL_X}" y="{name_y}" class="circuit">Autodromo Internazionale del Mugello</text>')
 for i, line in enumerate(FACTS):
-    svg.append(f'<text x="{M}" y="{name_y + 26 + i * 23}" class="meta">{line}</text>')
+    svg.append(f'<text x="{COL_X}" y="{name_y + 26 + i * 23}" class="meta">{line}</text>')
 
-# key numbers: top-right of the map band, right beside the map, in race order (badges 4, 6, 7)
+# key numbers: top of the right column, level with the map's top, in race order (badges 4, 6, 7)
 STATS = [  # values from poster.timeline
     ("0.730 s", "behind Capirossi after running wide, in 5th", 4),
     ("0.002 s", "between them after lap 22", 6),
     ("0.575 s", "Rossi&#8217;s winning margin", 7),
 ]
-STAT_X = RIGHT - 380
+STAT_X = COL_X + 20
 for i, (v, label, n) in enumerate(STATS):
     y = CONTENT_TOP + 34 + i * 104  # top-aligned with the map band
     svg.append(f'<text x="{STAT_X}" y="{y}" class="stat">{v}</text>')
@@ -294,13 +295,15 @@ POSTER_CSS = "\n".join(
 POSTER_CSS += "\n.badge { font-family:'Barlow Condensed'; font-weight:700; text-anchor:middle; }"
 
 NOTES = """
-<h2>Layout D, round 13</h2>
+<h2>Layout D, round 14</h2>
 <p class="meta">140 × 116 cm at 1.6 px/mm · use <b>Zoom: Print size</b> to judge real text sizes.</p>
 <ul>
-<li><b>The race chart runs all the way across</b>; the last two moments are narrow and sit against
-the right edge.</li>
-<li><b>The map band is as wide as the chart</b>: a bigger Italy with the circuit facts at
-bottom-left, the map in the middle, the key numbers at top-right beside the map.</li>
+<li><b>Header in one band:</b> the paragraph sits beside the title in the right half, from the
+MUGELLO 2006 line to the title baseline.</li>
+<li><b>The map leads:</b> bigger (900 px tall), starting at the left margin, roughly aligned with the
+chart below, with more air above and below.</li>
+<li><b>One right column:</b> key numbers at the top (level with the map's top), Italy and the circuit
+facts at the bottom (level with the map's bottom).</li>
 </ul>
 """
 

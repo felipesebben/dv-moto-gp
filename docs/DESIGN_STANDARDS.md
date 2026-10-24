@@ -25,8 +25,8 @@ Three bands, top to bottom, on a 65 mm margin:
 
 | Band | Content |
 |---|---|
-| **Header** | Left: *MUGELLO 2006* with the Italian livery flash, the title **THE ROSSI COMEBACK**, then one paragraph (the event and date run in, then the stakes, the fall at San Donato, the pass for the win at the same corner, and "Patience, then one perfect move: a race still counted among his greatest."). |
-| **Map band** (the centrepiece, as wide as the race chart) | **Bottom-left:** a large Italy locator (Mugello in Rossi yellow; Natural Earth, public domain) with the circuit facts directly under it, bottom-aligned with the map. **Centre:** Mugello in TV orientation, big, with Rossi's stretches in yellow and numbered badges and callouts. **Top-right, beside the map:** the key numbers in race order, each with its moment's badge: **0.730 s** behind Capirossi after running wide, in 5th (④); **0.002 s** after lap 22 (⑥); **0.575 s** winning margin (⑦). |
+| **Header** (one compact band) | Left: *MUGELLO 2006* with the Italian livery flash, then the title **THE ROSSI COMEBACK**. Right half, beside the title (from the MUGELLO 2006 line to the title baseline): one paragraph, with the event and date run in (*Gran Premio d'Italia Alice, 4 June 2006.*), then the stakes, the fall at San Donato, the pass for the win at the same corner, and "Patience, then one perfect move: a race still counted among his greatest." |
+| **Map band** (the map is the main element) | **The map** leads from the left margin, roughly aligned with the race chart below: Mugello in TV orientation, the biggest element on the poster, with Rossi's stretches in yellow and numbered badges and callouts. **One right column:** the key numbers at the top (level with the map's top), in race order with their moments' badges (**0.730 s** behind Capirossi after running wide, in 5th ④; **0.002 s** after lap 22 ⑥; **0.575 s** winning margin ⑦), and a large Italy locator with the circuit facts at the bottom (level with the map's bottom; Natural Earth, public domain). |
 | **Race band** | The positions chart (each line a rider; Rossi yellow, Capirossi coral, others grey) with **the 7 moments told along it**. Cards alternate above (laps 1, 13, 18, 23) and below (laps 7, 15, 22) so close laps never collide. Each card starts exactly at its lap with its number beside the text, and **a thin straight line runs from the number to where that rider was on that lap** (Rossi's moments to Rossi's line, Capirossi's to his), ending in a dot in the rider's colour. The chart runs nearly the full width, leaving exactly one narrow card after lap 23, so the last moments still start at their lap and every line stays vertical. |
 | **Footer** | Map key (left) + credits and a small QR code to the official full-race video (bottom-right, 40 mm). |
 
@@ -152,8 +152,8 @@ green-blind readers (ΔE 4.6), which is fine for a flag carrying no information.
   rivalry is told in two steps (②, ③).
 
 - Connectors are thin, straight and land on the rider's position (bent or thick bars were
-  tried and rejected as too loud). The key numbers sit top-right beside the map; Italy and the
-  circuit facts bottom-left.
+  tried and rejected as too loud). The header is one band (paragraph beside the title); the
+  map leads from the left; key numbers and Italy + circuit facts share the right column.
 
 **Open:**
 - Paper: matte recommended for the dark background.
