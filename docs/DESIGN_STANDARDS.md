@@ -119,8 +119,11 @@ red was then brightened (see below).
 - The poster is **large and airy**: whitespace matters more than density. A2 is the minimum;
   layouts B and C are sketched at 100 × 70 cm landscape.
 
+- **Layout B**: landscape, map on the left, vertical race column on the right (position
+  chart running top to bottom + the 7 story cards linked to their laps). Options A and C are
+  kept in `design/wireframe/` for reference. C was parked because the lanes can't follow the
+  outline exactly and the ring felt disconnected from the map.
+
 **Open:**
-- Layout: A (portrait, horizontal timeline), B (map + vertical race column) or C (positions
-  as a ring around the circuit). See `design/wireframe/layout_options.html`.
 - Final size and paper (matte recommended for dark backgrounds). Title wording and an
   optional dedication line.
