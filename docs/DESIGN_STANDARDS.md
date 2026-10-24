@@ -3,7 +3,8 @@
 The rules every poster element follows. Colour figures come from the dataviz skill's
 validator (`validate_palette.js`: OKLab ΔE, Machado 2009 colour-vision simulation, WCAG 2
 and APCA contrast); they were measured, not eyeballed. The wireframe that applies these
-rules is `design/wireframe/poster_wireframe.html`.
+rules is `design/wireframe/poster_d.html` (layout D, chosen), built by
+`design/wireframe/tools/build_poster_d.py`.
 
 ## 1. Audience and principles
 
@@ -18,18 +19,18 @@ rules is `design/wireframe/poster_wireframe.html`.
 - **Plain words:** positions are "1st, 2nd…", times are "seconds", and there's no jargon
   (gap, delta, sector) in reader-facing text.
 
-## 2. Layout (A2 portrait, 420 × 594 mm; size still to confirm)
+## 2. Layout D (landscape, 100 × 70 cm)
 
-| Zone | Content | Share of height |
+| Zone | Content | Place |
 |---|---|---|
-| A · Header | Title, subtitle, one-sentence lede, 46 logo + helmet images | ~15 % |
-| B · Map | Mugello outline with numbered moment badges and short callouts | ~40 % |
-| C · Story | 7 cards in lap order (badge, lap, headline, ≤ 200-character story) | ~16 % |
-| D · Laps | Shared lap axis (grid → lap 23) with badges, then the position chart | ~17 % |
-| E · Numbers | Three key figures + credits | ~7 % |
+| A · Title | Title, subtitle, one-sentence lede | top-left |
+| B · Images | Helmet + 46 logo | top-right, above the story column |
+| C · Map (hero) | Mugello in TV orientation, about half the poster. Rossi's stretches painted yellow, numbered badges + callouts, a "how to read" key in the empty bottom-left | centre-left |
+| D · Key numbers | 0.575 s, 0.002 s, 5 wins, each with the badge of its moment | the map area's empty top-right corner |
+| E · Story | 7 moments as a list read top to bottom, no boxes: badge, lap, headline, ≤ 200-character story, coloured bar | right column |
+| F · Positions | Compact left-to-right strip, badges on the lap axis, plain hint "higher = further ahead" | under the map |
 
-Margins are 20 mm. Zones C and D share the same horizontal lap scale, so a card's curve
-lands on its lap and the guide drops straight into the position chart.
+Margins are 55 mm. The badge numbers ①–⑦ are the thread through map → story → positions.
 
 ## 3. Typography
 
@@ -38,19 +39,20 @@ Jeremy Tribby, SIL Open Font License 1.1 (free for print). They're low-contrast 
 inspired by road signage, with a motorsport feel and very legible at a distance. Using one
 family keeps the poster calm.
 
-| Role | Face | Size at A2 (pt) | Notes |
+| Role | Face | Size at 100 × 70 cm (pt) | Notes |
 |---|---|---|---|
-| Title | Barlow Condensed ExtraBold Italic | 96 | the only italic, for a sense of speed |
-| Subtitle | Barlow Condensed Medium | 28 | |
-| Lede | Barlow Regular | 18 | muted ink |
-| Card headline | Barlow Condensed SemiBold | 22 | |
-| Card story / callouts | Barlow Regular / Condensed SemiBold | 14–16 | ≤ 200 characters per story (enforced by a test) |
-| Key numbers | Barlow SemiBold | 60 | same family as the rest (no display font for figures), proportional digits |
-| Chart labels, corners, axis | Barlow Condensed Medium | 12–13 | tabular digits on the axis only |
-| Credits | Barlow Regular | 9 | **absolute minimum size** |
+| Title | Barlow Condensed ExtraBold Italic | 184 | the only italic, for a sense of speed |
+| Subtitle | Barlow Condensed Medium | 50 | |
+| Lede | Barlow Regular | 32 | muted ink |
+| Key numbers | Barlow SemiBold | 82 | same family as the rest (no display font for figures), proportional digits |
+| Story headline | Barlow Condensed SemiBold | 30 | |
+| Story text, map key | Barlow Regular | 23 | ≤ 200 characters per story (enforced by a test) |
+| Map callouts | Barlow Condensed SemiBold | 27 | |
+| Corner names, axis | Barlow Condensed Medium | 21 | tabular digits on the axis only |
+| Credits | Barlow Regular | 18 | **absolute minimum size** |
 
-The minimum of 9 pt is for credits only. Anything the reader needs is at least 12 pt, so
-it stays legible at about 1 m.
+The minimum of 18 pt is for credits only. Anything the reader needs is at least 21 pt, so
+it stays legible at about 1.5 m.
 **Tableau:** install the Barlow TTFs on Windows before building, so Tableau Desktop can use
 them; PDF export embeds them.
 
@@ -107,7 +109,7 @@ red was then brightened (see below).
    position chart beyond the key-lap guides.
 6. **Proofing checklist before print:** check the wireframe or the final export in
    *Protanopia*, *Deuteranopia* and *Greyscale* (toggles in the wireframe), and do a test
-   print of zone D at 100 % scale to check the 12 pt minimum.
+   print of the positions strip (zone F) at 100 % scale to check the 21 pt minimum.
 
 ## 6. Decisions
 
@@ -116,13 +118,13 @@ red was then brightened (see below).
   north-up. This means the build uses rotated x/y coordinates from the pipeline instead of a
   Tableau map, which can't rotate.
 - Keep **all 7 key moments**.
-- The poster is **large and airy**: whitespace matters more than density. A2 is the minimum;
-  layouts B and C are sketched at 100 × 70 cm landscape.
+- The poster is **large and airy**: whitespace matters more than density. Sketched at
+  100 × 70 cm landscape.
 
-- **Layout B**: landscape, map on the left, vertical race column on the right (position
-  chart running top to bottom + the 7 story cards linked to their laps). Options A and C are
-  kept in `design/wireframe/` for reference. C was parked because the lanes can't follow the
-  outline exactly and the ring felt disconnected from the map.
+- **Layout D**: wide, map-led hybrid (see section 2). Options A, B and C are kept in
+  `design/wireframe/` for reference. B's top-to-bottom chart felt odd and A was too tall.
+  C was parked because the lanes can't follow the outline exactly and the ring felt
+  disconnected from the map; its idea survives as the yellow stretches on the track.
 
 **Open:**
 - Final size and paper (matte recommended for dark backgrounds). Title wording and an
