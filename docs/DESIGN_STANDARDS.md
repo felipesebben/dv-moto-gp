@@ -109,9 +109,18 @@ red was then brightened (see below).
    *Protanopia*, *Deuteranopia* and *Greyscale* (toggles in the wireframe), and do a test
    print of zone D at 100 % scale to check the 12 pt minimum.
 
-## 6. Open decisions
+## 6. Decisions
 
-- Poster size (A2 assumed) and paper (matte recommended for dark backgrounds).
-- Map orientation: rotated like TV graphics (wireframe) or north-up. Tableau maps can't
-  rotate, so the rotated version needs x/y coordinates from the pipeline.
-- Keep all 7 moments or cut to 5. Title wording, and an optional dedication line.
+**Agreed:**
+- Map orientation follows **TV graphics** (main straight across, north pointing left), never
+  north-up. This means the build uses rotated x/y coordinates from the pipeline instead of a
+  Tableau map, which can't rotate.
+- Keep **all 7 key moments**.
+- The poster is **large and airy**: whitespace matters more than density. A2 is the minimum;
+  layouts B and C are sketched at 100 × 70 cm landscape.
+
+**Open:**
+- Layout: A (portrait, horizontal timeline), B (map + vertical race column) or C (positions
+  as a ring around the circuit). See `design/wireframe/layout_options.html`.
+- Final size and paper (matte recommended for dark backgrounds). Title wording and an
+  optional dedication line.
