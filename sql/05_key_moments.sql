@@ -7,12 +7,14 @@ select
     c.corner_name,
     t.lon,
     t.lat,
+    t.x_m,
+    t.y_m,
     m.headline,
     m.story,
     tl.protagonist_position,
     tl.leader_name
 from seed_key_moments as m
 left join seed_corners as c using (turn)
-left join stg_track_points as t using (point_idx)
+left join poster.track as t using (point_idx)
 left join poster.timeline as tl using (lap)
 order by m.moment_id;

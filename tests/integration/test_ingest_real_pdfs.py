@@ -38,3 +38,13 @@ def test_every_lap_chart_rider_is_known(tables: dict[str, pl.DataFrame]) -> None
     known = set(tables["classification"]["rider_number"])
     assert set(tables["lap_chart"]["rider_number"]) == known
     assert tables["lap_chart"].filter(pl.col("lap") == 0).height == len(known)
+
+
+def test_official_circuit_facts_agree_with_our_seeds(tables: dict[str, pl.DataFrame]) -> None:
+    event = tables["event"].row(0, named=True)
+    corners = pl.read_csv(config.SEEDS / "corners.csv").filter(pl.col("turn") > 0)
+    assert event["right_corners"] + event["left_corners"] == corners.height
+    assert event["track_length_m"] == pytest.approx(
+        tables["track_points"]["distance_m"].max(), abs=10
+    )
+    assert event["race_laps"] == tables["lap_chart"]["lap"].max()

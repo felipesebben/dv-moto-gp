@@ -6,8 +6,8 @@ import duckdb
 
 from mugello06 import config
 
-STAGING = ("classification", "lap_chart", "laps", "track_points")
-SEEDS = ("corners", "key_moments")
+STAGING = ("classification", "lap_chart", "laps", "track_points", "event")
+SEEDS = ("corners", "key_moments", "stretches")
 
 
 def build(

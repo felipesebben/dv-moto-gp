@@ -1,6 +1,7 @@
 """Pure line parsers for each Tissot report. Each returns a polars DataFrame."""
 
 import re
+from datetime import datetime
 
 import polars as pl
 
@@ -113,3 +114,57 @@ def parse_analysis(lines: list[str]) -> pl.DataFrame:
             }
         )
     return pl.DataFrame(rows)
+
+
+_EVENT_PATTERNS = {
+    "event_name": r"^(GRAN PREMIO .+)$",
+    "race_date": r"^\w+, \w+, (\w+ \d{2}, \d{4})$",
+    "race_laps": r"Classification after (\d+) laps",
+    "race_distance_km": r"laps = ([\d.]+) km",
+    "track_length_m": r"^(\d+) m\.$",
+    "track_width_m": r"^Width (\d+) m\.$",
+    "right_corners": r"^Right corners (\d+)$",
+    "left_corners": r"^Left corners (\d+)$",
+    "longest_straight_m": r"^Longest straight ([\d,]+) m\.",
+    "constructed": r"^Constructed (\d{4})$",
+    "condition": r"Race condition:\s*(\w+)",
+    "air_c": r"Air: (\d+)°",
+    "track_c": r"Ground: (\d+)°",
+    "start_time": r"^(\d{2}:\d{2})'\d{2} RACE START$",
+}
+_EVENT_INTS = {
+    "race_laps",
+    "track_length_m",
+    "track_width_m",
+    "right_corners",
+    "left_corners",
+    "longest_straight_m",
+    "constructed",
+    "air_c",
+    "track_c",
+}
+
+
+def _display_name(raw: str) -> str:
+    """'GRAN PREMIO D'ITALIA ALICE' -> "Gran Premio d'Italia Alice"."""
+    words = [w.capitalize() for w in raw.split()]
+    return " ".join(w[:2].lower() + w[2:].capitalize() if w.startswith("D'") else w for w in words)
+
+
+def parse_event(lines: list[str], circuit: dict[str, str]) -> pl.DataFrame:
+    """One row of event + circuit facts from the classification and circuit-information reports.
+
+    `circuit` carries the full name and town, which the PDFs don't have (track GeoJSON).
+    """
+    text = [strip_ws(line) for line in lines]
+    facts: dict[str, object] = {}
+    for key, pattern in _EVENT_PATTERNS.items():
+        match = next((m for line in text if (m := re.search(pattern, line))), None)
+        if match is None:
+            raise ValueError(f"event fact not found: {key}")
+        value = match.group(1).replace(",", "") if key in _EVENT_INTS else match.group(1)
+        facts[key] = int(value) if key in _EVENT_INTS else value
+    facts["event_name"] = _display_name(str(facts["event_name"]))
+    facts["race_date"] = datetime.strptime(str(facts["race_date"]), "%B %d, %Y").date()
+    facts["race_distance_km"] = float(str(facts["race_distance_km"]))
+    return pl.DataFrame([{**facts, **circuit}])
