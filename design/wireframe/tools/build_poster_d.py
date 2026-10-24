@@ -42,14 +42,14 @@ LAYOUT: dict[str, float] = {"W": W, "PAD": PAD}  # checked against the 4 px grid
 KICKER_Y = PAD + M_  # baselines
 TITLE_Y = KICKER_Y + M_ + 96
 STAND_Y = TITLE_Y + L_  # paragraph box top
-STAND_W, STAND_LINES, STAND_LH = RIGHT - LEFT, 2, 28  # full content width: two lines
+STAND_W, STAND_LINES, STAND_LH = 1408, 3, 28  # three longer lines under the title
 HEADER_BOTTOM = STAND_Y + STAND_LINES * STAND_LH
 LAYOUT |= {"KICKER_Y": KICKER_Y, "TITLE_Y": TITLE_Y, "STAND_Y": STAND_Y, "STAND_W": STAND_W,
            "HEADER_BOTTOM": HEADER_BOTTOM}
 
 # ---- map band: circuit facts (bottom-left) · map (centre) · key numbers (top-right) ----------
 BAND_TOP = HEADER_BOTTOM + BREAK
-MAP_H = 760
+MAP_H = 800  # grows with the poster so the map's share of it never shrinks
 MAP_W = snap(MAP_H * 1000 / 705)  # the track's aspect ratio in TV orientation
 MAP_X, MAP_Y = snap((W - MAP_W) / 2), BAND_TOP + M_  # corner labels sit in the 24 px above
 BAND_BOTTOM = MAP_Y + MAP_H
@@ -290,6 +290,10 @@ svg.append(
     f"Track: bacinger/f1-circuits (MIT) · Story: MotoGP broadcast, Paddock Pass Podcast</text>"
 )
 
+# ---- the map stays the main actor: its share of the poster never drops below the approved 22 % --
+MAP_SHARE = MAP_W * MAP_H / (W * H)
+assert MAP_SHARE >= 0.22, f"map shrank to {MAP_SHARE:.1%} of the poster"
+
 # ---- the grid rule: every layout position and size is a multiple of 4 px --------------------
 off_grid = {k: v for k, v in LAYOUT.items() if v % U}
 assert not off_grid, f"layout values off the 4 px grid: {off_grid}"
@@ -327,7 +331,7 @@ POSTER_CSS = "\n".join(
 POSTER_CSS += "\n.badge { font-family:'Barlow Condensed'; font-weight:700; text-anchor:middle; }"
 
 NOTES = """
-<h2>Layout D, round 16: rebuilt on a spacing grid</h2>
+<h2>Layout D, round 17: rebuilt on a spacing grid</h2>
 <p class="meta">120 cm wide at 1.6 px/mm · use <b>Zoom: Print size</b> to judge real text sizes.</p>
 <ul>
 <li><b>4 px spacing grid:</b> every block position, gap and padding uses 8 · 16 · 24 · 32 · 48 · 64 · 96;
