@@ -31,3 +31,18 @@ def parse_track_meta(path: Path) -> dict[str, str]:
     """Circuit full name and town from the GeoJSON properties."""
     props = json.loads(path.read_text(encoding="utf-8"))["features"][0]["properties"]
     return {"circuit_name": props["Name"], "circuit_town": props["Location"]}
+
+
+def parse_outline(path: Path) -> pl.DataFrame:
+    """Polygon outlines (e.g. Italy for the locator) as ordered points, one ring per polygon."""
+    geometry = json.loads(path.read_text(encoding="utf-8"))["features"][0]["geometry"]
+    polygons = (
+        geometry["coordinates"] if geometry["type"] == "MultiPolygon" else [geometry["coordinates"]]
+    )
+    return pl.DataFrame(
+        [
+            {"polygon_id": pid, "point_idx": idx, "lon": lon, "lat": lat}
+            for pid, polygon in enumerate(polygons, start=1)
+            for idx, (lon, lat) in enumerate(polygon[0])
+        ]
+    )

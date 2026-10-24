@@ -2,7 +2,7 @@ import polars as pl
 import pytest
 
 from mugello06 import config
-from mugello06.ingest.track import haversine_m, parse_track
+from mugello06.ingest.track import haversine_m, parse_outline, parse_track
 
 OFFICIAL_LAP_M = 5245
 POSTER_TEXT_LIMITS = {"headline": 25, "story": 200}  # keep the poster readable
@@ -39,3 +39,12 @@ def test_key_moments_reference_real_laps_and_turns() -> None:
     for column, limit in POSTER_TEXT_LIMITS.items():
         too_long = moments.filter(pl.col(column).str.len_chars() > limit)[column].to_list()
         assert not too_long, f"{column} over {limit} chars: {too_long}"
+
+
+def test_italy_outline_has_mainland_and_islands_as_closed_rings() -> None:
+    italy = parse_outline(config.ITALY_GEOJSON)
+    assert italy["polygon_id"].n_unique() == 3  # mainland, Sicily, Sardinia
+    for _, ring in italy.group_by("polygon_id"):
+        ring = ring.sort("point_idx")
+        assert ring.row(0)[2:] == ring.row(-1)[2:]  # first point == last point
+    assert italy["lat"].is_between(35, 48).all() and italy["lon"].is_between(6, 19).all()

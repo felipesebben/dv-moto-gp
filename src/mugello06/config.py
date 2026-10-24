@@ -10,6 +10,7 @@ PROCESSED = DATA / "processed"
 SQL_DIR = ROOT / "sql"
 SEEDS = ROOT / "seeds"
 TRACK_GEOJSON = SEEDS / "mugello.geojson"
+ITALY_GEOJSON = SEEDS / "italy.geojson"
 
 DUCKDB_PATH = INTERIM / "mugello06.duckdb"
 HYPER_PATH = PROCESSED / "mugello06.hyper"

@@ -63,7 +63,8 @@ CI (`.github/workflows/ci.yml`) runs `uv sync --locked`, ruff format --check, ru
   and `seed_*` views over the CSVs, sets the DuckDB variables `protagonist`/`rival` from
   `config`, then runs `sql/*.sql` **in filename order**. Each file creates one table in the
   `poster` schema: `riders` (with `role`), `positions`, `timeline`, `track`, `key_moments`,
-  `track_stretches`, `event`.
+  `track_stretches`, `event`, `italy_outline` + `locator_points` (the Italy locator: real
+  lon/lat, north-up, so a Tableau map works; polygon per `polygon_id`, Path = `point_idx`).
   Later files may depend on earlier ones (e.g. `key_moments` joins `timeline`).
 - **Publish** (`src/mugello06/publish/`): copies every `poster.*` table to Parquet in a temp
   dir, then into `data/processed/mugello06.hyper` with Hyper's `external()`. That file is
