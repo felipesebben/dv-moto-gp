@@ -12,8 +12,13 @@ and the race narrative, checked against the data, is in `docs/research/race_stor
 Tissot PDFs ──ingest──▶ Parquet ──model──▶ DuckDB ──publish──▶ .hyper ──▶ Tableau ──▶ Figma
 ```
 
-The `model` and `publish` stages are stubs so far. **All metrics are computed in the
-pipeline**, and Tableau only draws. The user builds the Tableau workbook themselves; Claude
+**All metrics are computed in the pipeline**, and Tableau only draws.
+
+Poster layout (agreed with the user): the track map marks where the key moments happened,
+then a lap timeline highlights the key laps with short text, then a position chart shows
+only Rossi (the protagonist, in his yellow) and Capirossi (the rival), with everyone else
+grey. It's a gift for the user's father, who is a Rossi fan but not data literate, so keep
+the charts simple and the text plain. The user builds the Tableau workbook themselves; Claude
 guides with instructions and writes the Python/SQL.
 
 ## Commands
@@ -34,7 +39,7 @@ CI (`.github/workflows/ci.yml`) runs `uv sync --locked`, ruff format --check, ru
 
 - `src/mugello06/config.py` holds every path and constant. Stages read from and write to
   the `config` paths, never hard-coded ones.
-- **Ingest** (`src/mugello06/ingest/`) has two layers:
+- **Ingest** (`src/mugello06/ingest/`) has two layers for the PDFs, plus the track:
   - `pdf_text.py` handles PDF I/O only. `lines()` reads single-column reports.
     `column_lines()` reads the two-column *Chronological Analysis* report, placing the gutter
     on each page halfway between the left "Speed" header and the right "Lap" header (the
@@ -44,9 +49,25 @@ CI (`.github/workflows/ci.yml`) runs `uv sync --locked`, ruff format --check, ru
     are unit-testable without PDFs. Each parser matches lines with a regex and ignores the
     rest (headers, footers, copyright text). `parse_analysis` is a state machine: a rider
     header line (`1st 46 …`) sets the current rider for the lap rows that follow.
-  - `ingest/__init__.py` maps PDF filenames to parsers (`extract()`) and writes
-    `data/interim/{classification,lap_chart,laps}.parquet` (`run()`).
+  - `track.py` turns `seeds/mugello.geojson` into ordered points with distance along the lap.
+  - `ingest/__init__.py` maps each source to its parser (`extract()`) and writes
+    `data/interim/{classification,lap_chart,laps,track_points}.parquet` (`run()`).
+- **Seeds** (`seeds/`) are committed, hand-curated inputs: the circuit outline (MIT, with
+  attribution), `corners.csv` (turn to outline point index) and `key_moments.csv` (the
+  story beats shown on the poster). Every line in `key_moments.csv` must trace back to
+  `docs/research/race_story.md`, and a unit test enforces text-length limits so the poster
+  stays readable.
+- **Model** (`src/mugello06/model/`): `build()` creates `stg_*` views over the interim Parquet
+  and `seed_*` views over the CSVs, sets the DuckDB variables `protagonist`/`rival` from
+  `config`, then runs `sql/*.sql` **in filename order**. Each file creates one table in the
+  `poster` schema: `riders` (with `role`), `positions`, `timeline`, `track`, `key_moments`.
+  Later files may depend on earlier ones (e.g. `key_moments` joins `timeline`).
+- **Publish** (`src/mugello06/publish/`): copies every `poster.*` table to Parquet in a temp
+  dir, then into `data/processed/mugello06.hyper` with Hyper's `external()`. That file is
+  what Tableau connects to.
 - Join key across all tables: **`rider_number`**. In `lap_chart`, lap 0 is the starting grid.
+  `key_moments` get their lon/lat from their corner; a moment without a turn appears on the
+  timeline only.
 - Not parsed on purpose, because the data can be derived from the three tables: grid, top
   speed, fastest-lap reports, analysis by lap.
 
