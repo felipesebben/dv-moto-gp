@@ -1,4 +1,4 @@
-"""Ingest stage: Tissot timing PDFs -> tidy Parquet tables in data/interim."""
+"""Ingest stage: Tissot timing PDFs + circuit outline -> tidy Parquet tables in data/interim."""
 
 import re
 from pathlib import Path
@@ -8,6 +8,7 @@ import polars as pl
 from mugello06 import config
 from mugello06.ingest import parsers
 from mugello06.ingest.pdf_text import column_lines, lines
+from mugello06.ingest.track import parse_track
 
 
 def race_laps(classification_lines: list[str]) -> int:
@@ -23,6 +24,7 @@ def extract(pdf_dir: Path = config.RAW_PDF) -> dict[str, pl.DataFrame]:
         "classification": parsers.parse_classification(classification, race_laps(classification)),
         "lap_chart": parsers.parse_lap_chart(lines(pdf_dir / "lap+chart.pdf")),
         "laps": parsers.parse_analysis(column_lines(pdf_dir / "analysis.pdf")),
+        "track_points": parse_track(config.TRACK_GEOJSON),
     }
 
 
