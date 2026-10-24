@@ -77,7 +77,7 @@ CI (`.github/workflows/ci.yml`) runs `uv sync --locked`, ruff format --check, ru
   from the start line, `x = -north`, `y = east`. Plot them as a plain scatter/line with
   equal axis ranges. `track_stretches` (from `seeds/stretches.csv`) are the yellow segments;
   they may wrap past the start line, and `seq` is the drawing order.
-- The design is settled in `docs/DESIGN_STANDARDS.md` (layout D, 140 × 105 cm) with the
+- The design is settled in `docs/DESIGN_STANDARDS.md` (layout D, 140 × 110 cm) with the
   wireframe in `design/wireframe/poster_d.html`. Follow it when building in Tableau.
 - Not parsed on purpose, because the data can be derived from the three tables: grid, top
   speed, fastest-lap reports, analysis by lap.

@@ -19,7 +19,7 @@ rules is `design/wireframe/poster_d.html` (layout D, chosen), built by
 - **Plain words:** positions are "1st, 2nd…", times are "seconds", and there's no jargon
   (gap, delta, sector) in reader-facing text.
 
-## 2. Layout D (landscape, 140 × 105 cm)
+## 2. Layout D (landscape, 140 × 110 cm)
 
 Three bands, top to bottom, on a 65 mm margin:
 
@@ -27,11 +27,12 @@ Three bands, top to bottom, on a 65 mm margin:
 |---|---|
 | **Header** | *MUGELLO 2006* with the Italian livery flash, the title **THE ROSSI COMEBACK**, then one paragraph: the event and date run in (*Gran Premio d'Italia Alice, 4 June 2006.*), then the stakes, the fall at San Donato, the pass for the win at the same corner, and "Patience, then one perfect move: a race still counted among his greatest." Plain text. |
 | **Content band** (about 95 px of air under the header; all three columns share one top line) | **Left: the circuit**, as one group: the Italy locator (Mugello in Rossi yellow; Natural Earth, public domain) with the facts directly under it (full name, town, built 1974, 5,245 m × 14 m, 15 corners: 9 right, 6 left, longest straight 1,141 m, race distance and conditions). **Centre: the map** in TV orientation, with Rossi's stretches in yellow and numbered badges and callouts. **Right: key numbers** in race order, each with its moment's badge: **0.730 s** behind Capirossi after running wide, in 5th (④); **0.002 s** after lap 22 (⑥); **0.575 s** winning margin (⑦). |
-| **Race band** | The positions chart (each line a rider; Rossi yellow, Capirossi coral, others grey) with **the 7 moments told along it**. Cards alternate above (laps 1, 13, 18, 23) and below (laps 9, 15, 22) so close laps never collide. Each card starts at its lap, with a connector to its badge on the lap axis, and is as wide as the stretch of race until the next card on its side. The chart stops short of the right edge to leave the final moments room. |
+| **Race band** | The positions chart, full width (each line a rider; Rossi yellow, Capirossi coral, others grey), with **the 7 moments told along it**. Cards alternate above (laps 1, 13, 18, 23) and below (laps 7, 15, 22) so close laps never collide. **Each card is headed by its number, with a bar in the rider's colour hanging from it** (yellow for Rossi, coral for Capirossi's charge), and a connector to a dot at its lap on the axis. Cards start at their lap and are as wide as the race stretch to the next card on their side; near the right edge they are pulled left and the connector bends to the lap. |
 | **Footer** | Map key (left) + credits and a small QR code to the official full-race video (bottom-right, 40 mm). |
 
 No logo or photos: the map, the chart and the text carry the poster. The badge numbers ①–⑦
-link the map, the key numbers and the race band.
+link the map, the key numbers and the race band. Yellow badge = Rossi moment, coral ring =
+Capirossi moment.
 
 ## 3. Typography
 
@@ -128,7 +129,7 @@ green-blind readers (ΔE 4.6), which is fine for a flag carrying no information.
   Tableau map, which can't rotate.
 - Keep **all 7 key moments**.
 - The poster is **large and airy**: whitespace matters more than density. Sketched at
-  140 × 105 cm landscape (grown step by step from 100 × 70, always for more air).
+  140 × 110 cm landscape (grown step by step from 100 × 70, always for more air).
 
 - **Layout D**: wide, map-led hybrid (see section 2). Options A, B and C are kept in
   `design/wireframe/` for reference. B's top-to-bottom chart felt odd and A was too tall.
@@ -147,6 +148,9 @@ green-blind readers (ΔE 4.6), which is fine for a flag carrying no information.
 
 - The "5 Mugello wins in a row" figure was replaced by Rossi's 0.730 s deficit after
   running wide: the poster is about 2006 only.
+
+- Moment ② is Capirossi's fastest lap of the race (lap 7), replacing Stoner's crash, so the
+  rivalry is told in two steps (②, ③).
 
 **Open:**
 - Paper: matte recommended for the dark background.

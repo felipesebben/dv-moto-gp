@@ -1,4 +1,4 @@
-"""Refined wireframe for layout D (140 x 105 cm landscape).
+"""Refined wireframe for layout D (140 x 110 cm landscape).
 
 Run: uv run python design/wireframe/tools/build_poster_d.py
 Writes design/wireframe/poster_d.html. Sketch tool only: the real poster is built in Tableau.
@@ -13,7 +13,7 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).parent))
 from sketchlib import (  # noqa: E402
-    C, CONTEXT, POS, ROSSI_MOMENTS, badge, fit, load, ordinal, path, position_at,
+    C, CONTEXT, POS, RIVAL_MOMENTS, ROSSI_MOMENTS, badge, fit, load, ordinal, path, position_at,
 )
 
 ROOT = Path(__file__).resolve().parents[3]
@@ -21,7 +21,7 @@ OUT = ROOT / "design" / "wireframe" / "poster_d.html"
 track, corners, moments = load(ROOT)
 
 PX = 1.6  # px per mm
-W, H = round(1400 * PX), round(1050 * PX)
+W, H = round(1400 * PX), round(1100 * PX)
 M = 104  # 65 mm margin
 RIGHT = W - M
 ITALY = {"green": "#229457", "white": C["ink"], "red": "#CE2B37"}  # flag red, kept apart from Capirossi's coral
@@ -29,12 +29,12 @@ ITALY = {"green": "#229457", "white": C["ink"], "red": "#CE2B37"}  # flag red, k
 # ---- grid ------------------------------------------------------------------------------
 # header (title + paragraph) | content band: circuit block · map · key numbers | race band
 CONTENT_TOP = 452  # ~95 px of air under the header paragraph
-MAP = (470, CONTENT_TOP + 12, 1180, 560)  # x, y, w, h (height-bound, centred); labels sit above
-RACE_TOP = 1096  # race band: positions chart with the moments along it
+MAP = (470, CONTENT_TOP + 12, 1180, 630)  # x, y, w, h (height-bound, centred); labels sit above
+RACE_TOP = 1160  # race band: positions chart with the moments along it
 pts = fit(track, *MAP)
 SCALE = MAP[3] / 705
 CALLOUT = {0: (-136, -204, -20, 5, "end"), 1: (-14, 141, -12, 32, "start"),
-           8: (-8, -125, -12, 32, "start"), 9: (-54, 35, -20, 5, "end")}
+           8: (-8, -125, -12, 32, "start")}
 LABEL_FIX = {2: (0, 24, "middle"), 4: (0, 26, "middle"), 9: (12, 18, "start"), 10: (-12, 16, "end")}
 STRETCHES = [range(7, 14), range(57, 65), [*range(125, 129), 0]]
 
@@ -137,20 +137,21 @@ STATS = [  # badges 4, 6, 7; values from poster.timeline
     ("0.575 s", "Rossi&#8217;s winning margin", 7),
 ]
 for i, (v, label, n) in enumerate(STATS):
-    y = CONTENT_TOP + 34 + i * 112  # first cap height on the grid line
+    y = CONTENT_TOP + 34 + i * 160  # spread down the map's height; first on the grid line
     svg.append(f'<text x="1720" y="{y}" class="stat">{v}</text>')
     svg.append(f'<text x="1722" y="{y + 22}" class="statlabel">{label}</text>')
     svg.append(badge(1702, y - 16, n, r=9))
 
 # ---- race band: positions chart with the moments along it --------------------------------
-# Moments alternate above (laps 1, 13, 18, 23) and below (laps 9, 15, 22) the chart so close
-# laps don't collide; each card starts at its lap and is as wide as the race stretch until
-# the next card on its side. The chart stops short of the right edge to leave the final
-# moments room.
-x0, x1 = M + 64, RIGHT - 470
-CARD_H, CARD_MAX, CARD_GAP = 128, 470, 28
-TOP_CARDS = RACE_TOP + 16
-axis_y = TOP_CARDS + CARD_H + 30
+# Moments alternate above (laps 1, 13, 18, 23) and below (laps 7, 15, 22) the chart so close
+# laps don't collide. Each card is: badge (the moment's number) at the top, then the bar in
+# the rider's colour down the side, then the text. A connector joins the card to its lap on
+# the chart. Cards start at their lap and are as wide as the race stretch until the next card;
+# near the right edge they are pulled left to fit, and the connector bends to the lap.
+x0, x1 = M + 64, RIGHT - 150  # the chart runs the full width; end labels sit after lap 23
+CARD_H, CARD_MAX, CARD_MIN, CARD_GAP = 150, 470, 300, 26
+TOP_CARDS = RACE_TOP + 20
+axis_y = TOP_CARDS + CARD_H + 34
 row = 16
 
 
@@ -162,7 +163,7 @@ def ry(pos: float) -> float:
     return axis_y + 22 + (pos - 1) * row
 
 
-BOTTOM_CARDS = ry(8) + 40
+BOTTOM_CARDS = ry(8) + 46
 svg.append(f'<text x="{M}" y="{RACE_TOP}" class="eyebrow">THE RACE, LAP BY LAP <tspan class="hint">· each line is a rider, higher = further ahead</tspan></text>')
 svg.append(f'<line x1="{x0}" y1="{axis_y}" x2="{x1}" y2="{axis_y}" stroke="{C["muted"]}"/>')
 for lap in range(24):
@@ -170,7 +171,31 @@ for lap in range(24):
 svg.append(f'<text x="{x0 - 14}" y="{axis_y + 5}" class="axis" text-anchor="end">Grid</text>')
 for p_ in (1, 4, 8):
     svg.append(f'<text x="{x0 - 14}" y="{ry(p_) + 4:.1f}" class="axis" text-anchor="end">{ordinal(p_)}</text>')
-svg.append(f'<text x="{x1:.1f}" y="{ry(8) + 26:.1f}" class="axis">Lap 23</text>')
+svg.append(f'<text x="{x1:.1f}" y="{axis_y - 10}" class="axis">Lap 23</text>')
+
+# lay out each side: start at the lap, then pull cards left from the right edge if needed
+tiers = {"above": [m for i, m in enumerate(moments) if i % 2 == 0],
+         "below": [m for i, m in enumerate(moments) if i % 2 == 1]}
+cards = []
+for side, ms in tiers.items():
+    lefts = [lx(int(m["lap"])) for m in ms]
+    rights = [min(lefts[i + 1] - CARD_GAP if i + 1 < len(ms) else RIGHT, lefts[i] + CARD_MAX)
+              for i in range(len(ms))]
+    for i in reversed(range(len(ms))):  # make room from the right edge leftwards
+        limit = RIGHT if i + 1 == len(ms) else lefts[i + 1] - CARD_GAP
+        rights[i] = min(max(rights[i], lefts[i] + CARD_MIN), limit)
+        lefts[i] = min(lefts[i], rights[i] - CARD_MIN)
+    cards += [(side, m, left, right) for m, left, right in zip(ms, lefts, rights, strict=True)]
+
+for side, m, left, right in cards:  # connectors first, under the chart lines
+    lap_x = lx(int(m["lap"]))
+    if side == "above":
+        bend = axis_y - 16
+        pts_ = [(left, TOP_CARDS + CARD_H), (left, bend), (lap_x, bend), (lap_x, ry(8) + 6)]
+    else:
+        bend = BOTTOM_CARDS - 16
+        pts_ = [(lap_x, axis_y), (lap_x, bend), (left, bend), (left, BOTTOM_CARDS)]
+    svg.append(f'<polyline points="{" ".join(f"{x:.1f},{y:.1f}" for x, y in pts_)}" fill="none" stroke="{C["rule"]}" stroke-width="1.2"/>')
 
 
 def hline(r: int) -> str:
@@ -187,37 +212,28 @@ for r, label in ((46, "Rossi · 1st"), (65, "Capirossi · 2nd")):
     svg.append(f'<circle cx="{lx(23):.1f}" cy="{y:.1f}" r="5" fill="{C["rossi"] if r == 46 else C["capi"]}" stroke="{C["bg"]}" stroke-width="2"/>')
     svg.append(f'<text x="{lx(23) + 12:.1f}" y="{y + 4:.1f}" class="endlabel">{label}</text>')
 
-tiers = {"above": [m for i, m in enumerate(moments) if i % 2 == 0],
-         "below": [m for i, m in enumerate(moments) if i % 2 == 1]}
-for side, ms in tiers.items():
-    for i, m in enumerate(ms):
-        n, lap = int(m["moment_id"]), int(m["lap"])
-        x = lx(lap)
-        nxt = lx(int(ms[i + 1]["lap"])) if i + 1 < len(ms) else x + CARD_MAX + CARD_GAP
-        w = min(nxt - x - CARD_GAP, CARD_MAX)
-        y = TOP_CARDS if side == "above" else BOTTOM_CARDS
-        # connector from the card to its lap on the chart, then the badge on the axis
-        if side == "above":
-            svg.append(f'<line x1="{x:.1f}" y1="{y + CARD_H:.1f}" x2="{x:.1f}" y2="{ry(8) + 6:.1f}" stroke="{C["rule"]}"/>')
-        else:
-            svg.append(f'<line x1="{x:.1f}" y1="{axis_y:.1f}" x2="{x:.1f}" y2="{y:.1f}" stroke="{C["rule"]}"/>')
-        svg.append(f'<rect x="{x - 1.5:.1f}" y="{y}" width="3" height="{CARD_H}" fill="{C["rossi"] if n in ROSSI_MOMENTS else C["grey"]}"/>')
-        svg.append(
-            f'<foreignObject x="{x + 14:.1f}" y="{y - 2}" width="{w - 14:.1f}" height="{CARD_H + 4}">'
-            f'<div xmlns="http://www.w3.org/1999/xhtml" class="vcard"><b><i>LAP {lap}</i> {m["headline"]}</b>'
-            f'<span>{m["story"]}</span></div></foreignObject>'
-        )
-        svg.append(badge(x, axis_y, n, r=11))
+for side, m, left, right in cards:
+    n, lap = int(m["moment_id"]), int(m["lap"])
+    y = TOP_CARDS if side == "above" else BOTTOM_CARDS
+    colour = C["rossi"] if n in ROSSI_MOMENTS else C["capi"] if n in RIVAL_MOMENTS else C["grey"]
+    svg.append(badge(left, y + 13, n, r=12))  # the number heads the card...
+    svg.append(f'<rect x="{left - 1.5:.1f}" y="{y + 30}" width="3" height="{CARD_H - 62}" fill="{colour}"/>')  # ...and the bar hangs from it
+    svg.append(
+        f'<foreignObject x="{left + 22:.1f}" y="{y}" width="{right - left - 22:.1f}" height="{CARD_H + 4}">'
+        f'<div xmlns="http://www.w3.org/1999/xhtml" class="vcard"><b><i>LAP {lap}</i> {m["headline"]}</b>'
+        f'<span>{m["story"]}</span></div></foreignObject>'
+    )
+    svg.append(f'<circle cx="{lx(lap):.1f}" cy="{axis_y}" r="3.5" fill="{colour}"/>')  # where it lands on the race
 
 # ---- footer: discreet map key (left) + credits and QR (right) ----------------------------
 fy = H - 48
 svg.append(badge(M + 9, fy - 5, 4, r=10))
 svg.append(f'<text x="{M + 26}" y="{fy}" class="foot">Rossi moment</text>')
 svg.append(badge(M + 170, fy - 5, 2, r=10))
-svg.append(f'<text x="{M + 188}" y="{fy}" class="foot">other moment</text>')
-svg.append(f'<line x1="{M + 340}" y1="{fy - 5}" x2="{M + 362}" y2="{fy - 5}" stroke="{C["rossi"]}" stroke-width="6" stroke-linecap="round"/>')
-svg.append(f'<text x="{M + 374}" y="{fy}" class="foot">where it happened</text>')
-svg.append(f'<text x="{M + 560}" y="{fy}" class="foot">The same numbers mark each moment on the map and along the race.</text>')
+svg.append(f'<text x="{M + 188}" y="{fy}" class="foot">Capirossi moment</text>')
+svg.append(f'<line x1="{M + 370}" y1="{fy - 5}" x2="{M + 392}" y2="{fy - 5}" stroke="{C["rossi"]}" stroke-width="6" stroke-linecap="round"/>')
+svg.append(f'<text x="{M + 404}" y="{fy}" class="foot">where it happened</text>')
+svg.append(f'<text x="{M + 590}" y="{fy}" class="foot">The same numbers mark each moment on the map and along the race.</text>')
 QR_S = 64  # 40 mm in print: still easy to scan
 qr = (ROOT / "design" / "wireframe" / "assets" / "qr_full_race.svg").read_text(encoding="utf-8")
 qr = qr.replace('<svg xmlns="http://www.w3.org/2000/svg" width="37" height="37"',
@@ -262,16 +278,16 @@ POSTER_CSS = "\n".join(
 POSTER_CSS += "\n.badge { font-family:'Barlow Condensed'; font-weight:700; text-anchor:middle; }"
 
 NOTES = """
-<h2>Layout D, round 9: the race told along the chart</h2>
-<p class="meta">140 × 105 cm at 1.6 px/mm · use <b>Zoom: Print size</b> to judge real text sizes.</p>
+<h2>Layout D, round 10</h2>
+<p class="meta">140 × 110 cm at 1.6 px/mm · use <b>Zoom: Print size</b> to judge real text sizes.</p>
 <ul>
-<li><b>The 7 moments now live on the positions chart</b>, alternating above (laps 1, 13, 18, 23)
-and below (laps 9, 15, 22) so close laps don't collide. Each card starts at its lap and is as wide
-as the stretch of race until the next card on its side.</li>
-<li><b>No 46 logo and no right column</b>: the map, the chart and the text get the attention.</li>
-<li><b>Italy and the circuit facts are one group</b> (the facts sit right under the map of Italy).</li>
-<li><b>More air under the header</b> before the map and the key numbers.</li>
-<li>Poster 140 × 105 cm to fit the race band.</li>
+<li><b>Each number heads its card</b> with the coloured bar hanging from it; cards below the chart
+have their numbers below. A connector joins each card to a dot at its lap.</li>
+<li><b>The chart runs the full width</b>; the last cards are pulled left to fit and their
+connectors bend to their lap.</li>
+<li><b>Capirossi's charge in two steps</b> (coral, his colour): the fastest lap of the race on lap 7,
+then third and 0.3 s behind on lap 13. Stoner's crash is out.</li>
+<li><b>Bigger map</b> (now free of the Stoner callout at the bottom).</li>
 </ul>
 """
 
@@ -300,7 +316,7 @@ aside h3 {{ font:600 18px 'Barlow Condensed'; margin:14px 0 4px; color:#4FD1C5; 
   <div class="controls">
     <div class="grp" data-attr="zoom" role="group" aria-label="Zoom"><span>Zoom:</span>
       <button data-v="fit" aria-pressed="true">Fit screen</button>
-      <button data-v="print" aria-pressed="false">Print size (140 × 105 cm)</button></div>
+      <button data-v="print" aria-pressed="false">Print size (140 × 110 cm)</button></div>
     <div class="grp" data-attr="filter" role="group" aria-label="Preview"><span>Preview:</span>
       <button data-v="none" aria-pressed="true">Normal</button>
       <button data-v="url(#protan)" aria-pressed="false">Protanopia</button>

@@ -26,6 +26,7 @@ POS = {
 }
 CONTEXT = (69, 15, 33, 26)
 ROSSI_MOMENTS = {1, 4, 5, 6, 7}
+RIVAL_MOMENTS = {2, 3}  # Capirossi's charge: coral ring
 
 
 def load(
@@ -126,7 +127,7 @@ def position_at(series: list[int], lap_f: float) -> float:
 def badge(x: float, y: float, n: int, r: float = 13) -> str:
     rossi = n in ROSSI_MOMENTS
     fill = C["rossi"] if rossi else C["bg"]
-    stroke = C["bg"] if rossi else C["ink"]
+    stroke = C["bg"] if rossi else C["capi"] if n in RIVAL_MOMENTS else C["ink"]
     ink = C["bg"] if rossi else C["ink"]
     return (
         f'<circle cx="{x:.1f}" cy="{y:.1f}" r="{r}" fill="{fill}" stroke="{stroke}" stroke-width="2"/>'
