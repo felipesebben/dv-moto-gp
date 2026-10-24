@@ -64,21 +64,20 @@ svg.append(
     f"</div></foreignObject>"
 )
 
-# ---- images: the Mugello 2006 helmet leads the column ------------------------------
+# ---- image: the 46 logo, top-right ------------------------------
 def picture(name: str, label: str, x: float, y: float, w: float, h: float) -> str:
     """The real image in a local preview (--with-images), otherwise a placeholder box."""
     src = IMAGES / f"{name}.png"
     if WITH_IMAGES and src.exists():
         data = base64.b64encode(src.read_bytes()).decode()
-        return (f'<image x="{x}" y="{y}" width="{w}" height="{h}" preserveAspectRatio="xMidYMid meet" '
+        return (f'<image x="{x}" y="{y}" width="{w}" height="{h}" preserveAspectRatio="xMaxYMid meet" '
                 f'href="data:image/png;base64,{data}"/>')
     return (f'<rect x="{x}" y="{y}" width="{w}" height="{h}" rx="8" fill="none" stroke="{C["muted"]}" '
             f'stroke-dasharray="4 4"/><text x="{x + w / 2}" y="{y + h / 2 + 6}" class="ph">IMAGE · {label}</text>')
 
 
-svg.append(picture("helmet", "helmet", COL, M, 280, 196))
-svg.append(f'<text x="{COL}" y="{M + 218}" class="caption">Rossi&#8217;s helmet for Mugello 2006</text>')
-svg.append(picture("logo46", "46 logo", COL + 300, M + 30, RIGHT - COL - 300, 136))
+# only the 46 logo (no helmet: keep the attention on the map and charts), right-aligned
+svg.append(picture("logo46", "46 logo", RIGHT - 300, M, 300, 132))
 
 # ---- map ----------------------------------------------------------------------
 svg.append(f'<path d="{path(pts, True)}" fill="none" stroke="{C["ink"]}" stroke-width="7" stroke-linejoin="round"/>')
@@ -159,7 +158,7 @@ for i, (v, label, n) in enumerate(STATS):
         svg.append(badge(1282, y - 16, n, r=9))
 
 # ---- story column ---------------------------------------------------------------
-top, slot = 372, 122
+top, slot = 300, 130
 svg.append(f'<line x1="{COL + 12}" y1="{top + 28}" x2="{COL + 12}" y2="{top + 6 * slot + 28}" stroke="{C["rule"]}" stroke-width="2"/>')
 for i, m in enumerate(moments):
     y = top + i * slot
@@ -241,7 +240,6 @@ TYPE = {  # class: (style, weight, size px, family, extra)
     "runin": ("normal", 600, 20, "Barlow Condensed", f"color:{C['ink']}; letter-spacing:0.5px;"),
     "placename": ("normal", 600, 17, "Barlow Condensed", f"fill:{C['ink']};"),
     "ph": ("normal", 500, 15, "Barlow", f"fill:{C['muted']}; text-anchor:middle;"),
-    "caption": ("italic", 400, 15, "Barlow", f"fill:{C['muted']};"),
     "corner": ("normal", 500, 14, "Barlow Condensed", f"fill:{C['muted']};"),
     "callout": ("normal", 600, 17, "Barlow Condensed", f"fill:{C['ink']};"),
     "eyebrow": ("normal", 600, 15, "Barlow Condensed", f"fill:{C['muted']}; letter-spacing:1.5px;"),
@@ -267,6 +265,9 @@ POSTER_CSS += "\n.badge { font-family:'Barlow Condensed'; font-weight:700; text-
 NOTES = """
 <h2>Layout D, round 8</h2>
 <p class="meta">140 × 85 cm at 1.6 px/mm · use <b>Zoom: Print size</b> to judge real text sizes.</p>
+<h3>Latest</h3>
+<ul><li><b>Only the 46 logo</b> top-right (helmet removed, so the map and charts get the attention);
+the story column starts higher with more space per card.</li></ul>
 <h3>What changed</h3>
 <ul>
 <li><b>MUGELLO 2006</b> with the Italian livery flash sits as a header above the title.</li>

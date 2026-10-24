@@ -24,7 +24,7 @@ rules is `design/wireframe/poster_d.html` (layout D, chosen), built by
 | Zone | Content | Place |
 |---|---|---|
 | A · Title | **MUGELLO 2006** with the Italian livery flash as a small header; the title **THE ROSSI COMEBACK**; then one paragraph: the event and date run in (*Gran Premio d'Italia Alice, 4 June 2006.*), then the stakes, the fall at San Donato, the pass for the win at the same corner, and "Patience, then one perfect move: a race still counted among his greatest." Plain text | top row |
-| B · Images | Rossi's Mugello 2006 helmet (captioned) + 46 logo | top-right, above the story column |
+| B · Image | The 46 logo only (no helmet, so the map and charts keep the attention); a vector version is needed for print | top-right corner, above the story column |
 | C · Map (hero) | Mugello in TV orientation, about half the poster. Rossi's stretches painted yellow, numbered badges + callouts, a "how to read" key in the empty bottom-left | centre-left |
 | D · Key numbers | 0.575 s, 0.002 s, 5 wins, each with the badge of its moment | right band, beside the map |
 | G · Circuit band | An Italy locator (north-up, Mugello marked in Rossi yellow; outline from Natural Earth, public domain), then the facts: full name, town, built 1974, 5,245 m × 14 m, 15 corners (9 right, 6 left), longest straight 1,141 m, race distance and conditions | left band, beside the map |
@@ -141,6 +141,8 @@ green-blind readers (ΔE 4.6), which is fine for a flag carrying no information.
 - The title is **THE ROSSI COMEBACK**, under a small **MUGELLO 2006** header with the
   livery flash, then one paragraph (no separate event line or subtitle). The QR code is small, in the
   bottom-right corner, linking to the official full-race video.
+
+- Only the 46 logo as imagery; the helmet was tried and dropped (too much information).
 
 **Open:**
 - Paper: matte recommended for the dark background.
