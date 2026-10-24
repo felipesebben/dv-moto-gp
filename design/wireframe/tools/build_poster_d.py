@@ -1,4 +1,4 @@
-"""Refined wireframe for layout D (140 x 85 cm landscape).
+"""Refined wireframe for layout D (140 x 105 cm landscape).
 
 Run: uv run python design/wireframe/tools/build_poster_d.py
 Writes design/wireframe/poster_d.html. Sketch tool only: the real poster is built in Tableau.
@@ -6,7 +6,6 @@ Event facts below are copied from the official classification PDF and the track 
 the build will read them from the pipeline instead.
 """
 
-import base64
 import json
 import math
 import sys
@@ -18,30 +17,20 @@ from sketchlib import (  # noqa: E402
 )
 
 ROOT = Path(__file__).resolve().parents[3]
-# --with-images embeds the user's local helmet + 46 logo (third-party images) into a
-# git-ignored preview; the committed wireframe keeps placeholders
-WITH_IMAGES = "--with-images" in sys.argv
-IMAGES = ROOT / "data" / "interim" / "images"  # made by prepare_images.py
-# --variant A|B: layout options for the right column (see NOTES); default = current
-VARIANT = next((a.split("=", 1)[1] for a in sys.argv if a.startswith("--variant=")), "")
-suffix = (f"_{VARIANT}" if VARIANT else "") + ("_preview" if WITH_IMAGES else "")
-OUT = ROOT / "design" / "wireframe" / f"poster_d{suffix}.html"
+OUT = ROOT / "design" / "wireframe" / "poster_d.html"
 track, corners, moments = load(ROOT)
 
 PX = 1.6  # px per mm
-W, H = round(1400 * PX), round(850 * PX)
+W, H = round(1400 * PX), round(1050 * PX)
 M = 104  # 65 mm margin
-COL = 1640  # story column
 RIGHT = W - M
 ITALY = {"green": "#229457", "white": C["ink"], "red": "#CE2B37"}  # flag red, kept apart from Capirossi's coral
 
-# ---- map placement ------------------------------------------------------------
-CONTENT_TOP = 396 if VARIANT else 430  # shared top edge: circuit band, map, key numbers
-MAP_H = 560 if VARIANT else 540
-MAP = (440, CONTENT_TOP + 12, 800, MAP_H)  # x, y, w, h (height-bound); corner labels sit above
-# story column top: on the content grid line (A), or level with the header paragraph (B)
-STORY_TOP = {"B": 268}.get(VARIANT, CONTENT_TOP - 4)
-STORY_BOTTOM = 1242  # the last card's bar ends level with the positions strip's lap labels
+# ---- grid ------------------------------------------------------------------------------
+# header (title + paragraph) | content band: circuit block · map · key numbers | race band
+CONTENT_TOP = 452  # ~95 px of air under the header paragraph
+MAP = (470, CONTENT_TOP + 12, 1180, 560)  # x, y, w, h (height-bound, centred); labels sit above
+RACE_TOP = 1096  # race band: positions chart with the moments along it
 pts = fit(track, *MAP)
 SCALE = MAP[3] / 705
 CALLOUT = {0: (-136, -204, -20, 5, "end"), 1: (-14, 141, -12, 32, "start"),
@@ -72,21 +61,6 @@ svg.append(
     f"</div></foreignObject>"
 )
 
-# ---- image: the 46 logo, top-right ------------------------------
-def picture(name: str, label: str, x: float, y: float, w: float, h: float) -> str:
-    """The real image in a local preview (--with-images), otherwise a placeholder box."""
-    src = IMAGES / f"{name}.png"
-    if WITH_IMAGES and src.exists():
-        data = base64.b64encode(src.read_bytes()).decode()
-        return (f'<image x="{x}" y="{y}" width="{w}" height="{h}" preserveAspectRatio="xMaxYMid meet" '
-                f'href="data:image/png;base64,{data}"/>')
-    return (f'<rect x="{x}" y="{y}" width="{w}" height="{h}" rx="8" fill="none" stroke="{C["muted"]}" '
-            f'stroke-dasharray="4 4"/><text x="{x + w / 2}" y="{y + h / 2 + 6}" class="ph">IMAGE · {label}</text>')
-
-
-# only the 46 logo (no helmet: keep the attention on the map and charts), right-aligned
-svg.append(picture("logo46", "46 logo", RIGHT - 300, TITLE_Y - 136, 300, 136))
-
 # ---- map ----------------------------------------------------------------------
 svg.append(f'<path d="{path(pts, True)}" fill="none" stroke="{C["ink"]}" stroke-width="7" stroke-linejoin="round"/>')
 for s in STRETCHES:
@@ -102,12 +76,12 @@ for turn, (name, idx) in corners.items():
     x, y = pts[idx]
     vx, vy = x - cx, y - cy
     n = math.hypot(vx, vy) or 1
-    lx, ly, anchor = x + vx / n * 16, y + vy / n * 16 + 4, "start" if vx > 0 else "end"
+    lx_, ly_, anchor = x + vx / n * 16, y + vy / n * 16 + 4, "start" if vx > 0 else "end"
     if turn in LABEL_FIX:
         dx, dy, anchor = LABEL_FIX[turn]
-        lx, ly = x + dx, y + dy
+        lx_, ly_ = x + dx, y + dy
     svg.append(f'<circle cx="{x:.1f}" cy="{y:.1f}" r="2.5" fill="{C["muted"]}"/>')
-    svg.append(f'<text x="{lx:.1f}" y="{ly:.1f}" class="corner" text-anchor="{anchor}">{name}</text>')
+    svg.append(f'<text x="{lx_:.1f}" y="{ly_:.1f}" class="corner" text-anchor="{anchor}">{name}</text>')
 by_turn: dict[int, list[dict[str, str]]] = {}
 for m in moments:
     if m["turn"]:
@@ -122,7 +96,7 @@ for turn, ms in by_turn.items():
     for j, m in enumerate(ms):
         svg.append(f'<text x="{bx + tdx:.1f}" y="{by + tdy + j * 18:.1f}" class="callout" text-anchor="{anchor}">{m["moment_id"]} · {m["headline"]}</text>')
 
-# circuit block, left band: where Mugello is in Italy, then the facts
+# ---- circuit block (left): Italy and the facts as one group -----------------------------
 # (circuit information + classification PDFs; name and town from the track GeoJSON;
 # Italy outline from Natural Earth, public domain)
 svg.append(f'<text x="{M}" y="{CONTENT_TOP + 11}" class="eyebrow">THE CIRCUIT</text>')
@@ -131,7 +105,7 @@ kx = math.cos(math.radians(42))
 rings = [[(lon * kx, -lat) for lon, lat in poly[0]] for poly in italy["features"][0]["geometry"]["coordinates"]]
 allx = [x for r in rings for x, _ in r]
 ally = [y for r in rings for _, y in r]
-box_x, box_y, box_w, box_h = M, CONTENT_TOP + 28, 250, 250
+box_x, box_y, box_w, box_h = M, CONTENT_TOP + 30, 230, 230
 isc = min(box_w / (max(allx) - min(allx)), box_h / (max(ally) - min(ally)))
 
 
@@ -145,9 +119,8 @@ mx, my = ip(11.372 * kx, -43.997)  # Mugello
 svg.append(f'<circle cx="{mx:.1f}" cy="{my:.1f}" r="9" fill="none" stroke="{C["rossi"]}" stroke-width="2"/>')
 svg.append(f'<circle cx="{mx:.1f}" cy="{my:.1f}" r="3.5" fill="{C["rossi"]}"/>')
 svg.append(f'<text x="{mx + 16:.1f}" y="{my + 5:.1f}" class="placename">Mugello</text>')
-card_x = M
-card_y = (MAP[1] + MAP[3] - 142) if VARIANT else CONTENT_TOP + 300  # A/B: last line on the map bottom
-svg.append(f'<text x="{card_x}" y="{card_y + 24}" class="circuit">Autodromo Internazionale del Mugello</text>')
+card_y = box_y + box_h + 16  # the facts sit right under Italy (proximity)
+svg.append(f'<text x="{M}" y="{card_y + 24}" class="circuit">Autodromo Internazionale del Mugello</text>')
 for i, line in enumerate([
     "Scarperia e San Piero, Tuscany · built 1974",
     "5,245 m long · 14 m wide · clockwise",
@@ -155,38 +128,30 @@ for i, line in enumerate([
     "Longest straight 1,141 m",
     "Race: 23 laps · 120.6 km · dry, air 20 °C, track 29 °C",
 ]):
-    svg.append(f'<text x="{card_x}" y="{card_y + 50 + i * 23}" class="meta">{line}</text>')
+    svg.append(f'<text x="{M}" y="{card_y + 50 + i * 23}" class="meta">{line}</text>')
 
-# key numbers, right of the circuit, each tied to its moment
-STATS = [  # in race order (badges 4, 6, 7); values from poster.timeline
+# ---- key numbers (right), in race order, each tied to its moment -------------------------
+STATS = [  # badges 4, 6, 7; values from poster.timeline
     ("0.730 s", "behind Capirossi after running wide, in 5th", 4),
     ("0.002 s", "between them after lap 22", 6),
     ("0.575 s", "Rossi&#8217;s winning margin", 7),
 ]
 for i, (v, label, n) in enumerate(STATS):
-    y = CONTENT_TOP + 34 + i * (112 if VARIANT else 96)  # first cap height on the grid line
-    svg.append(f'<text x="1300" y="{y}" class="stat">{v}</text>')
-    svg.append(f'<text x="1302" y="{y + 22}" class="statlabel">{label}</text>')
-    if n:
-        svg.append(badge(1282, y - 16, n, r=9))
+    y = CONTENT_TOP + 34 + i * 112  # first cap height on the grid line
+    svg.append(f'<text x="1720" y="{y}" class="stat">{v}</text>')
+    svg.append(f'<text x="1722" y="{y + 22}" class="statlabel">{label}</text>')
+    svg.append(badge(1702, y - 16, n, r=9))
 
-# ---- story column ---------------------------------------------------------------
-top = STORY_TOP
-slot = (STORY_BOTTOM + 18 - top) / 7  # 7 cards fill the column exactly
-svg.append(f'<line x1="{COL + 12}" y1="{top + 28}" x2="{COL + 12}" y2="{top + 6 * slot + 28}" stroke="{C["rule"]}" stroke-width="2"/>')
-for i, m in enumerate(moments):
-    y = top + i * slot
-    n = int(m["moment_id"])
-    svg.append(badge(COL + 12, y + 28, n, r=12))
-    svg.append(f'<rect x="{COL + 38}" y="{y + 6}" width="3" height="{slot - 24}" fill="{C["rossi"] if n in ROSSI_MOMENTS else C["grey"]}"/>')
-    svg.append(
-        f'<foreignObject x="{COL + 52}" y="{y + 4}" width="{RIGHT - COL - 52}" height="{slot - 8}">'
-        f'<div xmlns="http://www.w3.org/1999/xhtml" class="vcard"><b><i>LAP {m["lap"]}</i> {m["headline"]}</b>'
-        f'<span>{m["story"]}</span></div></foreignObject>'
-    )
-
-# ---- position strip ---------------------------------------------------------------
-x0, x1, axis_y, row = M + 64, 1500, 1080, 16
+# ---- race band: positions chart with the moments along it --------------------------------
+# Moments alternate above (laps 1, 13, 18, 23) and below (laps 9, 15, 22) the chart so close
+# laps don't collide; each card starts at its lap and is as wide as the race stretch until
+# the next card on its side. The chart stops short of the right edge to leave the final
+# moments room.
+x0, x1 = M + 64, RIGHT - 470
+CARD_H, CARD_MAX, CARD_GAP = 128, 470, 28
+TOP_CARDS = RACE_TOP + 16
+axis_y = TOP_CARDS + CARD_H + 30
+row = 16
 
 
 def lx(lap: float) -> float:
@@ -197,14 +162,15 @@ def ry(pos: float) -> float:
     return axis_y + 22 + (pos - 1) * row
 
 
-svg.append(f'<text x="{M}" y="{axis_y - 26}" class="eyebrow">POSITIONS, LAP BY LAP <tspan class="hint">· higher = further ahead</tspan></text>')
+BOTTOM_CARDS = ry(8) + 40
+svg.append(f'<text x="{M}" y="{RACE_TOP}" class="eyebrow">THE RACE, LAP BY LAP <tspan class="hint">· each line is a rider, higher = further ahead</tspan></text>')
 svg.append(f'<line x1="{x0}" y1="{axis_y}" x2="{x1}" y2="{axis_y}" stroke="{C["muted"]}"/>')
+for lap in range(24):
+    svg.append(f'<line x1="{lx(lap):.1f}" y1="{axis_y - 3}" x2="{lx(lap):.1f}" y2="{axis_y + 3}" stroke="{C["muted"]}"/>')
+svg.append(f'<text x="{x0 - 14}" y="{axis_y + 5}" class="axis" text-anchor="end">Grid</text>')
 for p_ in (1, 4, 8):
     svg.append(f'<text x="{x0 - 14}" y="{ry(p_) + 4:.1f}" class="axis" text-anchor="end">{ordinal(p_)}</text>')
-for lap in (0, 5, 10, 15, 20, 23):
-    svg.append(f'<text x="{lx(lap):.1f}" y="{ry(8) + 28:.1f}" class="axis">{"Grid" if lap == 0 else f"Lap {lap}"}</text>')
-for m in moments:
-    svg.append(f'<line x1="{lx(int(m["lap"])):.1f}" y1="{axis_y + 10}" x2="{lx(int(m["lap"])):.1f}" y2="{ry(8) + 8:.1f}" stroke="{C["rule"]}"/>')
+svg.append(f'<text x="{x1:.1f}" y="{ry(8) + 26:.1f}" class="axis">Lap 23</text>')
 
 
 def hline(r: int) -> str:
@@ -216,14 +182,34 @@ for r in CONTEXT:
 svg.append(f'<polyline points="{hline(65)}" fill="none" stroke="{C["capi"]}" stroke-width="3"/>')
 svg.append(f'<polyline points="{hline(46)}" fill="none" stroke="{C["bg"]}" stroke-width="7"/>')
 svg.append(f'<polyline points="{hline(46)}" fill="none" stroke="{C["rossi"]}" stroke-width="4"/>')
-for m in moments:
-    svg.append(badge(lx(int(m["lap"])), axis_y, int(m["moment_id"]), r=10))
 for r, label in ((46, "Rossi · 1st"), (65, "Capirossi · 2nd")):
     y = ry(POS[r][-1])
     svg.append(f'<circle cx="{lx(23):.1f}" cy="{y:.1f}" r="5" fill="{C["rossi"] if r == 46 else C["capi"]}" stroke="{C["bg"]}" stroke-width="2"/>')
     svg.append(f'<text x="{lx(23) + 12:.1f}" y="{y + 4:.1f}" class="endlabel">{label}</text>')
 
-# ---- footer: discreet map key (left) + credits (right) ---------------------------
+tiers = {"above": [m for i, m in enumerate(moments) if i % 2 == 0],
+         "below": [m for i, m in enumerate(moments) if i % 2 == 1]}
+for side, ms in tiers.items():
+    for i, m in enumerate(ms):
+        n, lap = int(m["moment_id"]), int(m["lap"])
+        x = lx(lap)
+        nxt = lx(int(ms[i + 1]["lap"])) if i + 1 < len(ms) else x + CARD_MAX + CARD_GAP
+        w = min(nxt - x - CARD_GAP, CARD_MAX)
+        y = TOP_CARDS if side == "above" else BOTTOM_CARDS
+        # connector from the card to its lap on the chart, then the badge on the axis
+        if side == "above":
+            svg.append(f'<line x1="{x:.1f}" y1="{y + CARD_H:.1f}" x2="{x:.1f}" y2="{ry(8) + 6:.1f}" stroke="{C["rule"]}"/>')
+        else:
+            svg.append(f'<line x1="{x:.1f}" y1="{axis_y:.1f}" x2="{x:.1f}" y2="{y:.1f}" stroke="{C["rule"]}"/>')
+        svg.append(f'<rect x="{x - 1.5:.1f}" y="{y}" width="3" height="{CARD_H}" fill="{C["rossi"] if n in ROSSI_MOMENTS else C["grey"]}"/>')
+        svg.append(
+            f'<foreignObject x="{x + 14:.1f}" y="{y - 2}" width="{w - 14:.1f}" height="{CARD_H + 4}">'
+            f'<div xmlns="http://www.w3.org/1999/xhtml" class="vcard"><b><i>LAP {lap}</i> {m["headline"]}</b>'
+            f'<span>{m["story"]}</span></div></foreignObject>'
+        )
+        svg.append(badge(x, axis_y, n, r=11))
+
+# ---- footer: discreet map key (left) + credits and QR (right) ----------------------------
 fy = H - 48
 svg.append(badge(M + 9, fy - 5, 4, r=10))
 svg.append(f'<text x="{M + 26}" y="{fy}" class="foot">Rossi moment</text>')
@@ -231,7 +217,7 @@ svg.append(badge(M + 170, fy - 5, 2, r=10))
 svg.append(f'<text x="{M + 188}" y="{fy}" class="foot">other moment</text>')
 svg.append(f'<line x1="{M + 340}" y1="{fy - 5}" x2="{M + 362}" y2="{fy - 5}" stroke="{C["rossi"]}" stroke-width="6" stroke-linecap="round"/>')
 svg.append(f'<text x="{M + 374}" y="{fy}" class="foot">where it happened</text>')
-svg.append(f'<text x="{M + 560}" y="{fy}" class="foot">Numbers match the stories on the right.</text>')
+svg.append(f'<text x="{M + 560}" y="{fy}" class="foot">The same numbers mark each moment on the map and along the race.</text>')
 QR_S = 64  # 40 mm in print: still easy to scan
 qr = (ROOT / "design" / "wireframe" / "assets" / "qr_full_race.svg").read_text(encoding="utf-8")
 qr = qr.replace('<svg xmlns="http://www.w3.org/2000/svg" width="37" height="37"',
@@ -253,7 +239,6 @@ TYPE = {  # class: (style, weight, size px, family, extra)
     "standfirst": ("normal", 400, 20, "Barlow", f"color:{C['ink']}; line-height:1.45;"),
     "runin": ("normal", 600, 20, "Barlow Condensed", f"color:{C['ink']}; letter-spacing:0.5px;"),
     "placename": ("normal", 600, 17, "Barlow Condensed", f"fill:{C['ink']};"),
-    "ph": ("normal", 500, 15, "Barlow", f"fill:{C['muted']}; text-anchor:middle;"),
     "corner": ("normal", 500, 14, "Barlow Condensed", f"fill:{C['muted']};"),
     "callout": ("normal", 600, 17, "Barlow Condensed", f"fill:{C['ink']};"),
     "eyebrow": ("normal", 600, 15, "Barlow Condensed", f"fill:{C['muted']}; letter-spacing:1.5px;"),
@@ -277,30 +262,17 @@ POSTER_CSS = "\n".join(
 POSTER_CSS += "\n.badge { font-family:'Barlow Condensed'; font-weight:700; text-anchor:middle; }"
 
 NOTES = """
-<h2>Layout D, round 8</h2>
-<p class="meta">140 × 85 cm at 1.6 px/mm · use <b>Zoom: Print size</b> to judge real text sizes.</p>
-<h3>Latest: alignment (gestalt)</h3>
+<h2>Layout D, round 9: the race told along the chart</h2>
+<p class="meta">140 × 105 cm at 1.6 px/mm · use <b>Zoom: Print size</b> to judge real text sizes.</p>
 <ul>
-<li><b>One shared top line</b> for the content band: the circuit band, map, key numbers and story
-column all start at the same height, clearly separated from the header (proximity).</li>
-<li><b>Shared bottom line:</b> the story column ends level with the positions strip.</li>
-<li>The 46 logo spans from the header line to the title baseline.</li>
-<li><b>Key numbers in race order</b>, each with its moment's badge: 0.730 s behind after running
-wide (④), 0.002 s after lap 22 (⑥), 0.575 s winning margin (⑦). The "5 Mugello wins"
-figure is gone (the poster is about 2006).</li>
+<li><b>The 7 moments now live on the positions chart</b>, alternating above (laps 1, 13, 18, 23)
+and below (laps 9, 15, 22) so close laps don't collide. Each card starts at its lap and is as wide
+as the stretch of race until the next card on its side.</li>
+<li><b>No 46 logo and no right column</b>: the map, the chart and the text get the attention.</li>
+<li><b>Italy and the circuit facts are one group</b> (the facts sit right under the map of Italy).</li>
+<li><b>More air under the header</b> before the map and the key numbers.</li>
+<li>Poster 140 × 105 cm to fit the race band.</li>
 </ul>
-<h3>What changed</h3>
-<ul>
-<li><b>MUGELLO 2006</b> with the Italian livery flash sits as a header above the title.</li>
-<li><b>Title: THE ROSSI COMEBACK</b>, larger now that it's shorter.</li>
-<li>Then the one paragraph (event and date run in). Plain text.</li>
-<li><b>Poster 5 cm taller (140 × 85 cm):</b> the extra height goes to air around the header and
-a slightly larger map.</li>
-<li>The QR code stays small in the bottom-right corner.</li>
-</ul>
-<h3>Kept from round 4</h3>
-<ul><li>Livery flash after the title, no header quote, yellow stretches on the track, numbered
-moments, quiet circuit card.</li></ul>
 """
 
 html = f"""<!doctype html>
@@ -328,7 +300,7 @@ aside h3 {{ font:600 18px 'Barlow Condensed'; margin:14px 0 4px; color:#4FD1C5; 
   <div class="controls">
     <div class="grp" data-attr="zoom" role="group" aria-label="Zoom"><span>Zoom:</span>
       <button data-v="fit" aria-pressed="true">Fit screen</button>
-      <button data-v="print" aria-pressed="false">Print size (140 × 85 cm)</button></div>
+      <button data-v="print" aria-pressed="false">Print size (140 × 105 cm)</button></div>
     <div class="grp" data-attr="filter" role="group" aria-label="Preview"><span>Preview:</span>
       <button data-v="none" aria-pressed="true">Normal</button>
       <button data-v="url(#protan)" aria-pressed="false">Protanopia</button>

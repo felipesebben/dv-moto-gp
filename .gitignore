@@ -48,7 +48,3 @@ desktop.ini
 
 # --- Claude Code local settings ---
 .claude/settings.local.json
-
-# --- Local previews with third-party images (helmet photo, 46 logo) ---
-design/wireframe/*_preview.html
-design/wireframe/renders/local/

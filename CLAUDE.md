@@ -15,9 +15,9 @@ Tissot PDFs ──ingest──▶ Parquet ──model──▶ DuckDB ──publ
 **All metrics are computed in the pipeline**, and Tableau only draws.
 
 Poster (agreed with the user): *THE ROSSI COMEBACK* at Mugello 2006. A big map marks where
-the key moments happened, story cards run beside it, and a compact position strip shows
-only Rossi (the protagonist, in his yellow) and Capirossi (the rival), with everyone else
-grey. Nothing prints below 24 pt. It's a gift for the user's father, who is a Rossi fan but
+the key moments happened, and a positions chart below tells the 7 moments along the race,
+highlighting only Rossi (the protagonist, in his yellow) and Capirossi (the rival), with
+everyone else grey. Nothing prints below 24 pt. It's a gift for the user's father, who is a Rossi fan but
 not data literate, so keep the charts simple and the text plain. The user builds the Tableau workbook themselves; Claude
 guides with instructions and writes the Python/SQL.
 
@@ -77,7 +77,7 @@ CI (`.github/workflows/ci.yml`) runs `uv sync --locked`, ruff format --check, ru
   from the start line, `x = -north`, `y = east`. Plot them as a plain scatter/line with
   equal axis ranges. `track_stretches` (from `seeds/stretches.csv`) are the yellow segments;
   they may wrap past the start line, and `seq` is the drawing order.
-- The design is settled in `docs/DESIGN_STANDARDS.md` (layout D, 140 × 85 cm) with the
+- The design is settled in `docs/DESIGN_STANDARDS.md` (layout D, 140 × 105 cm) with the
   wireframe in `design/wireframe/poster_d.html`. Follow it when building in Tableau.
 - Not parsed on purpose, because the data can be derived from the three tables: grid, top
   speed, fastest-lap reports, analysis by lap.
