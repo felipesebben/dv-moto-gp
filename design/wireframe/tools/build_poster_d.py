@@ -33,7 +33,8 @@ RIGHT = W - M
 ITALY = {"green": "#229457", "white": C["ink"], "red": "#CE2B37"}  # flag red, kept apart from Capirossi's coral
 
 # ---- map placement ------------------------------------------------------------
-MAP = (440, 410, 800, 560)  # x, y, w, h (height-bound); left band = Italy + circuit, right = numbers
+CONTENT_TOP = 430  # shared top edge: circuit band, map, key numbers, story column
+MAP = (440, CONTENT_TOP + 12, 800, 540)  # x, y, w, h (height-bound); corner labels sit above
 pts = fit(track, *MAP)
 SCALE = MAP[3] / 705
 CALLOUT = {0: (-136, -204, -20, 5, "end"), 1: (-14, 141, -12, 32, "start"),
@@ -77,7 +78,7 @@ def picture(name: str, label: str, x: float, y: float, w: float, h: float) -> st
 
 
 # only the 46 logo (no helmet: keep the attention on the map and charts), right-aligned
-svg.append(picture("logo46", "46 logo", RIGHT - 300, M, 300, 132))
+svg.append(picture("logo46", "46 logo", RIGHT - 300, TITLE_Y - 136, 300, 136))
 
 # ---- map ----------------------------------------------------------------------
 svg.append(f'<path d="{path(pts, True)}" fill="none" stroke="{C["ink"]}" stroke-width="7" stroke-linejoin="round"/>')
@@ -117,13 +118,13 @@ for turn, ms in by_turn.items():
 # circuit block, left band: where Mugello is in Italy, then the facts
 # (circuit information + classification PDFs; name and town from the track GeoJSON;
 # Italy outline from Natural Earth, public domain)
-svg.append(f'<text x="{M}" y="434" class="eyebrow">THE CIRCUIT</text>')
+svg.append(f'<text x="{M}" y="{CONTENT_TOP + 11}" class="eyebrow">THE CIRCUIT</text>')
 italy = json.loads((ROOT / "seeds" / "italy.geojson").read_text(encoding="utf-8"))
 kx = math.cos(math.radians(42))
 rings = [[(lon * kx, -lat) for lon, lat in poly[0]] for poly in italy["features"][0]["geometry"]["coordinates"]]
 allx = [x for r in rings for x, _ in r]
 ally = [y for r in rings for _, y in r]
-box_x, box_y, box_w, box_h = M, 456, 250, 250
+box_x, box_y, box_w, box_h = M, CONTENT_TOP + 28, 250, 250
 isc = min(box_w / (max(allx) - min(allx)), box_h / (max(ally) - min(ally)))
 
 
@@ -137,7 +138,7 @@ mx, my = ip(11.372 * kx, -43.997)  # Mugello
 svg.append(f'<circle cx="{mx:.1f}" cy="{my:.1f}" r="9" fill="none" stroke="{C["rossi"]}" stroke-width="2"/>')
 svg.append(f'<circle cx="{mx:.1f}" cy="{my:.1f}" r="3.5" fill="{C["rossi"]}"/>')
 svg.append(f'<text x="{mx + 16:.1f}" y="{my + 5:.1f}" class="placename">Mugello</text>')
-card_x, card_y = M, 730
+card_x, card_y = M, CONTENT_TOP + 300
 svg.append(f'<text x="{card_x}" y="{card_y + 24}" class="circuit">Autodromo Internazionale del Mugello</text>')
 for i, line in enumerate([
     "Scarperia e San Piero, Tuscany · built 1974",
@@ -149,16 +150,20 @@ for i, line in enumerate([
     svg.append(f'<text x="{card_x}" y="{card_y + 50 + i * 23}" class="meta">{line}</text>')
 
 # key numbers, right of the circuit, each tied to its moment
-STATS = [("0.575 s", "Rossi&#8217;s winning margin", 7), ("0.002 s", "between them after lap 22", 6), ("5", "Mugello wins in a row", None)]
+STATS = [  # in race order (badges 4, 6, 7); values from poster.timeline
+    ("0.730 s", "behind Capirossi after running wide, in 5th", 4),
+    ("0.002 s", "between them after lap 22", 6),
+    ("0.575 s", "Rossi&#8217;s winning margin", 7),
+]
 for i, (v, label, n) in enumerate(STATS):
-    y = 490 + i * 90
+    y = CONTENT_TOP + 34 + i * 96  # first figure's cap height starts on the grid line
     svg.append(f'<text x="1300" y="{y}" class="stat">{v}</text>')
     svg.append(f'<text x="1302" y="{y + 22}" class="statlabel">{label}</text>')
     if n:
         svg.append(badge(1282, y - 16, n, r=9))
 
 # ---- story column ---------------------------------------------------------------
-top, slot = 300, 130
+top, slot = CONTENT_TOP - 4, 119
 svg.append(f'<line x1="{COL + 12}" y1="{top + 28}" x2="{COL + 12}" y2="{top + 6 * slot + 28}" stroke="{C["rule"]}" stroke-width="2"/>')
 for i, m in enumerate(moments):
     y = top + i * slot
@@ -265,9 +270,16 @@ POSTER_CSS += "\n.badge { font-family:'Barlow Condensed'; font-weight:700; text-
 NOTES = """
 <h2>Layout D, round 8</h2>
 <p class="meta">140 × 85 cm at 1.6 px/mm · use <b>Zoom: Print size</b> to judge real text sizes.</p>
-<h3>Latest</h3>
-<ul><li><b>Only the 46 logo</b> top-right (helmet removed, so the map and charts get the attention);
-the story column starts higher with more space per card.</li></ul>
+<h3>Latest: alignment (gestalt)</h3>
+<ul>
+<li><b>One shared top line</b> for the content band: the circuit band, map, key numbers and story
+column all start at the same height, clearly separated from the header (proximity).</li>
+<li><b>Shared bottom line:</b> the story column ends level with the positions strip.</li>
+<li>The 46 logo spans from the header line to the title baseline.</li>
+<li><b>Key numbers in race order</b>, each with its moment's badge: 0.730 s behind after running
+wide (④), 0.002 s after lap 22 (⑥), 0.575 s winning margin (⑦). The "5 Mugello wins"
+figure is gone (the poster is about 2006).</li>
+</ul>
 <h3>What changed</h3>
 <ul>
 <li><b>MUGELLO 2006</b> with the Italian livery flash sits as a header above the title.</li>

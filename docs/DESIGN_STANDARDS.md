@@ -26,13 +26,16 @@ rules is `design/wireframe/poster_d.html` (layout D, chosen), built by
 | A · Title | **MUGELLO 2006** with the Italian livery flash as a small header; the title **THE ROSSI COMEBACK**; then one paragraph: the event and date run in (*Gran Premio d'Italia Alice, 4 June 2006.*), then the stakes, the fall at San Donato, the pass for the win at the same corner, and "Patience, then one perfect move: a race still counted among his greatest." Plain text | top row |
 | B · Image | The 46 logo only (no helmet, so the map and charts keep the attention); a vector version is needed for print | top-right corner, above the story column |
 | C · Map (hero) | Mugello in TV orientation, about half the poster. Rossi's stretches painted yellow, numbered badges + callouts, a "how to read" key in the empty bottom-left | centre-left |
-| D · Key numbers | 0.575 s, 0.002 s, 5 wins, each with the badge of its moment | right band, beside the map |
+| D · Key numbers | In race order, each with its moment's badge: **0.730 s** behind Capirossi after running wide, in 5th (④); **0.002 s** between them after lap 22 (⑥); **0.575 s** winning margin (⑦). Values from `poster.timeline` | right band, beside the map |
 | G · Circuit band | An Italy locator (north-up, Mugello marked in Rossi yellow; outline from Natural Earth, public domain), then the facts: full name, town, built 1974, 5,245 m × 14 m, 15 corners (9 right, 6 left), longest straight 1,141 m, race distance and conditions | left band, beside the map |
 | E · Story | 7 moments as a list read top to bottom, no boxes: badge, lap, headline, ≤ 200-character story, coloured bar | right column |
 | F · Positions | Compact left-to-right strip, badges on the lap axis, plain hint "higher = further ahead" in its title line | under the map |
 | Footer | Map key (left, well spaced) + credits and a small QR code to the official full-race video ("Watch the race", 40 mm) in the bottom-right corner | bottom edge |
 
-Margins are 65 mm. The badge numbers ①–⑦ are the thread through map → story → positions.
+Margins are 65 mm. **Grid:** all four columns of the content band (circuit, map, key
+numbers, stories) start on one shared top line, clearly below the header (proximity),
+and the story column ends level with the positions strip's lap labels. The 46 logo
+spans from the header line to the title baseline. The badge numbers ①–⑦ are the thread through map → story → positions.
 
 ## 3. Typography
 
@@ -143,6 +146,9 @@ green-blind readers (ΔE 4.6), which is fine for a flag carrying no information.
   bottom-right corner, linking to the official full-race video.
 
 - Only the 46 logo as imagery; the helmet was tried and dropped (too much information).
+
+- The "5 Mugello wins in a row" figure was replaced by Rossi's 0.730 s deficit after
+  running wide: the poster is about 2006 only.
 
 **Open:**
 - Paper: matte recommended for the dark background.
