@@ -23,9 +23,10 @@ ITALY = {"green": "#229457", "white": C["ink"], "red": "#CE2B37"}  # flag red, k
 
 # ---- spacing system ----------------------------------------------------------------------
 # Every layout position, size, gap and padding is a multiple of 4 px, taken from these steps.
-# Proximity: gaps inside a group (8-24) are always smaller than gaps between sections (64).
+# Proximity: gaps inside a group (8-24) are always smaller than gaps between sections (64), and
+# the two big breaks (header -> map band -> race band) get 128 for air.
 U = 4
-XS, S_, M_, L_, XL, XXL, PAD = 8, 16, 24, 32, 48, 64, 96  # the only spacing steps used
+XS, S_, M_, L_, XL, XXL, PAD, BREAK = 8, 16, 24, 32, 48, 64, 96, 128  # the only spacing steps used
 
 
 def snap(v: float) -> int:
@@ -41,13 +42,13 @@ LAYOUT: dict[str, float] = {"W": W, "PAD": PAD}  # checked against the 4 px grid
 KICKER_Y = PAD + M_  # baselines
 TITLE_Y = KICKER_Y + M_ + 96
 STAND_Y = TITLE_Y + L_  # paragraph box top
-STAND_W, STAND_LINES, STAND_LH = 1408, 3, 28
+STAND_W, STAND_LINES, STAND_LH = RIGHT - LEFT, 2, 28  # full content width: two lines
 HEADER_BOTTOM = STAND_Y + STAND_LINES * STAND_LH
 LAYOUT |= {"KICKER_Y": KICKER_Y, "TITLE_Y": TITLE_Y, "STAND_Y": STAND_Y, "STAND_W": STAND_W,
            "HEADER_BOTTOM": HEADER_BOTTOM}
 
 # ---- map band: circuit facts (bottom-left) · map (centre) · key numbers (top-right) ----------
-BAND_TOP = HEADER_BOTTOM + XXL
+BAND_TOP = HEADER_BOTTOM + BREAK
 MAP_H = 760
 MAP_W = snap(MAP_H * 1000 / 705)  # the track's aspect ratio in TV orientation
 MAP_X, MAP_Y = snap((W - MAP_W) / 2), BAND_TOP + M_  # corner labels sit in the 24 px above
@@ -58,7 +59,7 @@ LAYOUT |= {"BAND_TOP": BAND_TOP, "MAP_X": MAP_X, "MAP_Y": MAP_Y, "MAP_W": MAP_W,
            "BAND_BOTTOM": BAND_BOTTOM, "COL_L_W": COL_L_W, "COL_R_X": COL_R_X}
 
 # ---- race band ------------------------------------------------------------------------------
-RACE_TOP = BAND_BOTTOM + XXL  # eyebrow baseline
+RACE_TOP = BAND_BOTTOM + BREAK  # eyebrow baseline
 CARD_H, CARD_MAX, CARD_MIN, CARD_GAP = 128, 472, 264, M_
 TOP_CARDS = RACE_TOP + M_
 AXIS_Y = TOP_CARDS + CARD_H + L_
@@ -326,7 +327,7 @@ POSTER_CSS = "\n".join(
 POSTER_CSS += "\n.badge { font-family:'Barlow Condensed'; font-weight:700; text-anchor:middle; }"
 
 NOTES = """
-<h2>Layout D, round 15: rebuilt on a spacing grid</h2>
+<h2>Layout D, round 16: rebuilt on a spacing grid</h2>
 <p class="meta">120 cm wide at 1.6 px/mm · use <b>Zoom: Print size</b> to judge real text sizes.</p>
 <ul>
 <li><b>4 px spacing grid:</b> every block position, gap and padding uses 8 · 16 · 24 · 32 · 48 · 64 · 96;
