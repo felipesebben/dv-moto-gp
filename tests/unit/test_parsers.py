@@ -68,3 +68,40 @@ def test_analysis_assigns_laps_to_current_rider() -> None:
     assert df.select("rider_number", "lap").rows() == [(46, 1), (46, 2), (65, 7)]
     assert df["speed_kmh"].to_list() == [None, 321.6, 323.7]
     assert df["pit_lane"].to_list() == [False, False, True]
+
+
+EVENT_LINES = [
+    "GRAN PREMIO D'ITALIA ALICE",
+    "Classification after 23 laps = 120.635 km 20",
+    "5245 m.",
+    "Race condition:Dry Pole Position: Sete GIBERNAU 1'48.969 173.278 Km/h",
+    "Air: 20° Fastest Lap: Lap 7 Loris CAPIROSSI 1'50.195 171.350 Km/h",
+    "Ground: 29° Circuit Best Lap: 2006 Sete GIBERNAU 1'48.969 173.278 Km/h",
+    "14:01'24 RACE START",
+    "Mugello, Sunday, June 04, 2006",
+    "Width 14 m.",
+    "Right corners 9",
+    "Left corners 6",
+    "Longest straight 1,141 m. / 0.709 miles",
+    "Constructed 1974",
+]
+
+
+def test_event_facts() -> None:
+    row = parsers.parse_event(EVENT_LINES, {"circuit_name": "Mugello"}).row(0, named=True)
+    assert row["event_name"] == "Gran Premio d'Italia Alice"
+    assert str(row["race_date"]) == "2006-06-04"
+    assert (row["race_laps"], row["race_distance_km"], row["track_length_m"]) == (23, 120.635, 5245)
+    assert (row["right_corners"], row["left_corners"], row["longest_straight_m"]) == (9, 6, 1141)
+    assert (row["condition"], row["air_c"], row["track_c"], row["start_time"]) == (
+        "Dry",
+        20,
+        29,
+        "14:01",
+    )
+    assert row["circuit_name"] == "Mugello"
+
+
+def test_event_fails_loudly_when_a_fact_is_missing() -> None:
+    with pytest.raises(ValueError, match="track_width_m"):
+        parsers.parse_event([line for line in EVENT_LINES if "Width" not in line], {})

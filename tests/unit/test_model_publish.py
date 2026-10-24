@@ -1,5 +1,6 @@
 """Model + publish on a tiny synthetic race (3 riders, 2 laps) with the real seeds."""
 
+import itertools
 from pathlib import Path
 
 import duckdb
@@ -8,7 +9,7 @@ import pytest
 from tableauhyperapi import Connection, HyperProcess, Telemetry, escape_name
 
 from mugello06 import config, model, publish
-from mugello06.ingest.track import parse_track
+from mugello06.ingest.track import haversine_m, parse_track
 
 RIDERS = {46: ("Valentino", "ROSSI"), 65: ("Loris", "CAPIROSSI"), 69: ("Nicky", "HAYDEN")}
 # lap -> finishing order; Capirossi leads lap 1, Rossi wins on lap 2
@@ -48,6 +49,9 @@ def interim(tmp_path: Path) -> Path:
         ]
     ).write_parquet(tmp_path / "laps.parquet")
     parse_track(config.TRACK_GEOJSON).write_parquet(tmp_path / "track_points.parquet")
+    pl.DataFrame([{"event_name": "Test GP", "right_corners": 9, "left_corners": 6}]).write_parquet(
+        tmp_path / "event.parquet"
+    )
     return tmp_path
 
 
@@ -93,7 +97,15 @@ def test_key_moments_get_map_coordinates_from_their_corner(db: Path) -> None:
 def test_publish_writes_every_poster_table_to_hyper(db: Path, tmp_path: Path) -> None:
     hyper_path = tmp_path / "test.hyper"
     tables = publish.run(db_path=db, hyper_path=hyper_path)
-    assert tables == ["key_moments", "positions", "riders", "timeline", "track"]
+    assert tables == [
+        "event",
+        "key_moments",
+        "positions",
+        "riders",
+        "timeline",
+        "track",
+        "track_stretches",
+    ]
     with (
         HyperProcess(
             Telemetry.DO_NOT_SEND_USAGE_DATA_TO_TABLEAU, parameters={"log_dir": str(tmp_path)}
@@ -105,3 +117,41 @@ def test_publish_writes_every_poster_table_to_hyper(db: Path, tmp_path: Path) ->
             in_hyper = hc.execute_scalar_query(f"SELECT COUNT(*) FROM {escape_name(table)}")
             in_duckdb = con.execute(f"select count(*) from poster.{table}").fetchall()[0][0]
             assert in_hyper == in_duckdb > 0
+
+
+def test_track_is_in_tv_orientation_and_true_to_scale(db: Path) -> None:
+    with duckdb.connect(db, read_only=True) as con:
+        start = con.execute("select x_m, y_m from poster.track where point_idx = 0").fetchone()
+        pts = con.execute(
+            "select lon, lat, x_m, y_m from poster.track order by point_idx"
+        ).fetchall()
+        leftmost_corner = con.execute(
+            "select corner_name from poster.track where turn is not null order by x_m limit 1"
+        ).fetchone()
+    assert start == (0.0, 0.0)  # the start line is the origin
+    assert leftmost_corner == ("San Donato",)  # north points left, as on TV
+    # the rotation keeps distances: each segment matches its great-circle length
+    for (lon0, lat0, x0, y0), (lon1, lat1, x1, y1) in itertools.pairwise(pts):
+        segment = ((x1 - x0) ** 2 + (y1 - y0) ** 2) ** 0.5
+        assert segment == pytest.approx(haversine_m((lon0, lat0), (lon1, lat1)), abs=1)
+
+
+def test_stretches_follow_the_outline_and_wrap_past_the_line(db: Path) -> None:
+    with duckdb.connect(db, read_only=True) as con:
+        paths = dict(
+            con.execute(
+                "select stretch_id, list(point_idx order by seq) "
+                "from poster.track_stretches group by 1"
+            ).fetchall()
+        )
+        moment_refs = con.execute("select moment_ids from seed_stretches").fetchall()
+        moments = {m for (m,) in con.execute("select moment_id from poster.key_moments").fetchall()}
+    assert paths[3] == [125, 126, 127, 0]
+    assert all(path == sorted(path) for sid, path in paths.items() if sid != 3)
+    refs = {int(m) for (ids,) in moment_refs for m in str(ids).split(",")}
+    assert refs <= moments
+
+
+def test_event_counts_corners(db: Path) -> None:
+    with duckdb.connect(db, read_only=True) as con:
+        assert con.execute("select corners from poster.event").fetchone() == (15,)

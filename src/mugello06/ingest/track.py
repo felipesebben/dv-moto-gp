@@ -25,3 +25,9 @@ def parse_track(path: Path) -> pl.DataFrame:
             distance += haversine_m(tuple(coords[idx - 1]), (lon, lat))
         rows.append({"point_idx": idx, "lon": lon, "lat": lat, "distance_m": distance})
     return pl.DataFrame(rows)
+
+
+def parse_track_meta(path: Path) -> dict[str, str]:
+    """Circuit full name and town from the GeoJSON properties."""
+    props = json.loads(path.read_text(encoding="utf-8"))["features"][0]["properties"]
+    return {"circuit_name": props["Name"], "circuit_town": props["Location"]}

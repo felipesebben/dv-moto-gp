@@ -51,7 +51,9 @@ CI (`.github/workflows/ci.yml`) runs `uv sync --locked`, ruff format --check, ru
     header line (`1st 46 …`) sets the current rider for the lap rows that follow.
   - `track.py` turns `seeds/mugello.geojson` into ordered points with distance along the lap.
   - `ingest/__init__.py` maps each source to its parser (`extract()`) and writes
-    `data/interim/{classification,lap_chart,laps,track_points}.parquet` (`run()`).
+    `data/interim/{classification,lap_chart,laps,track_points,event}.parquet` (`run()`).
+    `event` (one row) comes from the classification + *circuit information* PDFs plus the
+    GeoJSON's name/town; `parse_event` raises if any fact is missing.
 - **Seeds** (`seeds/`) are committed, hand-curated inputs: the circuit outline (MIT, with
   attribution), `corners.csv` (turn to outline point index) and `key_moments.csv` (the
   story beats shown on the poster). Every line in `key_moments.csv` must trace back to
@@ -60,14 +62,22 @@ CI (`.github/workflows/ci.yml`) runs `uv sync --locked`, ruff format --check, ru
 - **Model** (`src/mugello06/model/`): `build()` creates `stg_*` views over the interim Parquet
   and `seed_*` views over the CSVs, sets the DuckDB variables `protagonist`/`rival` from
   `config`, then runs `sql/*.sql` **in filename order**. Each file creates one table in the
-  `poster` schema: `riders` (with `role`), `positions`, `timeline`, `track`, `key_moments`.
+  `poster` schema: `riders` (with `role`), `positions`, `timeline`, `track`, `key_moments`,
+  `track_stretches`, `event`.
   Later files may depend on earlier ones (e.g. `key_moments` joins `timeline`).
 - **Publish** (`src/mugello06/publish/`): copies every `poster.*` table to Parquet in a temp
   dir, then into `data/processed/mugello06.hyper` with Hyper's `external()`. That file is
   what Tableau connects to.
 - Join key across all tables: **`rider_number`**. In `lap_chart`, lap 0 is the starting grid.
-  `key_moments` get their lon/lat from their corner; a moment without a turn appears on the
-  timeline only.
+  `key_moments` get their coordinates from their corner; a moment without a turn appears on
+  the timeline only.
+- **Map coordinates:** the poster uses the TV orientation (north points left), which Tableau
+  maps can't do. So `track`, `key_moments` and `track_stretches` carry `x_m`/`y_m`: metres
+  from the start line, `x = -north`, `y = east`. Plot them as a plain scatter/line with
+  equal axis ranges. `track_stretches` (from `seeds/stretches.csv`) are the yellow segments;
+  they may wrap past the start line, and `seq` is the drawing order.
+- The design is settled in `docs/DESIGN_STANDARDS.md` (layout D, 120 × 70 cm) with the
+  wireframe in `design/wireframe/poster_d.html`. Follow it when building in Tableau.
 - Not parsed on purpose, because the data can be derived from the three tables: grid, top
   speed, fastest-lap reports, analysis by lap.
 
