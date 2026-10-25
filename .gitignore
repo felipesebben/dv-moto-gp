@@ -27,6 +27,10 @@ hyperd*.log
 *.twbx
 *.tdsx
 *.tde
+*.twbr
+~*
+# workbooks belong in design/tableau/; one at the repo root is work in progress
+/*.twb
 tableau/**/Bookmarks/
 tableau/**/Logs/
 
