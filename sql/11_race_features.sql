@@ -181,8 +181,17 @@ features as (
     from key_item, params
 )
 
+-- One spatial column per Tableau map layer (`geo_*`, empty on the other rows), so each layer
+-- is one drag. `tableau_layer` names the column a row fills; lat/lon on point rows let
+-- Tableau build extra layers with MAKEPOINT([Lat], [Lon]); `wkt` is the same shape as text.
 select
     layer,
+    case when layer = 'tick' then 'axis'
+         when layer = 'line' and role = 'protagonist' then 'line_rossi'
+         when layer = 'line' then 'lines_back'
+         when layer = 'badge' and moment_id is null then 'key_badge'
+         when layer = 'axis_label' then layer || '_' || align
+         else layer end as tableau_layer,
     align,
     item,
     moment_id,
@@ -191,6 +200,22 @@ select
     shape_name(layer, role, label) as shape_file,
     round(x, 1) as x_px,
     round(y, 1) as y_px,
-    geometry
+    canvas_lat(y) as lat,
+    canvas_lon(x) as lon,
+    case when tableau_layer = 'frame' then geometry end as geo_frame,
+    case when tableau_layer = 'axis' then geometry end as geo_axis,
+    case when tableau_layer = 'connector' then geometry end as geo_connector,
+    case when tableau_layer = 'lines_back' then geometry end as geo_lines_back,
+    case when tableau_layer = 'halo' then geometry end as geo_halo,
+    case when tableau_layer = 'line_rossi' then geometry end as geo_line_rossi,
+    case when tableau_layer = 'rider_dot' then geometry end as geo_rider_dot,
+    case when tableau_layer = 'badge' then geometry end as geo_badge,
+    case when tableau_layer = 'key_badge' then geometry end as geo_key_badge,
+    case when tableau_layer = 'axis_label_left' then geometry end as geo_axis_label_left,
+    case when tableau_layer = 'axis_label_center' then geometry end as geo_axis_label_center,
+    case when tableau_layer = 'end_label' then geometry end as geo_end_label,
+    case when tableau_layer = 'key_line' then geometry end as geo_key_line,
+    case when tableau_layer = 'key_label' then geometry end as geo_key_label,
+    geometry as wkt
 from features
 order by layer, item;

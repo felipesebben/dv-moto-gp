@@ -1,5 +1,5 @@
 -- The map canvas: every layer of the circuit map in one table, so one Tableau sheet can stack
--- them as map layers (Tableau: one layer per `layer`, label alignment from `align`).
+-- them as map layers (Tableau: one layer per `geo_*` column, built in the final select).
 -- Units are metres in the TV orientation (poster.track x_m / y_m). Label offsets and callout
 -- positions come from the wireframe (seeds/corners.csv, seeds/callouts.csv); on the poster
 -- 1 px = 1.1498 m, and the frame is the map box (1136 x 800 px) plus 96 px on every side, so
@@ -149,8 +149,13 @@ features as (
     from badge as b, params as p
 )
 
+-- One spatial column per Tableau map layer (`geo_*`, empty on the other rows), so each layer
+-- is one drag. `tableau_layer` names the column a row fills; lat/lon on point rows let
+-- Tableau build extra layers with MAKEPOINT([Lat], [Lon]); `wkt` is the same shape as text.
 select
     layer,
+    case when layer in ('corner_label', 'callout') then layer || '_' || align
+         else layer end as tableau_layer,
     align,
     item,
     moment_id,
@@ -159,6 +164,20 @@ select
     shape_name(layer, role, label) as shape_file,
     round(x, 1) as x_m,
     round(y, 1) as y_m,
-    geometry
+    canvas_lat(y) as lat,
+    canvas_lon(x) as lon,
+    case when tableau_layer = 'frame' then geometry end as geo_frame,
+    case when tableau_layer = 'track' then geometry end as geo_track,
+    case when tableau_layer = 'stretch' then geometry end as geo_stretch,
+    case when tableau_layer = 'start_line' then geometry end as geo_start_line,
+    case when tableau_layer = 'leader' then geometry end as geo_leader,
+    case when tableau_layer = 'corner_dot' then geometry end as geo_corner_dot,
+    case when tableau_layer = 'corner_label_left' then geometry end as geo_corner_label_left,
+    case when tableau_layer = 'corner_label_center' then geometry end as geo_corner_label_center,
+    case when tableau_layer = 'corner_label_right' then geometry end as geo_corner_label_right,
+    case when tableau_layer = 'badge' then geometry end as geo_badge,
+    case when tableau_layer = 'callout_left' then geometry end as geo_callout_left,
+    case when tableau_layer = 'callout_right' then geometry end as geo_callout_right,
+    geometry as wkt
 from features
 order by layer, item;

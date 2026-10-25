@@ -134,8 +134,10 @@ def test_publish_writes_every_poster_table_to_hyper(db: Path, tmp_path: Path) ->
             assert in_hyper == in_duckdb  # key_numbers is empty: this race has no lap 15
         for table in ("map_features", "race_features", "locator_features"):
             definition = hc.catalog.get_table_definition(TableName(table))
-            geometry = definition.get_column_by_name("geometry")
-            assert geometry is not None and "GEOGRAPHY" in str(geometry.type)
+            types = {str(c.name).strip('"'): str(c.type) for c in definition.columns}
+            spatial = {name for name, kind in types.items() if "GEOGRAPHY" in kind}
+            assert spatial and spatial == {name for name in types if name.startswith("geo_")}
+            assert "GEOGRAPHY" not in types["wkt"]  # the text copy stays text
 
 
 def test_track_is_in_tv_orientation_and_true_to_scale(db: Path) -> None:
@@ -212,18 +214,30 @@ def test_map_canvas_has_every_layer(db: Path) -> None:
 def test_map_canvas_keeps_the_track_true_to_scale(db: Path) -> None:
     with duckdb.connect(db, read_only=True) as con:
         (wkt,) = con.execute(
-            "select geometry from poster.map_features where layer = 'track'"
+            "select wkt from poster.map_features where layer = 'track'"
         ).fetchall()[0]
         track = con.execute("select x_m, y_m from poster.track order by point_idx").fetchall()
-        frame = con.execute(
-            "select geometry from poster.map_features where layer = 'frame'"
-        ).fetchall()
+        frame = con.execute("select wkt from poster.map_features where layer = 'frame'").fetchall()
     for (x, y), (x_m, y_m) in zip(canvas_xy(wkt), track, strict=True):
         assert x == pytest.approx(x_m, abs=0.05) and y == pytest.approx(y_m, abs=0.05)
     corners = [canvas_xy(g)[0] for (g,) in frame]
     width = max(x for x, _ in corners) - min(x for x, _ in corners)
     height = max(y for _, y in corners) - min(y for _, y in corners)
     assert width / height == pytest.approx(1328 / 992, rel=1e-3)  # the Tableau sheet's ratio
+
+
+@pytest.mark.parametrize("table", ["map_features", "race_features"])
+def test_each_row_fills_only_its_own_layer_column(db: Path, table: str) -> None:
+    with duckdb.connect(db, read_only=True) as con:
+        names = [d[0] for d in con.execute(f"select * from poster.{table} limit 0").description]
+        geo = [n for n in names if n.startswith("geo_")]
+        filled = con.execute(
+            f"select tableau_layer, wkt, [{', '.join(geo)}] from poster.{table}"
+        ).fetchall()
+    assert {"geo_" + layer for layer, _, _ in filled} <= set(geo)  # every row has its column
+    for layer, wkt, shapes in filled:
+        assert [g for g in shapes if g is not None] == [wkt]
+        assert shapes[geo.index("geo_" + layer)] == wkt
 
 
 def test_every_shape_has_its_image(db: Path) -> None:
@@ -255,10 +269,10 @@ def test_riders_for_the_chart(db: Path) -> None:
 def test_locator_marks_mugello_inside_italy(db: Path) -> None:
     with duckdb.connect(db, read_only=True) as con:
         rings = con.execute(
-            "select geometry from poster.locator_features where layer = 'italy' order by polygon_id"
+            "select wkt from poster.locator_features where layer = 'italy' order by polygon_id"
         ).fetchall()
         (mugello,) = con.execute(
-            "select geometry from poster.locator_features where layer = 'mugello'"
+            "select wkt from poster.locator_features where layer = 'mugello'"
         ).fetchall()[0]
         start = con.execute("select lon, lat from poster.track where point_idx = 0").fetchone()
     assert len(rings) == 3 and start is not None

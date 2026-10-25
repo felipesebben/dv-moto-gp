@@ -86,8 +86,8 @@ def test_race_canvas_connectors_land_on_the_rider_lines(con: duckdb.DuckDBPyConn
     ends = con.execute(
         """
         select
-            string_split(trim(c.geometry, 'LINESTRING()'), ', ')[2],
-            string_split(trim(l.geometry, 'LINESTRING()'), ', ')[m.lap * 10 + 1]
+            string_split(trim(c.wkt, 'LINESTRING()'), ', ')[2],
+            string_split(trim(l.wkt, 'LINESTRING()'), ', ')[m.lap * 10 + 1]
         from poster.race_features as c
         join poster.key_moments as m on c.moment_id = m.moment_id
         join poster.race_features as l on l.layer = 'line' and l.item = m.rider_display_name
