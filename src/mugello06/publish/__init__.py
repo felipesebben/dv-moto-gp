@@ -1,4 +1,8 @@
-"""Publish stage: poster tables in DuckDB -> a single Tableau .hyper file."""
+"""Publish stage: poster tables in DuckDB -> a single Tableau .hyper file.
+
+A `geometry` column holds WKT text in DuckDB and becomes Tableau's spatial type in the .hyper,
+so Tableau reads it as a ready-made shape (one drag onto the view draws it).
+"""
 
 import tempfile
 from pathlib import Path
@@ -16,17 +20,28 @@ from tableauhyperapi import (
 from mugello06 import config
 from mugello06.model import poster_tables
 
+GEOMETRY = "geometry"
+
 
 def run(db_path: Path = config.DUCKDB_PATH, hyper_path: Path = config.HYPER_PATH) -> list[str]:
     """Copy every poster table to the .hyper file via Parquet. Returns the table names."""
     hyper_path.parent.mkdir(parents=True, exist_ok=True)
     with tempfile.TemporaryDirectory() as tmp:
         tmp_dir = Path(tmp)
+        columns: dict[str, list[str]] = {}
         with duckdb.connect(db_path, read_only=True) as con:
             tables = poster_tables(con)
             for table in tables:
                 target = (tmp_dir / f"{table}.parquet").as_posix()
                 con.execute(f"copy {config.POSTER_SCHEMA}.{table} to '{target}' (format parquet)")
+                columns[table] = [
+                    name
+                    for (name,) in con.execute(
+                        "select column_name from information_schema.columns "
+                        "where table_schema = ? and table_name = ? order by ordinal_position",
+                        [config.POSTER_SCHEMA, table],
+                    ).fetchall()
+                ]
         with (
             HyperProcess(
                 Telemetry.DO_NOT_SEND_USAGE_DATA_TO_TABLEAU, parameters={"log_dir": tmp}
@@ -35,7 +50,13 @@ def run(db_path: Path = config.DUCKDB_PATH, hyper_path: Path = config.HYPER_PATH
         ):
             for table in tables:
                 source = escape_string_literal(str(tmp_dir / f"{table}.parquet"))
+                cols = ", ".join(_hyper_column(name) for name in columns[table])
                 hc.execute_command(
-                    f"CREATE TABLE {escape_name(table)} AS (SELECT * FROM external({source}))"
+                    f"CREATE TABLE {escape_name(table)} AS (SELECT {cols} FROM external({source}))"
                 )
     return tables
+
+
+def _hyper_column(name: str) -> str:
+    column = escape_name(name)
+    return f"CAST({column} AS GEOGRAPHY) AS {column}" if name == GEOMETRY else column

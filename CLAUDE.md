@@ -55,28 +55,41 @@ CI (`.github/workflows/ci.yml`) runs `uv sync --locked`, ruff format --check, ru
     `event` (one row) comes from the classification + *circuit information* PDFs plus the
     GeoJSON's name/town; `parse_event` raises if any fact is missing.
 - **Seeds** (`seeds/`) are committed, hand-curated inputs: the circuit outline (MIT, with
-  attribution), `corners.csv` (turn to outline point index) and `key_moments.csv` (the
+  attribution), `corners.csv` (turn to outline point index, map label offsets), `callouts.csv`,
+  `key_numbers.csv`, `stretches.csv`, `italy.geojson` and `key_moments.csv` (the
   story beats shown on the poster). Every line in `key_moments.csv` must trace back to
   `docs/research/race_story.md`, and a unit test enforces text-length limits so the poster
   stays readable.
 - **Model** (`src/mugello06/model/`): `build()` creates `stg_*` views over the interim Parquet
   and `seed_*` views over the CSVs, sets the DuckDB variables `protagonist`/`rival` from
-  `config`, then runs `sql/*.sql` **in filename order**. Each file creates one table in the
-  `poster` schema: `riders` (with `role`), `positions`, `timeline`, `track`, `key_moments`,
-  `track_stretches`, `event`, `italy_outline` + `locator_points` (the Italy locator: real
-  lon/lat, north-up, so a Tableau map works; polygon per `polygon_id`, Path = `point_idx`).
-  Later files may depend on earlier ones (e.g. `key_moments` joins `timeline`).
+  `config`, then runs `sql/*.sql` **in filename order** into a freshly dropped `poster` schema.
+  `00_macros.sql` defines shared macros; every other file creates one table: `riders` (with
+  `role`, `display_name`, `in_chart`), `positions`, `timeline`, `track`, `key_moments` (with the
+  focus rider's position and the card side), `track_stretches`, `event`, `locator_features`,
+  `key_numbers`, `map_features`, `race_features`. Later files may depend on earlier ones.
 - **Publish** (`src/mugello06/publish/`): copies every `poster.*` table to Parquet in a temp
-  dir, then into `data/processed/mugello06.hyper` with Hyper's `external()`. That file is
-  what Tableau connects to.
+  dir, then into `data/processed/mugello06.hyper` with Hyper's `external()`. A column named
+  `geometry` (WKT in DuckDB) is cast to Hyper's `GEOGRAPHY`, i.e. a Tableau spatial field.
 - Join key across all tables: **`rider_number`**. In `lap_chart`, lap 0 is the starting grid.
   `key_moments` get their coordinates from their corner; a moment without a turn appears on
   the timeline only.
 - **Map coordinates:** the poster uses the TV orientation (north points left), which Tableau
   maps can't do. So `track`, `key_moments` and `track_stretches` carry `x_m`/`y_m`: metres
-  from the start line, `x = -north`, `y = east`. Plot them as a plain scatter/line with
-  equal axis ranges. `track_stretches` (from `seeds/stretches.csv`) are the yellow segments;
-  they may wrap past the start line, and `seq` is the drawing order.
+  from the start line, `x = -north`, `y = east`. `track_stretches` (from `seeds/stretches.csv`)
+  are the yellow segments; they may wrap past the start line, and `seq` is the drawing order.
+- **Canvases (how Tableau draws the map and the race band):** `map_features` (metres) and
+  `race_features` (poster px) hold every mark of one sheet, one row per item with `layer`,
+  `align`, `role`, `label` and `geometry`. The flat drawing is passed as **fake geography** on
+  the equator (inverse Web Mercator, 1 unit = 100 m; macros in `sql/00_macros.sql`), so one
+  Tableau map sheet can stack all layers with Map Layers. Each has a `frame` layer whose aspect
+  equals the sheet's (1328 × 992 and 1728 × 560 px), so the canvas fills the sheet at poster
+  scale. Placement constants come from the wireframe (`seeds/corners.csv` label offsets,
+  `seeds/callouts.csv`, and the px constants in `sql/11_race_features.sql`): change them
+  together with `design/wireframe/tools/build_poster_d.py`. `locator_features` is real
+  lon/lat geography (Italy polygons, counter-clockwise, plus the Mugello point).
+- **Tableau build:** `docs/TABLEAU_GUIDE.md` is the step-by-step guide (data sources, layers,
+  dashboard object positions, export). `design/tableau/tools/preview_canvas.py` renders what
+  the canvas sheets should look like straight from the `.hyper` (`design/tableau/previews/`).
 - The design is settled in `docs/DESIGN_STANDARDS.md` (layout D, 120 × 132 cm, on a 4 px spacing grid) with the
   wireframe in `design/wireframe/poster_d.html`. Follow it when building in Tableau.
 - Not parsed on purpose, because the data can be derived from the three tables: grid, top

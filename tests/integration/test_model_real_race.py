@@ -53,3 +53,45 @@ def test_every_key_moment_lands_on_the_timeline(con: duckdb.DuckDBPyConnection) 
     flagged = con.execute("select count(*) from poster.timeline where is_key_moment").fetchall()
     moments = con.execute("select count(*) from poster.key_moments").fetchall()
     assert flagged == moments
+
+
+def test_moments_point_at_their_rider(con: duckdb.DuckDBPyConnection) -> None:
+    rows = con.execute(
+        "select rider_display_name, rider_position, card_side "
+        "from poster.key_moments order by moment_id"
+    ).fetchall()
+    assert [r[:2] for r in rows] == [
+        ("Rossi", 1),
+        ("Capirossi", 7),  # fastest lap, in 7th
+        ("Capirossi", 3),  # the charge, up to 3rd
+        ("Rossi", 5),  # ran wide, down to 5th
+        ("Rossi", 2),
+        ("Rossi", 2),
+        ("Rossi", 1),
+    ]
+    assert [r[2] for r in rows] == ["above", "below"] * 3 + ["above"]
+
+
+def test_key_numbers(con: duckdb.DuckDBPyConnection) -> None:
+    rows = con.execute("select moment_id, value_text from poster.key_numbers order by rank")
+    assert rows.fetchall() == [(4, "0.730 s"), (6, "0.002 s"), (7, "0.575 s")]
+
+
+def test_race_canvas_connectors_land_on_the_rider_lines(con: duckdb.DuckDBPyConnection) -> None:
+    layers = dict(
+        con.execute("select layer, count(*) from poster.race_features group by 1").fetchall()
+    )
+    assert layers["line"] == 6 and layers["connector"] == 7 and layers["badge"] == 7 + 2  # + key
+    # each connector ends exactly on its rider's line at that lap (the line has 10 points a lap)
+    ends = con.execute(
+        """
+        select
+            string_split(trim(c.geometry, 'LINESTRING()'), ', ')[2],
+            string_split(trim(l.geometry, 'LINESTRING()'), ', ')[m.lap * 10 + 1]
+        from poster.race_features as c
+        join poster.key_moments as m on c.moment_id = m.moment_id
+        join poster.race_features as l on l.layer = 'line' and l.item = m.rider_display_name
+        where c.layer = 'connector'
+        """
+    ).fetchall()
+    assert len(ends) == 7 and all(end == point for end, point in ends)

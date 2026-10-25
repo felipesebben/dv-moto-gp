@@ -137,8 +137,9 @@ green-blind readers (ΔE 4.6), which is fine for a flag carrying no information.
 
 **Agreed:**
 - Map orientation follows **TV graphics** (main straight across, north pointing left), never
-  north-up. This means the build uses rotated x/y coordinates from the pipeline instead of a
-  Tableau map, which can't rotate.
+  north-up. Tableau maps can't rotate, so the pipeline rotates the circuit and hands it to
+  Tableau as fake geography: one map sheet, with every layer stacked (see
+  `docs/TABLEAU_GUIDE.md`).
 - Keep **all 7 key moments**.
 - The poster is **large and airy**: whitespace matters more than density. Sketched at
   120 × 132 cm portrait, laid out on the 4 px spacing system (narrowed from 140 cm, then made
