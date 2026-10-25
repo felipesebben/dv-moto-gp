@@ -90,6 +90,11 @@ CI (`.github/workflows/ci.yml`) runs `uv sync --locked`, ruff format --check, ru
 - **Tableau build:** `docs/TABLEAU_GUIDE.md` is the step-by-step guide (data sources, layers,
   dashboard object positions, export). `design/tableau/tools/preview_canvas.py` renders what
   the canvas sheets should look like straight from the `.hyper` (`design/tableau/previews/`).
+- **Custom shapes:** marks with more than one colour (numbered badges, rider dots with a ring,
+  the Mugello marker) are PNGs in `design/tableau/shapes/Mugello 2006/`, made by
+  `design/tableau/tools/make_shapes.py`, because a Tableau mark has one colour and a shape mark
+  no border. Rows that use one carry `shape_file` = the file name (macro `shape_name` in
+  `sql/00_macros.sql`); a unit test checks every value has its image.
 - The design is settled in `docs/DESIGN_STANDARDS.md` (layout D, 120 × 132 cm, on a 4 px spacing grid) with the
   wireframe in `design/wireframe/poster_d.html`. Follow it when building in Tableau.
 - Not parsed on purpose, because the data can be derived from the three tables: grid, top

@@ -6,6 +6,7 @@ select
     k.moment_id,
     m.lap,
     m.rider_role,
+    shape_name('badge', m.rider_role, k.moment_id::varchar) as shape_file,
     abs(tl.rival_minus_protagonist_s) as value_s,
     format('{:.3f} s', abs(tl.rival_minus_protagonist_s)) as value_text,
     k.label

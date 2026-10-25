@@ -33,6 +33,7 @@ select
     'italy' as layer,
     'Italy' as label,
     polygon_id,
+    null as shape_file,
     'POLYGON((' || array_to_string(
         list_transform(range(1, len(lons) + 1), lambda i: format('{:.6f} {:.6f}', lons[i], lats[i])), ', '
     ) || '))' as geometry
@@ -45,6 +46,7 @@ select
     'mugello' as layer,
     'Mugello' as label,
     null as polygon_id,
+    'mugello_marker' as shape_file,
     format('POINT({:.6f} {:.6f})', avg(lon), avg(lat)) as geometry
 from stg_track_points
 where point_idx < (select max(point_idx) from stg_track_points)
