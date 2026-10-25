@@ -7,7 +7,7 @@ import duckdb
 from mugello06 import config
 
 STAGING = ("classification", "lap_chart", "laps", "track_points", "event", "italy_outline")
-SEEDS = ("corners", "key_moments", "stretches")
+SEEDS = ("callouts", "corners", "key_moments", "key_numbers", "stretches")
 
 
 def build(
@@ -17,7 +17,8 @@ def build(
     sql_dir: Path = config.SQL_DIR,
 ) -> list[str]:
     """Create staging views, then run sql/*.sql in order. Returns the poster table names."""
-    con.execute(f"create schema if not exists {config.POSTER_SCHEMA}")
+    con.execute(f"drop schema if exists {config.POSTER_SCHEMA} cascade")  # no stale tables
+    con.execute(f"create schema {config.POSTER_SCHEMA}")
     con.execute(f"set variable protagonist = {config.PROTAGONIST}")
     con.execute(f"set variable rival = {config.RIVAL}")
     for name in STAGING:

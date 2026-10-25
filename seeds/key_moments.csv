@@ -1,8 +1,8 @@
-moment_id,lap,turn,headline,story,source
-1,1,0,Rossi leads at home,"From third on the grid, Rossi takes the lead on the first lap in front of his fans. Capirossi, who started second, drops to eighth.",lap chart; broadcast 15-17m
-2,7,,Fastest lap of the race,"Seventh and 1.75 seconds behind Rossi, Capirossi sets the fastest lap of the race, 1'50.195. His charge has begun.",classification (fastest lap); laps; lap chart
-3,13,,Capirossi's charge,"Lap after lap, Capirossi climbs to third and cuts the gap to Rossi from 2 seconds to 0.3.","lap chart; laps (gap 1.954 s on lap 10, 0.310 s on lap 13); broadcast 32-40m"
-4,15,1,Rossi runs wide,Into San Donato Rossi runs wide and almost stops. Four riders go past: from first to fifth. Capirossi takes the lead.,lap chart; laps (sector 1); broadcast 41m and 67m
-5,18,8,The comeback,"Rossi fights back past Gibernau, Melandri and Hayden. At Arrabbiata he is second again, right behind Capirossi.",lap chart; broadcast 43-48m
-6,22,0,Two thousandths,"Rossi takes the lead, Capirossi takes it back. They cross the line 0.002 seconds apart.",laps; broadcast 54-56m
-7,23,1,Victory at San Donato,"Last lap: Capirossi runs wide at San Donato, the corner where Rossi lost the lead. Rossi goes through and wins by 0.575 seconds.",classification; broadcast 56-57m
+moment_id,lap,turn,focus,headline,story,source
+1,1,0,protagonist,Rossi leads at home,"From third on the grid, Rossi takes the lead on the first lap in front of his fans. Capirossi, who started second, drops to eighth.",lap chart; broadcast 15-17m
+2,7,,rival,Fastest lap of the race,"Seventh and 1.75 seconds behind Rossi, Capirossi sets the fastest lap of the race, 1'50.195. His charge has begun.",classification (fastest lap); laps; lap chart
+3,13,,rival,Capirossi's charge,"Lap after lap, Capirossi climbs to third and cuts the gap to Rossi from 2 seconds to 0.3.","lap chart; laps (gap 1.954 s on lap 10, 0.310 s on lap 13); broadcast 32-40m"
+4,15,1,protagonist,Rossi runs wide,Into San Donato Rossi runs wide and almost stops. Four riders go past: from first to fifth. Capirossi takes the lead.,lap chart; laps (sector 1); broadcast 41m and 67m
+5,18,8,protagonist,The comeback,"Rossi fights back past Gibernau, Melandri and Hayden. At Arrabbiata he is second again, right behind Capirossi.",lap chart; broadcast 43-48m
+6,22,0,protagonist,Two thousandths,"Rossi takes the lead, Capirossi takes it back. They cross the line 0.002 seconds apart.",laps; broadcast 54-56m
+7,23,1,protagonist,Victory at San Donato,"Last lap: Capirossi runs wide at San Donato, the corner where Rossi lost the lead. Rossi goes through and wins by 0.575 seconds.",classification; broadcast 56-57m

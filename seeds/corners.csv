@@ -1,17 +1,17 @@
-turn,corner_name,point_idx
-0,Start/Finish,0
-1,San Donato,10
-2,Luco,19
-3,Poggio Secco,25
-4,Materassi,32
-5,Borgo San Lorenzo,39
-6,Casanova,46
-7,Savelli,52
-8,Arrabbiata 1,61
-9,Arrabbiata 2,73
-10,Scarperia,81
-11,Palagio,86
-12,Correntaio,96
-13,Biondetti 1,105
-14,Biondetti 2,109
-15,Bucine,118
+turn,corner_name,point_idx,label_dx_m,label_dy_m,label_anchor
+0,Start/Finish,0,11,19,start
+1,San Donato,10,-17,9,end
+2,Luco,19,0,-22,middle
+3,Poggio Secco,25,-12,15,end
+4,Materassi,32,0,-24,middle
+5,Borgo San Lorenzo,39,0,19,start
+6,Casanova,46,17,8,start
+7,Savelli,52,18,-2,start
+8,Arrabbiata 1,61,18,-4,start
+9,Arrabbiata 2,73,14,-15,start
+10,Scarperia,81,-14,-13,end
+11,Palagio,86,6,-16,start
+12,Correntaio,96,-14,0,end
+13,Biondetti 1,105,-14,-11,end
+14,Biondetti 2,109,-2,-17,end
+15,Bucine,118,14,-11,start
