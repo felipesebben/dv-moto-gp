@@ -226,6 +226,24 @@ def test_map_canvas_keeps_the_track_true_to_scale(db: Path) -> None:
     assert width / height == pytest.approx(1328 / 992, rel=1e-3)  # the Tableau sheet's ratio
 
 
+def test_every_shape_has_its_image(db: Path) -> None:
+    shapes_dir = Path(__file__).resolve().parents[2] / "design" / "tableau" / "shapes"
+    images = {p.stem for p in (shapes_dir / "Mugello 2006").glob("*.png")}
+    with duckdb.connect(db, read_only=True) as con:
+        used = con.execute(
+            """
+            select layer, shape_file from poster.map_features union all
+            select layer, shape_file from poster.race_features union all
+            select 'key_number', shape_file from poster.key_numbers union all
+            select layer, shape_file from poster.locator_features
+            """
+        ).fetchall()
+    # badges and rider dots always carry a shape, and nothing else does except the marker
+    marked = {"badge", "rider_dot", "key_number", "mugello"}
+    assert all((shape is not None) == (layer in marked) for layer, shape in used)
+    assert {shape for _, shape in used if shape} <= images
+
+
 def test_riders_for_the_chart(db: Path) -> None:
     with duckdb.connect(db, read_only=True) as con:
         rows = con.execute(

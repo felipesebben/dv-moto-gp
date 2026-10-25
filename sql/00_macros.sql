@@ -17,3 +17,9 @@ create or replace macro ordinal(n) as
     n || case when n % 100 in (11, 12, 13) then 'th'
               when n % 10 = 1 then 'st' when n % 10 = 2 then 'nd' when n % 10 = 3 then 'rd'
               else 'th' end;
+-- The custom Tableau shape a mark uses: the file name, without .png, in design/tableau/shapes/
+-- (made by design/tableau/tools/make_shapes.py). Shapes carry their own fill, ring and number,
+-- because Tableau colours a shape mark with one colour and draws no border on it.
+create or replace macro shape_name(layer, role, label) as
+    case layer when 'badge' then 'badge_' || role || '_' || label
+               when 'rider_dot' then 'dot_' || role end;

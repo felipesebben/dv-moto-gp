@@ -156,6 +156,7 @@ select
     moment_id,
     role,
     label,
+    shape_name(layer, role, label) as shape_file,
     round(x, 1) as x_m,
     round(y, 1) as y_m,
     geometry
