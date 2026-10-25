@@ -68,8 +68,9 @@ CI (`.github/workflows/ci.yml`) runs `uv sync --locked`, ruff format --check, ru
   focus rider's position and the card side), `track_stretches`, `event`, `locator_features`,
   `key_numbers`, `map_features`, `race_features`. Later files may depend on earlier ones.
 - **Publish** (`src/mugello06/publish/`): copies every `poster.*` table to Parquet in a temp
-  dir, then into `data/processed/mugello06.hyper` with Hyper's `external()`. A column named
-  `geometry` (WKT in DuckDB) is cast to Hyper's `GEOGRAPHY`, i.e. a Tableau spatial field.
+  dir, then into `data/processed/mugello06.hyper` with Hyper's `external()`. Columns named
+  `geo_*` (WKT in DuckDB) are cast to Hyper's `GEOGRAPHY`, i.e. Tableau spatial fields; `wkt`
+  is the same shape kept as text.
 - Join key across all tables: **`rider_number`**. In `lap_chart`, lap 0 is the starting grid.
   `key_moments` get their coordinates from their corner; a moment without a turn appears on
   the timeline only.
@@ -79,7 +80,9 @@ CI (`.github/workflows/ci.yml`) runs `uv sync --locked`, ruff format --check, ru
   are the yellow segments; they may wrap past the start line, and `seq` is the drawing order.
 - **Canvases (how Tableau draws the map and the race band):** `map_features` (metres) and
   `race_features` (poster px) hold every mark of one sheet, one row per item with `layer`,
-  `align`, `role`, `label` and `geometry`. The flat drawing is passed as **fake geography** on
+  `tableau_layer`, `align`, `role`, `label`, `lat`/`lon` (point rows, for `MAKEPOINT`) and
+  **one spatial column per Tableau map layer** (`geo_track`, `geo_stretch`…, filled only on that
+  layer's rows; there is deliberately no all-in-one geometry field). The flat drawing is passed as **fake geography** on
   the equator (inverse Web Mercator, 1 unit = 100 m; macros in `sql/00_macros.sql`), so one
   Tableau map sheet can stack all layers with Map Layers. Each has a `frame` layer whose aspect
   equals the sheet's (1328 × 992 and 1728 × 560 px), so the canvas fills the sheet at poster

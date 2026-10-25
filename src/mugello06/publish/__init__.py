@@ -1,7 +1,7 @@
 """Publish stage: poster tables in DuckDB -> a single Tableau .hyper file.
 
-A `geometry` column holds WKT text in DuckDB and becomes Tableau's spatial type in the .hyper,
-so Tableau reads it as a ready-made shape (one drag onto the view draws it).
+Columns named `geo_*` hold WKT text in DuckDB and become Tableau's spatial type in the .hyper,
+so Tableau reads each as a ready-made shape (one drag onto the view draws that map layer).
 """
 
 import tempfile
@@ -20,7 +20,7 @@ from tableauhyperapi import (
 from mugello06 import config
 from mugello06.model import poster_tables
 
-GEOMETRY = "geometry"
+GEO_PREFIX = "geo_"
 
 
 def run(db_path: Path = config.DUCKDB_PATH, hyper_path: Path = config.HYPER_PATH) -> list[str]:
@@ -59,4 +59,4 @@ def run(db_path: Path = config.DUCKDB_PATH, hyper_path: Path = config.HYPER_PATH
 
 def _hyper_column(name: str) -> str:
     column = escape_name(name)
-    return f"CAST({column} AS GEOGRAPHY) AS {column}" if name == GEOMETRY else column
+    return f"CAST({column} AS GEOGRAPHY) AS {column}" if name.startswith(GEO_PREFIX) else column

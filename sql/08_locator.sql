@@ -27,27 +27,40 @@ ordered as (
         case when twice_area > 0 then lons else list_reverse(lons) end as lons,
         case when twice_area > 0 then lats else list_reverse(lats) end as lats
     from ring
+),
+
+feature as (
+    select
+        'italy' as layer,
+        'Italy' as label,
+        polygon_id,
+        null as shape_file,
+        'POLYGON((' || array_to_string(
+            list_transform(range(1, len(lons) + 1), lambda i: format('{:.6f} {:.6f}', lons[i], lats[i])), ', '
+        ) || '))' as wkt
+    from ordered
+
+    union all
+
+    -- Mugello marker: the centre of the circuit outline (its closing point repeats the first).
+    select
+        'mugello' as layer,
+        'Mugello' as label,
+        null as polygon_id,
+        'mugello_marker' as shape_file,
+        format('POINT({:.6f} {:.6f})', avg(lon), avg(lat)) as wkt
+    from stg_track_points
+    where point_idx < (select max(point_idx) from stg_track_points)
 )
 
+-- one spatial column per Tableau map layer, as on the canvases
 select
-    'italy' as layer,
-    'Italy' as label,
+    layer,
+    label,
     polygon_id,
-    null as shape_file,
-    'POLYGON((' || array_to_string(
-        list_transform(range(1, len(lons) + 1), lambda i: format('{:.6f} {:.6f}', lons[i], lats[i])), ', '
-    ) || '))' as geometry
-from ordered
-
-union all
-
--- Mugello marker: the centre of the circuit outline (its closing point repeats the first).
-select
-    'mugello' as layer,
-    'Mugello' as label,
-    null as polygon_id,
-    'mugello_marker' as shape_file,
-    format('POINT({:.6f} {:.6f})', avg(lon), avg(lat)) as geometry
-from stg_track_points
-where point_idx < (select max(point_idx) from stg_track_points)
+    shape_file,
+    case when layer = 'italy' then wkt end as geo_italy,
+    case when layer = 'mugello' then wkt end as geo_mugello,
+    wkt
+from feature
 order by layer, polygon_id;

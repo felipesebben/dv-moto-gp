@@ -91,6 +91,6 @@ if __name__ == "__main__":
             Connection(hyper.endpoint, HYPER) as con:
         for table, (name, w, h) in SHEETS.items():
             rows = con.execute_list_query(
-                f'SELECT layer, align, role, label, CAST(geometry AS TEXT) FROM "{table}"')
+                f'SELECT layer, align, role, label, wkt FROM "{table}"')
             (OUT / f"{name}.html").write_text(draw(rows, w, h), encoding="utf-8")
             print(f"wrote {OUT / name}.html ({w} x {h})")

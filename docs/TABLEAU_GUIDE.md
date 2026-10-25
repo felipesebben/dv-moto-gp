@@ -23,7 +23,11 @@ applies. Work through it one session at a time and check each result before you 
 
 - `map_features`, `shape_file`: a table or column as stored in the `.hyper` file. Tableau shows
   columns with capitals and spaces, so `shape_file` appears in the Data pane as **Shape File**.
-- **`L · Badge`**: a calculated field you create (the name to type is exactly what's in bold).
+- **Geo Track**: a field as Tableau shows it in the Data pane (here the column `geo_track`).
+  Every map layer has its own ready-made **Geo …** field, so you build layers by dragging, with
+  no calculated fields.
+- **`Label point`**: a calculated field you create yourself (the name to type is in the code
+  font). Only needed for extra layers you invent (§4.5).
 - *Marks card › Shape*: a menu or control in Tableau, from the outside in.
 - `badge_rival_2.png`: a shape image in `design/tableau/shapes/Mugello 2006/` (§2.2, catalogue
   in §10).
@@ -50,8 +54,15 @@ So the pipeline turns each drawing into **fake geography**:
   where they were drawn, at one uniform scale.
 
 You switch the base map off, and what's left is our drawing on a plain background. Every
-layer comes from one table with a `layer` column and a ready-made `geometry` column (a Tableau
-spatial field), so you never set up paths or point orders. You drag one shape field per layer.
+canvas is one table, and **each map layer has its own spatial column**: `geo_track` holds the
+circuit, `geo_stretch` the yellow stretches, `geo_start_line` the green start line,
+`geo_corner_label_left` the corner names that sit left of their corner, and so on. A row fills
+only the column of its own layer and leaves the others empty. So one drag of **Geo Track**
+draws the circuit and nothing else; you never set up paths or point orders.
+
+There's deliberately **no** all-in-one geometry field. Dragging one field with every layer in
+it puts the lines, labels' anchor points and badges into a single layer with one style, which
+isn't what we want.
 
 There's a bonus: a map always keeps one unit the same length across and up, so the circuit
 can't be squashed by mistake.
@@ -110,10 +121,14 @@ they're useful for checking a value or exploring the race in Tableau.
 | `label` | the text to show on the mark (corner names, badge numbers, callouts…) |
 | `shape_file` | on `badge` and `rider_dot` rows only: the custom shape to show, e.g. `badge_rival_2` = `badge_rival_2.png` (empty on every other row) |
 | `x_m`/`y_m` or `x_px`/`y_px` | canvas position of point rows, for checking only |
-| `geometry` | the shape (Tableau spatial type) |
+| `tableau_layer` | the Tableau map layer the row belongs to, e.g. `corner_label_left`; the row's shape is in the column `geo_` + this name |
+| `lat`, `lon` | on point rows: the point as (fake) latitude and longitude, for `MAKEPOINT([Lat], [Lon])` (§4.5) |
+| `geo_<layer>` | **one spatial column per map layer** (lists in §4.1 and §7.1), filled only on that layer's rows. In Tableau: **Geo Track**, **Geo Badge**… |
+| `wkt` | the same shape as text, for checking only (not spatial) |
 
 **`locator_features`**: `layer` (`italy` or `mugello`), `label`, `polygon_id`, `shape_file`
-(`mugello_marker` on the Mugello row), `geometry` (real longitude/latitude, north-up).
+(`mugello_marker` on the Mugello row), `geo_italy` and `geo_mugello` (real longitude/latitude,
+north-up), `wkt`.
 
 **`key_numbers`**: `rank` (race order 1–3), `moment_id`, `lap`, `rider_role`, `shape_file`
 (`badge_protagonist_4`, `_6`, `_7`), `value_s`,
@@ -190,13 +205,22 @@ uv run mugello06 all     # writes data/processed/mugello06.hyper
 ### 2.4 Smoke test: the fake-geography map
 
 1. **Connect › To a File › More…** and open `data/processed/mugello06.hyper`.
-2. Drag **map_features** onto the canvas. Go to a new sheet.
-3. Double-click **Geometry**. Tableau puts *Longitude (generated)* on Columns,
-   *Latitude (generated)* on Rows and *COLLECT(Geometry)* on Detail. You should see the
-   circuit with the main straight running across, on top of a world map near Africa.
-4. **Map › Background Maps › None.** The world disappears and only our drawing stays.
+2. Drag **map_features** onto the canvas, **and nothing else**: the data source must hold only
+   this table. (If another table is in it, e.g. `locator_features` with the real Italy,
+   Tableau can zoom out to fit both, and the circuit shrinks to a few dots.) Go to a new sheet.
+3. Double-click **Geo Track**. Tableau puts *Longitude (generated)* on Columns,
+   *Latitude (generated)* on Rows and *COLLECT(Geo Track)* on Detail. You should see the
+   circuit as one white line, with the main straight running across, on top of a world map
+   near Africa.
+4. **Map › Background Maps › None.** The world disappears and only the circuit stays.
+5. Drag **Geo Frame** onto the view and drop it on **Add a Marks Layer**. The frame is four
+   points just outside the circuit; the view zooms to fit them.
 
-✅ **Pass:** the circuit looks like the poster (San Donato on the left, Arrabbiata on the right).
+✅ **Pass:** the circuit looks like the poster (San Donato on the left, Arrabbiata on the right)
+and fills the sheet, with four frame dots at the corners.
+
+If the circuit still shrinks to dots: check the *Marks* card (only *Geo Track* and *Geo Frame*
+should be layers) and the data source (only `map_features`), then tell Claude what you see.
 
 ### 2.5 Smoke test: zoom, fonts and export
 
@@ -231,7 +255,7 @@ layer later on.
 
 **Procedure S: put custom shapes on a layer**
 
-1. On the *Marks* card, pick the layer (its tab, named after its field, e.g. `L · Badge`).
+1. On the *Marks* card, pick the layer (its tab, named after its field, e.g. *Geo Badge*).
 2. Open the mark-type dropdown (it says *Automatic* or *Circle*) and choose **Shape**. A
    **Shape** button appears on the card, next to *Color*, *Size* and *Label*.
 3. Drag the field **Shape File** from the Data pane onto that **Shape** button. A shape legend
@@ -254,9 +278,8 @@ rows have no geometry on this layer, so nothing is drawn for them.
 
 **The smoke test**
 
-1. On the smoke-test sheet (map_features, §2.4), create `L · Badge` =
-   `IF [Layer] = 'badge' THEN [Geometry] END` and add it as a marks layer (drag it onto the
-   view, drop it on **Add a Marks Layer**).
+1. On the smoke-test sheet (map_features, §2.4), drag **Geo Badge** onto the view and drop it
+   on **Add a Marks Layer**.
 2. Follow **Procedure S** for this layer.
 3. Check the dashboard: five yellow badges with dark numbers 1, 4, 5, 6, 7 sit on the overlay's
    badges by the start line (① ⑥), San Donato (④ ⑦) and Arrabbiata 1 (⑤).
@@ -288,7 +311,8 @@ Rename each one (right-click › *Rename*) as in §1.
    `lap = lap`. Drag `key_moments` and relate it to `timeline` on `lap = lap`.
 7. **Track**: `track`, then `track_stretches` on `point_idx = point_idx`.
 
-In each data source, check the field types. `Geometry` should show the globe icon (spatial);
+In each data source, check the field types. Every **Geo …** field should show the globe icon
+(spatial), and **Wkt** should be text;
 **Shape File** should be a text dimension (*Abc*); `lap`, `rank` and `moment_id` should be
 numbers. Turn `moment_id`, `rank` and `lap` into
 **dimensions** (drag them above the line in the Data pane), because they're labels, not
@@ -301,41 +325,39 @@ packaged `.twbx` files and the `.hyper` stay local.
 
 Sheet name: **Map**. Data source: **Map canvas**.
 
-### 4.1 Calculated fields (one per layer)
+### 4.1 The layers and their fields
 
-Each layer gets a calculated field that returns the shape for that layer only. Create them
-in the *Map canvas* data source (**Analysis › Create Calculated Field…**):
+Each row of this table is one map layer, listed **bottom to top** (the order you add them).
+The field is ready-made in the *Map canvas* data source: no calculated fields.
 
-| Field name | Formula |
-|---|---|
-| `L · Frame` | `IF [Layer] = 'frame' THEN [Geometry] END` |
-| `L · Track` | `IF [Layer] = 'track' THEN [Geometry] END` |
-| `L · Stretch` | `IF [Layer] = 'stretch' THEN [Geometry] END` |
-| `L · Start line` | `IF [Layer] = 'start_line' THEN [Geometry] END` |
-| `L · Leader` | `IF [Layer] = 'leader' THEN [Geometry] END` |
-| `L · Corner dot` | `IF [Layer] = 'corner_dot' THEN [Geometry] END` |
-| `L · Corner label left` | `IF [Layer] = 'corner_label' AND [Align] = 'left' THEN [Geometry] END` |
-| `L · Corner label center` | `IF [Layer] = 'corner_label' AND [Align] = 'center' THEN [Geometry] END` |
-| `L · Corner label right` | `IF [Layer] = 'corner_label' AND [Align] = 'right' THEN [Geometry] END` |
-| `L · Badge` | `IF [Layer] = 'badge' THEN [Geometry] END` |
-| `L · Callout left` | `IF [Layer] = 'callout' AND [Align] = 'left' THEN [Geometry] END` |
-| `L · Callout right` | `IF [Layer] = 'callout' AND [Align] = 'right' THEN [Geometry] END` |
+| # | Layer | Field to drag | What it draws | Rows |
+|---|---|---|---|---|
+| 1 | Frame | **Geo Frame** | 4 invisible corner points that fix the zoom | 4 |
+| 2 | **Circuit** (the main layer) | **Geo Track** | the circuit outline, one closed white line | 1 |
+| 3 | Highlights | **Geo Stretch** | the three yellow stretches where the moments happened | 3 |
+| 4 | Start line | **Geo Start Line** | the green start/finish line across the track | 1 |
+| 5 | Leaders | **Geo Leader** | thin lines from a corner out to its badge | 5 |
+| 6 | Corner dots | **Geo Corner Dot** | a small dot on each named corner | 15 |
+| 7 | Corner names, left | **Geo Corner Label Left** | names that end at their point (e.g. *San Donato*) | 6 |
+| 8 | Corner names, centre | **Geo Corner Label Center** | names centred on their point (e.g. *Luco*) | 2 |
+| 9 | Corner names, right | **Geo Corner Label Right** | names that start at their point (e.g. *Casanova*) | 8 |
+| 10 | Badges | **Geo Badge** | the numbered badges ① ④ ⑤ ⑥ ⑦ (custom shapes) | 5 |
+| 11 | Callouts, left | **Geo Callout Left** | callout text ending left of its badges | 2 |
+| 12 | Callouts, right | **Geo Callout Right** | callout text starting right of its badges | 3 |
 
-Why split labels by alignment? Alignment is set per layer, not per mark, and the labels need
-three alignments. For example, *San Donato* sits to the left of its corner (`left`), *Luco*
-sits centred under its corner (`center`) and *Casanova* to the right (`right`).
+Why are the labels split by alignment? In Tableau, alignment is set per layer, not per mark,
+and the names need three alignments. Each label row is one point (where the text is anchored),
+already offset from its corner as in the wireframe, so you never place a label by hand.
 
 ### 4.2 Build the layers
 
-1. Double-click **`L · Frame`**. It becomes the first layer. **Map › Background Maps › None.**
-2. Drag **`L · Track`** onto the view and drop it on the **Add a Marks Layer** box that appears
+1. Double-click **Geo Frame**. It becomes the first layer. **Map › Background Maps › None.**
+2. Drag **Geo Track** onto the view and drop it on the **Add a Marks Layer** box that appears
    at the top-left of the map.
-3. Repeat for every other `L ·` field **in this order** (bottom to top): Stretch, Start line,
-   Leader, Corner dot, Corner label left, Corner label center, Corner label right, Badge,
-   Callout left, Callout right. On the *Marks* card, the **top** layer draws on top; drag
-   layers to reorder them.
+3. Repeat for every other field in the table above, **in its order** (3 to 12). On the
+   *Marks* card, the **top** layer draws on top; drag layers to reorder them if needed.
 4. Each layer shows a small *N nulls* indicator at the bottom-right (the rows that belong to
-   other layers). Right-click it › **Hide indicator**.
+   other layers, where this field is empty). Right-click it › **Hide indicator**.
 5. **Map › Map Options…**: untick everything (pan and zoom, search, toolbar, scale).
 
 ### 4.3 Style each layer
@@ -343,17 +365,17 @@ sits centred under its corner (`center`) and *Casanova* to the right (`right`).
 Use **Color › More colors…** to type the hex values. Sizes are relative in Tableau: set them
 against the overlay in the dashboard (§8) until they match the widths below.
 
-| Layer | Mark | Colour | Size / width | Label |
+| Layer (field) | Mark | Colour | Size / width | Label |
 |---|---|---|---|---|
-| Frame | Circle | any | smallest | **opacity 0 %** (invisible) |
-| Track | Line (automatic) | `#F2EFE9` ink | ≈ 7 px | none |
-| Stretch | Line | `#FDF504` Rossi yellow | ≈ 9 px (wider than the track) | none |
-| Start line | Line | `#229457` green | ≈ 6 px | none |
-| Leader | Line | `#A8A29A` muted | thinnest (1 px) | none |
-| Corner dot | Circle | `#A8A29A` | ≈ 5 px | none |
-| Corner label (×3) | Circle | any, **opacity 0 %** | smallest | `label`, Barlow Condensed Medium 10.5 pt, `#A8A29A` |
-| Badge | **Shape**: **Shape File** on *Shape*, palette *Mugello 2006* (**Procedure S**, §2.6) | none (the image has its colours) | **28 px** across | none: the number is part of the image |
-| Callout (×2) | Circle | any, **opacity 0 %** | smallest | `label`, Barlow Condensed SemiBold 12.8 pt, `#F2EFE9` |
+| Frame (**Geo Frame**) | Circle | any | smallest | **opacity 0 %** (invisible) |
+| Circuit (**Geo Track**) | Line (automatic) | `#F2EFE9` ink | ≈ 7 px | none |
+| Highlights (**Geo Stretch**) | Line | `#FDF504` Rossi yellow | ≈ 9 px (wider than the track) | none |
+| Start line (**Geo Start Line**) | Line | `#229457` green | ≈ 6 px | none |
+| Leaders (**Geo Leader**) | Line | `#A8A29A` muted | thinnest (1 px) | none |
+| Corner dots (**Geo Corner Dot**) | Circle | `#A8A29A` | ≈ 5 px | none |
+| Corner names ×3 (**Geo Corner Label Left / Center / Right**) | Circle | any, **opacity 0 %** | smallest | `label`, Barlow Condensed Medium 10.5 pt, `#A8A29A` |
+| Badges (**Geo Badge**) | **Shape**: **Shape File** on *Shape*, palette *Mugello 2006* (**Procedure S**, §2.6) | none (the image has its colours) | **28 px** across | none: the number is part of the image |
+| Callouts ×2 (**Geo Callout Left / Right**) | Circle | any, **opacity 0 %** | smallest | `label`, Barlow Condensed SemiBold 12.8 pt, `#F2EFE9` |
 
 Badge shapes on this sheet (all five are Rossi's moments):
 
@@ -369,14 +391,14 @@ On the **label** layers (corner labels and callouts):
 
 1. Drag **Label** (`label`) onto *Label*.
 2. Click *Label* › **Alignment**:
-   - *Corner label left* and *Callout left*: Horizontal **Left** (the text ends at the point);
-   - *Corner label center*: Horizontal **Center**;
-   - *Corner label right* and *Callout right*: Horizontal **Right** (the text starts at the point);
+   - *Geo Corner Label Left* and *Geo Callout Left*: Horizontal **Left** (the text ends at the point);
+   - *Geo Corner Label Center*: Horizontal **Center**;
+   - *Geo Corner Label Right* and *Geo Callout Right*: Horizontal **Right** (the text starts at the point);
    - Use Vertical **Middle** everywhere: the pipeline puts each label point on the middle of
      the text line.
 3. Tick **Allow labels to overlap other marks**, otherwise Tableau hides labels that touch
    a line.
-4. On *Callout left*, `1 · Rossi leads at home` should end just left of badges ① and ⑥.
+4. On *Geo Callout Left*, `1 · Rossi leads at home` should end just left of badges ① and ⑥.
 
 The opacity-0 trick shows only the text: the circle is invisible but still carries the label.
 
@@ -395,18 +417,43 @@ happen along the race, not at one corner, so they appear only on the race band (
 data by `design/tableau/tools/preview_canvas.py`) and the map in the wireframe:
 3 yellow stretches, 15 corner dots, 16 names, 5 badges with leader lines and 5 callouts.
 
+### 4.5 Your own extra layers (MAKEPOINT)
+
+The twelve fields cover the whole design. If you want another layer while you experiment,
+build it from the `lat`/`lon` columns, which every **point** row has (corner dots, label
+points, badges, frame corners). They're the same fake coordinates as the **Geo …** fields, so
+anything you make lands exactly on the drawing.
+
+Example: a layer that writes each corner's name right on its dot (handy for checking).
+
+1. **Analysis › Create Calculated Field…**, name `Label point`:
+   ```
+   IF [Layer] = 'corner_dot' THEN MAKEPOINT([Lat], [Lon]) END
+   ```
+   (`MAKEPOINT` takes **latitude first**, then longitude.)
+2. Drag `Label point` onto **Add a Marks Layer**, set the mark to *Circle*, opacity 0 %, and put
+   **Item** (the corner name) on *Label*.
+
+Change the `IF` test to pick other rows: `[Tableau Layer] = 'badge'`, `[Item] = 'San Donato'`,
+`[Moment Id] = 4`… A line works the same way with
+`MAKELINE(MAKEPOINT([Lat], [Lon]), MAKEPOINT(…))`.
+
+For anything that should stay on the poster, ask Claude to add it to the pipeline instead
+(as a new `geo_…` column, with its position taken from the wireframe), so it's tested and
+documented like the rest.
+
 ## 5. Session 3: the Italy locator and circuit facts
 
 ### 5.1 Locator (real geography)
 
 Sheet **Locator**, data source **Locator**.
 
-1. Calculated fields:
-   - `L · Italy` = `IF [Layer] = 'italy' THEN [Geometry] END`
-   - `L · Mugello` = `IF [Layer] = 'mugello' THEN [Geometry] END`
-2. Double-click `L · Italy`. Put **Polygon Id** on *Detail* so each land mass is its own shape.
+Two layers, two ready-made fields: **Geo Italy** (the land) and **Geo Mugello** (the marker).
+
+1. *(No calculated fields.)*
+2. Double-click **Geo Italy**. Put **Polygon Id** on *Detail* so each land mass is its own shape.
    **Map › Background Maps › None.** Fill `#2A2725`, border `#A8A29A` (*Color › Border*).
-3. Add `L · Mugello` as a marks layer. Follow **Procedure S** (§2.6): **Shape File** on
+3. Drag **Geo Mugello** onto **Add a Marks Layer**. Follow **Procedure S** (§2.6): **Shape File** on
    *Shape*, and give the one item, `mugello_marker`, the shape `mugello_marker.png` (a yellow
    ring around a yellow dot). Size: **20 px** across.
 4. On the same layer, put *Label* (`Mugello`) on *Label*: Barlow Condensed SemiBold 12.8 pt,
@@ -472,31 +519,33 @@ In the dashboard, size each row so the value's baseline lands on the overlay's (
 
 Sheet **Race**, data source **Race canvas**. The same technique as the map, in poster pixels.
 
-### 7.1 Calculated fields
+### 7.1 The layers and their fields
 
-| Field name | Formula |
-|---|---|
-| `R · Frame` | `IF [Layer] = 'frame' THEN [Geometry] END` |
-| `R · Axis` | `IF [Layer] IN ('axis', 'tick') THEN [Geometry] END` |
-| `R · Lines back` | `IF [Layer] = 'line' AND [Role] <> 'protagonist' THEN [Geometry] END` |
-| `R · Halo` | `IF [Layer] = 'halo' THEN [Geometry] END` |
-| `R · Line Rossi` | `IF [Layer] = 'line' AND [Role] = 'protagonist' THEN [Geometry] END` |
-| `R · Connector` | `IF [Layer] = 'connector' THEN [Geometry] END` |
-| `R · Rider dot` | `IF [Layer] = 'rider_dot' THEN [Geometry] END` |
-| `R · Badge` | `IF [Layer] = 'badge' AND NOT ISNULL([Moment Id]) THEN [Geometry] END` |
-| `R · Key badge` | `IF [Layer] = 'badge' AND ISNULL([Moment Id]) THEN [Geometry] END` |
+Bottom to top, each with its ready-made field in the *Race canvas* data source:
+
+| # | Layer | Field to drag | What it draws | Rows |
+|---|---|---|---|---|
+| 1 | Frame | **Geo Frame** | 4 invisible corner points that fix the zoom | 4 |
+| 2 | Axis | **Geo Axis** | the lap axis and its 24 ticks | 25 |
+| 3 | Connector | **Geo Connector** | the vertical moment lines, badge to rider | 7 |
+| 4 | Lines back | **Geo Lines Back** | the 4 grey riders and Capirossi | 5 |
+| 5 | Halo | **Geo Halo** | a background-coloured band under Rossi's line | 1 |
+| 6 | Line Rossi | **Geo Line Rossi** | Rossi's line | 1 |
+| 7 | Rider dot | **Geo Rider Dot** | where the rider was at each moment, plus the two finishes (custom shapes) | 9 |
+| 8 | Badge | **Geo Badge** | the 7 moment badges (custom shapes) | 7 |
+| 9 | Key badge | **Geo Key Badge** | the two badges in the footer key (custom shapes) | 2 |
+| 10 | Axis label left | **Geo Axis Label Left** | *Grid*, *1st*, *4th*, *8th* | 4 |
+| 11 | Axis label center | **Geo Axis Label Center** | *Lap 23* | 1 |
+| 12 | End label | **Geo End Label** | *Rossi · 1st*, *Capirossi · 2nd* | 2 |
+| 13 | Key line | **Geo Key Line** | the yellow "where it happened" sample | 1 |
+| 14 | Key label | **Geo Key Label** | the footer key's three texts | 3 |
 
 The moment badges and the two footer-key badges are separate layers only because they're
 different sizes (26 px and 22 px across, as in the wireframe); a layer has one size.
-| `R · Axis label left` | `IF [Layer] = 'axis_label' AND [Align] = 'left' THEN [Geometry] END` |
-| `R · Axis label center` | `IF [Layer] = 'axis_label' AND [Align] = 'center' THEN [Geometry] END` |
-| `R · End label` | `IF [Layer] = 'end_label' THEN [Geometry] END` |
-| `R · Key line` | `IF [Layer] = 'key_line' THEN [Geometry] END` |
-| `R · Key label` | `IF [Layer] = 'key_label' THEN [Geometry] END` |
 
 ### 7.2 Layers, bottom to top, and their style
 
-Build them as in §4.2: double-click `R · Frame`, set **Background Maps › None**, then add each
+Build them as in §4.2: double-click **Geo Frame**, set **Background Maps › None**, then add each
 field as a marks layer in this order:
 
 | Layer | Mark | Colour | Size | Label / notes |
@@ -718,18 +767,16 @@ size. If it does, ask Claude to raise `SIZE` in `make_shapes.py` (e.g. to 1024),
 the folder again and *Reload Shapes*.
 
 **The map shows a world map, or nothing.** Set **Map › Background Maps › None**. If the circuit
-is tiny in the middle of the sheet, a layer without a filter is drawing every row: check that
-each layer uses its own `L ·`/`R ·` field and not `Geometry`.
+shrinks to a few dots, the data source probably holds more than one table (e.g. the real
+Italy from `locator_features` next to the fake-geography canvas, so Tableau zooms out to show
+both): each canvas data source must hold only its own table. Also check that each layer uses
+its own **Geo …** field.
 
 **Frame doesn't fill the sheet.** Tableau may leave a small margin when it zooms to fit. First
 check the sheet's size in the *Layout* pane, and that inner and outer padding are 0. If a
 margin remains, measure it against the overlay, then make the sheet bigger by that margin on
 each side (and move it up and left by the same amount). The drawing keeps its scale, so
 everything lines up again.
-
-**A calculated field won't return `[Geometry]` inside `IF`.** On older Tableau versions,
-ask Claude to split `geometry` into one spatial column per layer in the pipeline. Then each
-layer is a plain drag, with no calculations.
 
 **Labels disappear.** Tick *Label › Allow labels to overlap other marks* on that layer.
 

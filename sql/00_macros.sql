@@ -5,7 +5,7 @@
 -- scale and every map layer stays locked to the others. Each canvas unit becomes 100 m on the
 -- fake globe, so a sheet shows it at a comfortable zoom level instead of street level (Tableau
 -- caps how far a map zooms in); Mercator undoes the latitude formula exactly, so shapes stay
--- true at any size. Shapes are WKT strings here; publish casts `geometry` to Tableau's
+-- true at any size. Shapes are WKT strings here; publish casts the `geo_*` columns to Tableau's
 -- spatial type.
 create or replace macro canvas_lon(x) as degrees(x * 100 / 6378137.0);
 create or replace macro canvas_lat(y) as degrees(2 * atan(exp(y * 100 / 6378137.0)) - pi() / 2);
